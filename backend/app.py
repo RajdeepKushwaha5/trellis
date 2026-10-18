@@ -14,7 +14,20 @@ from .investigation import learning_plan, set_goal, launch_check, submit_check, 
 
 @asynccontextmanager
 async def lifespan(app):
-    import_data()
+    import os,sys
+    where=f"{os.getenv('TRELLIS_DB_HOST','127.0.0.1')}:{os.getenv('TRELLIS_DB_PORT','6384')}"
+    # Right after `docker compose up -d`, FalkorDB needs a few seconds to load its saved graphs. Wait for it.
+    for attempt in range(60):
+        try:
+            import_data()
+            break
+        except RedisError:
+            if attempt==0:print(f'Waiting for FalkorDB at {where} to finish starting...',file=sys.stderr,flush=True)
+            await asyncio.sleep(1)
+    else:
+        # One clear line instead of a long traceback when the database is not running.
+        print(f'\nTrellis could not reach FalkorDB at {where}.\nStart it first with:  docker compose up -d   (then check with: docker ps)\n',file=sys.stderr,flush=True)
+        os._exit(1)  # nothing has started yet; exit cleanly instead of letting the server print a traceback
     yield
 
 app = FastAPI(title='Trellis',lifespan=lifespan)
