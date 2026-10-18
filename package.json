@@ -1,0 +1,14 @@
+{
+  "name": "trellis-learning-notebook",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check:ui": "node ui-check.mjs",
+    "check:agent": "node ui-agent-check.mjs",
+    "check:tutor": "node ui-tutor-check.mjs",
+    "screens": "node evidence-screens.mjs"
+  },
+  "devDependencies": {
+    "puppeteer-core": "25.14.0"
+  }
+}

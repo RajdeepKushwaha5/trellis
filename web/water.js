@@ -1,0 +1,13 @@
+export function initWater($){
+// Original canvas illustration. The particle motion is a conceptual model, not molecular dynamics.
+const canvas=$('water'),ctx=canvas.getContext('2d');let temperature=21;
+const particles=Array.from({length:42},(_,i)=>({x:245+(i%7)*23,y:135+Math.floor(i/7)*22,vx:Math.sin(i*9.1),vy:Math.cos(i*4.7)}));
+function changeHeat(t){temperature=Number(t);$('heat').value=temperature;$('degrees').innerHTML=`${temperature}<span>°C</span>`;const state=temperature<=0?'solid':temperature>=100?'gas':'liquid';$('state-title').textContent=state==='solid'?'A little world of ice':state==='gas'?'Room to wander':'A liquid little world';$('state-detail').textContent=state==='solid'?'Close together. Holding their places.':state==='gas'?'Farther apart. Moving freely.':'Close together. Free to move.';$('temperature-note').innerHTML=state==='solid'?'Frozen water.<br>A shape of its own.':state==='gas'?'At boiling temperature.<br>Water entering the air.':'Liquid water.<br>Evaporation can happen here too.';}
+$('heat').oninput=e=>changeHeat(e.target.value);document.querySelectorAll('[data-heat]').forEach(b=>b.onclick=()=>changeHeat(b.dataset.heat));
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+let frame=0;function draw(){frame++;ctx.clearRect(0,0,700,330);ctx.strokeStyle='#6b7968';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(210,70);ctx.lineTo(216,278);ctx.quadraticCurveTo(350,302,484,278);ctx.lineTo(490,70);ctx.stroke();ctx.beginPath();ctx.ellipse(350,70,140,14,0,0,Math.PI*2);ctx.stroke();ctx.fillStyle=temperature<=0?'#b5ced0':'#bdd4bf';ctx.globalAlpha=.35;if(temperature<100){ctx.beginPath();ctx.moveTo(214,145);ctx.quadraticCurveTo(350,156+Math.sin(frame/45)*4,486,145);ctx.lineTo(483,276);ctx.quadraticCurveTo(350,295,217,276);ctx.closePath();ctx.fill();}ctx.globalAlpha=1;
+ for(let i=0;i<particles.length;i++){const p=particles[i];let x,y;if(temperature<=0){x=250+i%7*32;y=166+Math.floor(i/7)*19;}else{const speed=temperature>=100?1.7:.4+temperature/160;if(!reduced){p.x+=p.vx*speed;p.y+=p.vy*speed;}const minY=temperature>=100?65:158;if(p.x<230||p.x>470)p.vx*=-1;if(p.y<minY||p.y>270)p.vy*=-1;p.x=Math.max(230,Math.min(470,p.x));p.y=Math.max(minY,Math.min(270,p.y));x=p.x;y=p.y;}ctx.fillStyle=i%5===0?'#c27a48':'#688e84';ctx.beginPath();ctx.arc(x,y,4.5,0,Math.PI*2);ctx.fill();}
+ ctx.strokeStyle='#6b7968';ctx.font='10px sans-serif';ctx.fillStyle='#6b7968';for(let y=115;y<260;y+=35){ctx.beginPath();ctx.moveTo(465,y);ctx.lineTo(480,y);ctx.stroke();}ctx.fillText('H₂O',322,318);requestAnimationFrame(draw);}
+draw();
+
+}

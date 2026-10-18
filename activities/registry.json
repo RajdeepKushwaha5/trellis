@@ -1,0 +1,167 @@
+[
+  {
+    "id": "states",
+    "concept": "mt_1JFUNQDwAJ",
+    "title": "Meet the three states",
+    "subtitle": "A shape of its own, a shape that flows, or room to spread.",
+    "kind": "states",
+    "version": 1,
+    "review_status": "prototype",
+    "items": [
+      {
+        "id": "states-1",
+        "question": "An ice cube keeps its shape on a plate. What state is it?",
+        "options": [
+          "Solid",
+          "Liquid",
+          "Gas"
+        ],
+        "answer": 0,
+        "explanation": "Ice is solid water. Its particles stay close and keep an ordered arrangement."
+      },
+      {
+        "id": "states-2",
+        "question": "Water takes the shape of a cup. What makes it a liquid?",
+        "options": [
+          "Its colour",
+          "It flows and changes shape",
+          "It has no particles"
+        ],
+        "answer": 1,
+        "explanation": "Liquid water flows. Its particles stay close but can move past one another."
+      }
+    ]
+  },
+  {
+    "id": "particles",
+    "concept": "mt_htAYR-iCFF",
+    "title": "A closer look",
+    "subtitle": "Use a tiny-particle model to explain a big change.",
+    "kind": "particles",
+    "version": 1,
+    "review_status": "prototype",
+    "items": [
+      {
+        "id": "particles-1",
+        "question": "Which description fits particles in liquid water?",
+        "options": [
+          "Fixed in a neat grid",
+          "Close together, moving past each other",
+          "There are no particles"
+        ],
+        "answer": 1,
+        "explanation": "In our simple model, liquid particles are close together and move past one another."
+      },
+      {
+        "id": "particles-2",
+        "question": "When liquid water becomes a gas, what happens to the water particles?",
+        "options": [
+          "They disappear",
+          "They turn into air particles",
+          "They spread farther apart"
+        ],
+        "answer": 2,
+        "explanation": "Water particles remain water. In the gas they spread farther apart. This drawing is a model, not a microscope."
+      }
+    ]
+  },
+  {
+    "id": "warming",
+    "concept": "mt_Pl-nsjYGZ3",
+    "title": "Turn up the heat",
+    "subtitle": "Explore what changes when water warms.",
+    "kind": "heat",
+    "version": 1,
+    "review_status": "prototype",
+    "items": [
+      {
+        "id": "warming-1",
+        "question": "At ordinary air pressure, what happens to ice warmed above 0 degrees Celsius?",
+        "options": [
+          "It melts into liquid water",
+          "It disappears",
+          "It stays frozen forever"
+        ],
+        "answer": 0,
+        "explanation": "At ordinary pressure, ice melts near 0 degrees Celsius. The material is still water."
+      },
+      {
+        "id": "warming-2",
+        "question": "Water vapour touches a cold mirror. What can form?",
+        "options": [
+          "Tiny drops of liquid water",
+          "Pieces of ash",
+          "Nothing, because the water is gone"
+        ],
+        "answer": 0,
+        "explanation": "Cooling can turn water vapour into liquid droplets. This change is called condensation."
+      }
+    ]
+  },
+  {
+    "id": "words",
+    "concept": "mt_ahSqW_kK1b",
+    "title": "Name the change",
+    "subtitle": "Different changes deserve different names.",
+    "kind": "heat",
+    "version": 1,
+    "review_status": "prototype",
+    "items": [
+      {
+        "id": "words-1",
+        "question": "Sugar is stirred into warm water and can no longer be seen. What happened?",
+        "options": [
+          "The sugar melted",
+          "The sugar dissolved",
+          "The sugar became ice"
+        ],
+        "answer": 1,
+        "explanation": "The sugar dissolved in water. Dissolving and melting are different processes."
+      },
+      {
+        "id": "words-2",
+        "question": "What is the name for liquid water changing into water vapour?",
+        "options": [
+          "Freezing",
+          "Evaporation",
+          "Condensation"
+        ],
+        "answer": 1,
+        "explanation": "Evaporation is liquid water becoming water vapour. It can happen below boiling temperature."
+      }
+    ]
+  },
+  {
+    "id": "evaporation",
+    "concept": "mt_Qkewo5M3_c",
+    "title": "Where did the puddle go?",
+    "subtitle": "Follow water into the air and back again.",
+    "kind": "heat",
+    "version": 1,
+    "review_status": "prototype",
+    "items": [
+      {
+        "id": "evaporation-1",
+        "question": "A puddle dries on a warm day without boiling. Where did much of its water go?",
+        "options": [
+          "Into the air as water vapour",
+          "It stopped existing",
+          "It all became ice"
+        ],
+        "answer": 0,
+        "explanation": "Water can evaporate below its boiling temperature. The water remains matter in the air."
+      },
+      {
+        "id": "evaporation-2",
+        "question": "A cool lid above warm water collects droplets. Which explanation fits?",
+        "options": [
+          "New water was created",
+          "Water vapour cooled and condensed",
+          "The lid melted"
+        ],
+        "answer": 1,
+        "explanation": "Some water evaporated, then cooled on the lid and condensed into liquid droplets."
+      }
+    ]
+  }
+]

@@ -1,0 +1,210 @@
+{
+  "goal": "mt_NoB20kVa4w",
+  "synthetic": true,
+  "scripted_responses": [
+    "wrong check",
+    "correct practice",
+    "transfer as answered"
+  ],
+  "steps": [
+    {
+      "role": "scout",
+      "seconds": 16.6,
+      "tools": [
+        "scout_choose",
+        "scout_inspect",
+        "scout_route"
+      ],
+      "decisions": [
+        {
+          "role": "scout",
+          "chooser": "model",
+          "model": "qwen2.5:7b",
+          "options": [
+            {
+              "id": "fair-halves",
+              "label": "Check Two fair halves (What Is a Half?); FalkorDB rank 1"
+            },
+            {
+              "id": "fair-quarters",
+              "label": "Check Four fair quarters (Finding halves and quarters (age 5+)); FalkorDB rank 2"
+            },
+            {
+              "id": "shade-amounts",
+              "label": "Check Shade a fraction (Fractions of amounts); FalkorDB rank 3"
+            },
+            {
+              "id": "fair-shares",
+              "label": "Check Fair shares that look different (Splitting shapes into equal parts (age 7+)); FalkorDB rank 4"
+            },
+            {
+              "id": "line-first",
+              "label": "Check Fractions on the line (Fractions on a number line); FalkorDB rank 5"
+            },
+            {
+              "id": "parts-of-whole",
+              "label": "Check Parts of a whole (Fractions of a whole); FalkorDB rank 6"
+            },
+            {
+              "id": "line-further",
+              "label": "Check Further along the line (Fractions on a number line (age 8+)); FalkorDB rank 7"
+            },
+            {
+              "id": "inspect:mt_-hTTat0mBR",
+              "label": "Inspect What Is a Half? first"
+            },
+            {
+              "id": "inspect:mt_g3W0mdADVu",
+              "label": "Inspect Finding halves and quarters (age 5+) first"
+            },
+            {
+              "id": "inspect:mt_cFltwUQi-d",
+              "label": "Inspect Fractions of amounts first"
+            },
+            {
+              "id": "inspect:mt_Xp-rj46S2w",
+              "label": "Inspect Splitting shapes into equal parts (age 7+) first"
+            }
+          ],
+          "option": "fair-halves",
+          "label": "Check Two fair halves (What Is a Half?); FalkorDB rank 1",
+          "rank_in_options": 1,
+          "model_reason_unverified": "It has the most dependent concepts and uncertain prerequisites, supporting much of the route.",
+          "usage": {
+            "input": 1378,
+            "output": 31,
+            "ms": 14616
+          }
+        }
+      ],
+      "task_purpose": "diagnostic",
+      "representation": "bar",
+      "response_correct": false,
+      "next_state": "teach_due"
+    },
+    {
+      "role": "tinker",
+      "seconds": 6.9,
+      "tools": [
+        "tinker_handoff",
+        "tinker_teach"
+      ],
+      "decisions": [
+        {
+          "role": "tinker",
+          "chooser": "model",
+          "model": "qwen2.5:7b",
+          "options": [
+            {
+              "id": "bar+example_first",
+              "label": "Teach with fraction strips; show a worked example first, then let the learner practise"
+            },
+            {
+              "id": "bar+try_first",
+              "label": "Teach with fraction strips; let the learner try first, then explain with the worked example"
+            },
+            {
+              "id": "circle+example_first",
+              "label": "Teach with pie pieces; show a worked example first, then let the learner practise"
+            },
+            {
+              "id": "circle+try_first",
+              "label": "Teach with pie pieces; let the learner try first, then explain with the worked example"
+            },
+            {
+              "id": "grid+example_first",
+              "label": "Teach with grid shares that can look different; show a worked example first, then let the learner practise"
+            },
+            {
+              "id": "grid+try_first",
+              "label": "Teach with grid shares that can look different; let the learner try first, then explain with the worked example"
+            }
+          ],
+          "option": "bar+example_first",
+          "label": "Teach with fraction strips; show a worked example first, then let the learner practise",
+          "rank_in_options": 1,
+          "model_reason_unverified": "Using fraction strips helps visualize equal parts clearly.",
+          "usage": {
+            "input": 1123,
+            "output": 24,
+            "ms": 4972
+          }
+        }
+      ],
+      "task_purpose": "lesson",
+      "representation": "bar",
+      "response_correct": true,
+      "next_state": "transfer_due"
+    },
+    {
+      "role": "lens",
+      "seconds": 6.4,
+      "tools": [
+        "lens_handoff",
+        "lens_transfer"
+      ],
+      "decisions": [
+        {
+          "role": "lens",
+          "chooser": "model",
+          "model": "qwen2.5:7b",
+          "options": [
+            {
+              "id": "circle",
+              "label": "Transfer task using pie pieces (18 unused)"
+            },
+            {
+              "id": "grid",
+              "label": "Transfer task using grid shares that can look different (108 unused)"
+            }
+          ],
+          "option": "circle",
+          "label": "Transfer task using pie pieces (18 unused)",
+          "rank_in_options": 1,
+          "model_reason_unverified": "The student struggled with unequal parts, so a pie piece transfer task will test their understanding in a visually different representation.",
+          "usage": {
+            "input": 490,
+            "output": 35,
+            "ms": 4570
+          }
+        }
+      ],
+      "task_purpose": "transfer",
+      "representation": "circle",
+      "response_correct": true,
+      "next_state": "transfer_due"
+    }
+  ],
+  "final": [
+    {
+      "time": 1792302008.0219624,
+      "state": "diagnostic",
+      "note": "Scout chose Two fair halves (FalkorDB rank 1)."
+    },
+    {
+      "time": 1792302008.2844143,
+      "state": "teach_due",
+      "note": "This check was not yet right. Scout hands the foundation to Tinker to teach."
+    },
+    {
+      "time": 1792302014.9629653,
+      "state": "teaching",
+      "note": "Tinker chose fraction strips, example first."
+    },
+    {
+      "time": 1792302015.2302475,
+      "state": "transfer_due",
+      "note": "Practice correct. Lens will choose a fresh transfer task."
+    },
+    {
+      "time": 1792302021.3212876,
+      "state": "transfer",
+      "note": "Lens chose a transfer task using pie pieces."
+    },
+    {
+      "time": 1792302021.6117408,
+      "state": "transfer_due",
+      "note": "Correct. Rule v1 needs one more check in a different representation."
+    }
+  ]
+}

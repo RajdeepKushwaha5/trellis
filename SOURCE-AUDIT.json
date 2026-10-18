@@ -1,0 +1,53 @@
+{
+  "source": "https://github.com/withmarbleapp/os-taxonomy",
+  "commit": "96a7933754af672e1bfdbf7ecb05c325860c6e0d",
+  "audit_date": "2026-10-18",
+  "upstream_validator": "passed",
+  "full_json_schema_validation": "not yet run; schemas inspected, upstream validator manually checks selected invariants",
+  "counts": {
+    "topics": 1590,
+    "topicsBySubject": {
+      "Computing": 21,
+      "English": 286,
+      "History": 90,
+      "Learning to Learn": 18,
+      "Life Skills": 37,
+      "Mathematics": 503,
+      "Personal & Social Development": 88,
+      "Science": 547
+    },
+    "dependencies": 3221,
+    "curricula": 7,
+    "curriculumStandards": 3261,
+    "topicStandardLinks": 1859,
+    "clusters": 183
+  },
+  "dependency_strengths": {
+    "hard": 2025,
+    "soft": 1196
+  },
+  "topics_without_standard_references": 772,
+  "duplicate_topic_ids": 0,
+  "dangling_dependency_endpoints": 0,
+  "acyclic": true,
+  "maximum_dependency_depth_all_strengths": 28,
+  "file_checksums": {
+    "topics.json": {
+      "expected": "2d99fc3b5e57d9ddb86b6c179b58a1b0390f048d9798585fe03b13cbc183719b",
+      "actual": "2d99fc3b5e57d9ddb86b6c179b58a1b0390f048d9798585fe03b13cbc183719b"
+    },
+    "dependencies.json": {
+      "expected": "86a24efb44b480e5be23082b4bdea653f69f6d6fd54c5409a2f33c185be1d87f",
+      "actual": "86a24efb44b480e5be23082b4bdea653f69f6d6fd54c5409a2f33c185be1d87f"
+    },
+    "curriculum-standards.json": {
+      "expected": "33a835abaafa68ed736f2102d5502ff030d6448dc55ae45718be05a78f5fc73f",
+      "actual": "33a835abaafa68ed736f2102d5502ff030d6448dc55ae45718be05a78f5fc73f"
+    },
+    "clusters.json": {
+      "expected": "d7dd0ca7fa1e6a5f3f54eb6482f47587e8508a199340e4ff58f2284cceda5ed0",
+      "actual": "d7dd0ca7fa1e6a5f3f54eb6482f47587e8508a199340e4ff58f2284cceda5ed0"
+    }
+  },
+  "scope": "Dataset structure only; not educational effectiveness or implemented application verification."
+}

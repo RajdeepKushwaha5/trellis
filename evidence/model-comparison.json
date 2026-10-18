@@ -1,0 +1,501 @@
+{
+  "cases": [
+    {
+      "case": "water",
+      "model": "qwen2.5:3b",
+      "completed": true,
+      "valid_action": true,
+      "top_ranked": false,
+      "selected": "check:mt_1JFUNQDwAJ",
+      "frozen_options": [
+        "particles",
+        "states",
+        "check:mt_1JFUNQDwAJ",
+        "check:mt_htAYR-iCFF",
+        "words",
+        "check:mt_ahSqW_kK1b"
+      ],
+      "wall_s": 10.827,
+      "result": {
+        "action": {
+          "action": "a7f280612da24b929989147c795f139a",
+          "kind": "parent_check",
+          "revision": 1,
+          "activity": {
+            "id": "check:mt_1JFUNQDwAJ",
+            "title": "States of Matter Vocabulary"
+          },
+          "item": {
+            "id": "criterion:0",
+            "question": "Correctly sort a set of everyday materials as solid, liquid, or gas and give a reason for each",
+            "options": [
+              "I have seen this independently",
+              "Not yet",
+              "I am not sure"
+            ]
+          },
+          "source": "Marble source-authored evidence criterion. Parent-reported, not graded.",
+          "plan_fingerprint": "05dbfbf3c67e97649250f411fe2e68d56264ceda00b9f7c3ca5b41e416014a17",
+          "witness": [
+            "mt_1JFUNQDwAJ",
+            "mt_Pl-nsjYGZ3",
+            "mt_Qkewo5M3_c"
+          ]
+        },
+        "model": "qwen2.5:3b",
+        "reason": "Check: States of Matter Vocabulary investigates a foundation connected to 3 concepts in this route.",
+        "witness": [
+          "mt_1JFUNQDwAJ",
+          "mt_Pl-nsjYGZ3",
+          "mt_Qkewo5M3_c"
+        ],
+        "model_reason_unverified": "To ensure understanding of states of matter vocabulary, foundational for evaporation and water cycle comprehension.",
+        "trace": [
+          {
+            "tool": "inspect_learning_goal",
+            "arguments": {},
+            "result_hash": "322753f3403cd163a21c439f915c2104728ce1fc0460327b4471e93431705b74",
+            "offered_tools": [],
+            "source": "harness prerequisite"
+          },
+          {
+            "tool": "rank_checks",
+            "arguments": {},
+            "result_hash": "55a27e25c98b2bc2ba98cf05a40083bdcc1daec26a59d37a984d03b5fd44d8f1",
+            "offered_tools": [
+              "rank_checks"
+            ],
+            "source": "model-selected"
+          },
+          {
+            "tool": "explain_next_step",
+            "arguments": {
+              "activity_id": "check:mt_1JFUNQDwAJ"
+            },
+            "result_hash": "33484c2fae352222196c99ec02630d40ed21d595c44cc198a1abb523cc1b50b9",
+            "offered_tools": [
+              "launch_diagnostic",
+              "inspect_concept"
+            ],
+            "source": "controller explanation"
+          },
+          {
+            "tool": "launch_diagnostic",
+            "arguments": {
+              "activity_id": "check:mt_1JFUNQDwAJ",
+              "revision": 1
+            },
+            "result_hash": "9c7105c57302af4d03ccaae935c71f8c7ef04e48b7fefa1e6651fe55b853e94f",
+            "offered_tools": [
+              "launch_diagnostic",
+              "inspect_concept"
+            ],
+            "source": "model-selected"
+          }
+        ],
+        "usage": {
+          "input": 812,
+          "output": 75,
+          "calls": 2,
+          "records": [
+            {
+              "input": 98,
+              "output": 31
+            },
+            {
+              "input": 714,
+              "output": 44
+            }
+          ]
+        },
+        "plan_fingerprint": "05dbfbf3c67e97649250f411fe2e68d56264ceda00b9f7c3ca5b41e416014a17",
+        "provenance": {
+          "model_digest": "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b",
+          "ollama_version": "0.32.0",
+          "options": {
+            "temperature": 0,
+            "num_ctx": 4096,
+            "num_predict": 200
+          },
+          "interface": "bounded schema-constrained tool selection over real MCP"
+        }
+      }
+    },
+    {
+      "case": "water",
+      "model": "qwen2.5:7b",
+      "completed": true,
+      "valid_action": true,
+      "top_ranked": true,
+      "selected": "particles",
+      "frozen_options": [
+        "particles",
+        "states",
+        "check:mt_1JFUNQDwAJ",
+        "check:mt_htAYR-iCFF",
+        "words",
+        "check:mt_ahSqW_kK1b"
+      ],
+      "wall_s": 28.608,
+      "result": {
+        "action": {
+          "action": "cd3f3d30d35643589c3881117c5ce984",
+          "activity": {
+            "id": "particles",
+            "concept": "mt_htAYR-iCFF",
+            "title": "A closer look",
+            "subtitle": "Use a tiny-particle model to explain a big change.",
+            "kind": "particles",
+            "version": 1,
+            "review_status": "prototype"
+          },
+          "item": {
+            "id": "particles-1",
+            "question": "Which description fits particles in liquid water?",
+            "options": [
+              "Fixed in a neat grid",
+              "Close together, moving past each other",
+              "There are no particles"
+            ]
+          },
+          "revision": 1,
+          "kind": "activity",
+          "witness": [
+            "mt_htAYR-iCFF",
+            "mt_Pl-nsjYGZ3",
+            "mt_Qkewo5M3_c"
+          ],
+          "plan_fingerprint": "05dbfbf3c67e97649250f411fe2e68d56264ceda00b9f7c3ca5b41e416014a17"
+        },
+        "model": "qwen2.5:7b",
+        "reason": "A closer look investigates a foundation connected to 3 concepts in this route.",
+        "witness": [
+          "mt_htAYR-iCFF",
+          "mt_Pl-nsjYGZ3",
+          "mt_Qkewo5M3_c"
+        ],
+        "model_reason_unverified": "Start with a high-ranked unresolved foundation.",
+        "trace": [
+          {
+            "tool": "inspect_learning_goal",
+            "arguments": {},
+            "result_hash": "e773743e27b0e0b4ecddccc6e231aa30048533294769612555e398a48009a0f9",
+            "offered_tools": [],
+            "source": "harness prerequisite"
+          },
+          {
+            "tool": "rank_checks",
+            "arguments": {},
+            "result_hash": "55a27e25c98b2bc2ba98cf05a40083bdcc1daec26a59d37a984d03b5fd44d8f1",
+            "offered_tools": [
+              "rank_checks"
+            ],
+            "source": "model-selected"
+          },
+          {
+            "tool": "explain_next_step",
+            "arguments": {
+              "activity_id": "particles"
+            },
+            "result_hash": "a1ea83ec637c0896592cd15d6496f94669948043b2e3ef6b2494c7df1817bc9a",
+            "offered_tools": [
+              "launch_diagnostic",
+              "inspect_concept"
+            ],
+            "source": "controller explanation"
+          },
+          {
+            "tool": "launch_diagnostic",
+            "arguments": {
+              "activity_id": "particles",
+              "revision": 1
+            },
+            "result_hash": "adee0b9ec01d115fa0e40fbfb03e1d7d88336409774a554fb60552c7598fa572",
+            "offered_tools": [
+              "launch_diagnostic",
+              "inspect_concept"
+            ],
+            "source": "model-selected"
+          }
+        ],
+        "usage": {
+          "input": 812,
+          "output": 62,
+          "calls": 2,
+          "records": [
+            {
+              "input": 98,
+              "output": 33
+            },
+            {
+              "input": 714,
+              "output": 29
+            }
+          ]
+        },
+        "plan_fingerprint": "05dbfbf3c67e97649250f411fe2e68d56264ceda00b9f7c3ca5b41e416014a17",
+        "provenance": {
+          "model_digest": "845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e",
+          "ollama_version": "0.32.0",
+          "options": {
+            "temperature": 0,
+            "num_ctx": 4096,
+            "num_predict": 200
+          },
+          "interface": "bounded schema-constrained tool selection over real MCP"
+        }
+      }
+    },
+    {
+      "case": "fractions",
+      "model": "qwen2.5:3b",
+      "completed": true,
+      "valid_action": true,
+      "top_ranked": false,
+      "selected": "check:mt_vKcxX6iNOA",
+      "frozen_options": [
+        "check:mt_WcfaSfVT33",
+        "check:mt_vKcxX6iNOA"
+      ],
+      "wall_s": 10.482,
+      "result": {
+        "action": {
+          "action": "90c70e194a704722a9cf8f65fb27c40f",
+          "kind": "parent_check",
+          "revision": 1,
+          "activity": {
+            "id": "check:mt_vKcxX6iNOA",
+            "title": "Fraction Notation"
+          },
+          "item": {
+            "id": "criterion:0",
+            "question": "Point to and name the numerator and denominator in any given fraction and explain what each tells you",
+            "options": [
+              "I have seen this independently",
+              "Not yet",
+              "I am not sure"
+            ]
+          },
+          "source": "Marble source-authored evidence criterion. Parent-reported, not graded.",
+          "plan_fingerprint": "c55799d8b92f5a45a6751ad174ad44b1e6d335ea2eff1cfb6be51a5c0a7f6ef3",
+          "witness": [
+            "mt_vKcxX6iNOA",
+            "mt_cFltwUQi-d",
+            "mt_Kr3IyA6m-O",
+            "mt_a1FdAsRKOF",
+            "mt_CBHwluE6Lp"
+          ]
+        },
+        "model": "qwen2.5:3b",
+        "reason": "Check: Fraction Notation investigates a foundation connected to 5 concepts in this route.",
+        "witness": [
+          "mt_vKcxX6iNOA",
+          "mt_cFltwUQi-d",
+          "mt_Kr3IyA6m-O",
+          "mt_a1FdAsRKOF",
+          "mt_CBHwluE6Lp"
+        ],
+        "model_reason_unverified": "Needs higher coverage for adding fractions with same denominator.",
+        "trace": [
+          {
+            "tool": "inspect_learning_goal",
+            "arguments": {},
+            "result_hash": "b57e268ee0cb484e5f9729d23a4ec51c3259a101599c68a7ac603d5b8629e8f0",
+            "offered_tools": [],
+            "source": "harness prerequisite"
+          },
+          {
+            "tool": "rank_checks",
+            "arguments": {},
+            "result_hash": "a92b34c305324328d0be554d42f82ae1905099f5f4593a68850255d9c5fb67a7",
+            "offered_tools": [
+              "rank_checks"
+            ],
+            "source": "model-selected"
+          },
+          {
+            "tool": "explain_next_step",
+            "arguments": {
+              "activity_id": "check:mt_vKcxX6iNOA"
+            },
+            "result_hash": "d699180afbdd0c650af0ea3ef18f4e3c705ab7a631a72bd57901b7575f1d1ca3",
+            "offered_tools": [
+              "launch_diagnostic",
+              "inspect_concept"
+            ],
+            "source": "controller explanation"
+          },
+          {
+            "tool": "launch_diagnostic",
+            "arguments": {
+              "activity_id": "check:mt_vKcxX6iNOA",
+              "revision": 1
+            },
+            "result_hash": "cb2693aff3d7331c19399da13c1b834ed0389bfff747a9125566a454525a7820",
+            "offered_tools": [
+              "launch_diagnostic",
+              "inspect_concept"
+            ],
+            "source": "model-selected"
+          }
+        ],
+        "usage": {
+          "input": 512,
+          "output": 64,
+          "calls": 2,
+          "records": [
+            {
+              "input": 99,
+              "output": 28
+            },
+            {
+              "input": 413,
+              "output": 36
+            }
+          ]
+        },
+        "plan_fingerprint": "c55799d8b92f5a45a6751ad174ad44b1e6d335ea2eff1cfb6be51a5c0a7f6ef3",
+        "provenance": {
+          "model_digest": "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b",
+          "ollama_version": "0.32.0",
+          "options": {
+            "temperature": 0,
+            "num_ctx": 4096,
+            "num_predict": 200
+          },
+          "interface": "bounded schema-constrained tool selection over real MCP"
+        }
+      }
+    },
+    {
+      "case": "fractions",
+      "model": "qwen2.5:7b",
+      "completed": true,
+      "valid_action": true,
+      "top_ranked": true,
+      "selected": "check:mt_WcfaSfVT33",
+      "frozen_options": [
+        "check:mt_WcfaSfVT33",
+        "check:mt_vKcxX6iNOA"
+      ],
+      "wall_s": 26.056,
+      "result": {
+        "action": {
+          "action": "7cffab2b69e04bf4b684c5516b1039b5",
+          "kind": "parent_check",
+          "revision": 1,
+          "activity": {
+            "id": "check:mt_WcfaSfVT33",
+            "title": "One-to-one counting"
+          },
+          "item": {
+            "id": "criterion:0",
+            "question": "Point to or touch each object exactly once while saying number names",
+            "options": [
+              "I have seen this independently",
+              "Not yet",
+              "I am not sure"
+            ]
+          },
+          "source": "Marble source-authored evidence criterion. Parent-reported, not graded.",
+          "plan_fingerprint": "c55799d8b92f5a45a6751ad174ad44b1e6d335ea2eff1cfb6be51a5c0a7f6ef3",
+          "witness": [
+            "mt_WcfaSfVT33",
+            "mt_dmNvjroCPT",
+            "mt_zuKAX6lcYR",
+            "mt_LpSuPgL31x",
+            "mt_-hTTat0mBR",
+            "mt_cFltwUQi-d",
+            "mt_Kr3IyA6m-O",
+            "mt_a1FdAsRKOF",
+            "mt_CBHwluE6Lp"
+          ]
+        },
+        "model": "qwen2.5:7b",
+        "reason": "Check: One-to-one counting investigates a foundation connected to 10 concepts in this route.",
+        "witness": [
+          "mt_WcfaSfVT33",
+          "mt_dmNvjroCPT",
+          "mt_zuKAX6lcYR",
+          "mt_LpSuPgL31x",
+          "mt_-hTTat0mBR",
+          "mt_cFltwUQi-d",
+          "mt_Kr3IyA6m-O",
+          "mt_a1FdAsRKOF",
+          "mt_CBHwluE6Lp"
+        ],
+        "model_reason_unverified": "High coverage and relevant to the goal.",
+        "trace": [
+          {
+            "tool": "inspect_learning_goal",
+            "arguments": {},
+            "result_hash": "e0feb9cead536586358873ac92464e66883ee7553fa4c6a1fb4f4aa0cd3ca3e6",
+            "offered_tools": [],
+            "source": "harness prerequisite"
+          },
+          {
+            "tool": "rank_checks",
+            "arguments": {},
+            "result_hash": "a92b34c305324328d0be554d42f82ae1905099f5f4593a68850255d9c5fb67a7",
+            "offered_tools": [
+              "rank_checks"
+            ],
+            "source": "model-selected"
+          },
+          {
+            "tool": "explain_next_step",
+            "arguments": {
+              "activity_id": "check:mt_WcfaSfVT33"
+            },
+            "result_hash": "c90aae7e61c03b431321d3ecd9730a80be5df18f015ed4cbbec1d305e6b88466",
+            "offered_tools": [
+              "launch_diagnostic",
+              "inspect_concept"
+            ],
+            "source": "controller explanation"
+          },
+          {
+            "tool": "launch_diagnostic",
+            "arguments": {
+              "activity_id": "check:mt_WcfaSfVT33",
+              "revision": 1
+            },
+            "result_hash": "b02bd2e58474fe0735f367c3d1a0ac4311e4ab96a67ab62ec079f41c865eab25",
+            "offered_tools": [
+              "launch_diagnostic",
+              "inspect_concept"
+            ],
+            "source": "model-selected"
+          }
+        ],
+        "usage": {
+          "input": 512,
+          "output": 75,
+          "calls": 2,
+          "records": [
+            {
+              "input": 99,
+              "output": 36
+            },
+            {
+              "input": 413,
+              "output": 39
+            }
+          ]
+        },
+        "plan_fingerprint": "c55799d8b92f5a45a6751ad174ad44b1e6d335ea2eff1cfb6be51a5c0a7f6ef3",
+        "provenance": {
+          "model_digest": "845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e",
+          "ollama_version": "0.32.0",
+          "options": {
+            "temperature": 0,
+            "num_ctx": 4096,
+            "num_predict": 200
+          },
+          "interface": "bounded schema-constrained tool selection over real MCP"
+        }
+      }
+    }
+  ],
+  "scope": "Two synthetic goals per model, identical goal/state settings. One trial each; not a model-quality or learning-effectiveness benchmark."
+}

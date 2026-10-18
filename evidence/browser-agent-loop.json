@@ -1,0 +1,1240 @@
+{
+  "observations": [
+    {
+      "id": "77961606c17043aab435d451329f5c15",
+      "item": "particles-1",
+      "choice": 0,
+      "correct": false,
+      "time": 1792267374.83267
+    }
+  ],
+  "decisions": [
+    {
+      "action": {
+        "action": "027e8588972d4dc891a3d6f9fc1fe9f2",
+        "activity": {
+          "id": "particles",
+          "concept": "mt_htAYR-iCFF",
+          "title": "A closer look",
+          "subtitle": "Use a tiny-particle model to explain a big change.",
+          "kind": "particles",
+          "version": 1,
+          "review_status": "prototype"
+        },
+        "item": {
+          "id": "particles-1",
+          "question": "Which description fits particles in liquid water?",
+          "options": [
+            "Fixed in a neat grid",
+            "Close together, moving past each other",
+            "There are no particles"
+          ]
+        },
+        "revision": 0,
+        "kind": "activity",
+        "witness": [
+          "mt_htAYR-iCFF",
+          "mt_Pl-nsjYGZ3",
+          "mt_Qkewo5M3_c"
+        ],
+        "plan_fingerprint": "0a6642a84d9a66b2a4dd5ca5e43c2b028c1e6784924b3e4e7456952df590ef9b"
+      },
+      "model": "qwen2.5:7b",
+      "reason": "A closer look investigates a foundation connected to 3 concepts in this route.",
+      "witness": [
+        "mt_htAYR-iCFF",
+        "mt_Pl-nsjYGZ3",
+        "mt_Qkewo5M3_c"
+      ],
+      "model_reason_unverified": "To start with a high-ranked unresolved foundation, launching the 'A closer look' activity will provide a detailed exploration of particles.",
+      "trace": [
+        {
+          "tool": "inspect_learning_goal",
+          "arguments": {},
+          "result_hash": "a68fac43304f419831c51eb36c36ed9c3298061942d7a9abdb6cb0aace271afc",
+          "offered_tools": [],
+          "source": "harness prerequisite"
+        },
+        {
+          "tool": "rank_checks",
+          "arguments": {},
+          "result_hash": "16e266f5f9711678299b0d09da753b78dcb49b4fd887a0ba555025cd700b1107",
+          "offered_tools": [
+            "rank_checks"
+          ],
+          "source": "model-selected"
+        },
+        {
+          "tool": "explain_next_step",
+          "arguments": {
+            "activity_id": "particles"
+          },
+          "result_hash": "a1ea83ec637c0896592cd15d6496f94669948043b2e3ef6b2494c7df1817bc9a",
+          "offered_tools": [
+            "launch_diagnostic",
+            "inspect_concept"
+          ],
+          "source": "controller explanation"
+        },
+        {
+          "tool": "launch_diagnostic",
+          "arguments": {
+            "activity_id": "particles",
+            "revision": 0
+          },
+          "result_hash": "9065cbd09cf43ff393f26ae5936f50725c702525ec2f63afc4be2a869845ff1f",
+          "offered_tools": [
+            "launch_diagnostic",
+            "inspect_concept"
+          ],
+          "source": "model-selected"
+        }
+      ],
+      "usage": {
+        "input": 812,
+        "output": 74,
+        "calls": 2,
+        "records": [
+          {
+            "input": 98,
+            "output": 33
+          },
+          {
+            "input": 714,
+            "output": 41
+          }
+        ]
+      },
+      "plan_fingerprint": "0a6642a84d9a66b2a4dd5ca5e43c2b028c1e6784924b3e4e7456952df590ef9b",
+      "provenance": {
+        "model_digest": "845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e",
+        "ollama_version": "0.32.0",
+        "options": {
+          "temperature": 0,
+          "num_ctx": 4096,
+          "num_predict": 200
+        },
+        "interface": "bounded schema-constrained tool selection over real MCP"
+      },
+      "events": [
+        {
+          "time": 1792267346.1735244,
+          "type": "tool_started",
+          "tool": "inspect_learning_goal",
+          "arguments": {}
+        },
+        {
+          "time": 1792267346.2295,
+          "type": "tool_finished",
+          "tool": "inspect_learning_goal",
+          "arguments": {},
+          "result_hash": "a68fac43304f419831c51eb36c36ed9c3298061942d7a9abdb6cb0aace271afc",
+          "offered_tools": [],
+          "source": "harness prerequisite"
+        },
+        {
+          "time": 1792267346.4981403,
+          "type": "model_started",
+          "step": 1,
+          "model": "qwen2.5:7b",
+          "offered_tools": [
+            "rank_checks"
+          ],
+          "candidate_count": 0
+        },
+        {
+          "time": 1792267359.4431067,
+          "type": "model_decision",
+          "step": 1,
+          "decision": {
+            "tool": "rank_checks",
+            "activity_id": "",
+            "reason": "To identify key concepts in evaporation and the water cycle for focused investigation."
+          },
+          "offered_tools": [
+            "rank_checks"
+          ],
+          "usage": {
+            "input": 98,
+            "output": 33
+          },
+          "ranked_options": []
+        },
+        {
+          "time": 1792267359.4431107,
+          "type": "tool_started",
+          "tool": "rank_checks",
+          "arguments": {}
+        },
+        {
+          "time": 1792267359.5032969,
+          "type": "tool_finished",
+          "tool": "rank_checks",
+          "arguments": {},
+          "result_hash": "16e266f5f9711678299b0d09da753b78dcb49b4fd887a0ba555025cd700b1107",
+          "offered_tools": [
+            "rank_checks"
+          ],
+          "source": "model-selected"
+        },
+        {
+          "time": 1792267359.5033114,
+          "type": "model_started",
+          "step": 2,
+          "model": "qwen2.5:7b",
+          "offered_tools": [
+            "launch_diagnostic",
+            "inspect_concept"
+          ],
+          "candidate_count": 6
+        },
+        {
+          "time": 1792267373.8700845,
+          "type": "model_decision",
+          "step": 2,
+          "decision": {
+            "tool": "launch_diagnostic",
+            "activity_id": "particles",
+            "reason": "To start with a high-ranked unresolved foundation, launching the 'A closer look' activity will provide a detailed exploration of particles."
+          },
+          "offered_tools": [
+            "launch_diagnostic",
+            "inspect_concept"
+          ],
+          "usage": {
+            "input": 714,
+            "output": 41
+          },
+          "ranked_options": [
+            {
+              "id": "particles",
+              "title": "A closer look"
+            },
+            {
+              "id": "states",
+              "title": "Meet the three states"
+            },
+            {
+              "id": "check:mt_1JFUNQDwAJ",
+              "title": "Check: States of Matter Vocabulary"
+            },
+            {
+              "id": "check:mt_htAYR-iCFF",
+              "title": "Check: Drawing Particle Diagrams"
+            },
+            {
+              "id": "words",
+              "title": "Name the change"
+            },
+            {
+              "id": "check:mt_ahSqW_kK1b",
+              "title": "Check: Changes & Separation Vocabulary"
+            }
+          ]
+        },
+        {
+          "time": 1792267373.870092,
+          "type": "tool_started",
+          "tool": "explain_next_step",
+          "arguments": {
+            "activity_id": "particles"
+          }
+        },
+        {
+          "time": 1792267373.9270227,
+          "type": "tool_finished",
+          "tool": "explain_next_step",
+          "arguments": {
+            "activity_id": "particles"
+          },
+          "result_hash": "a1ea83ec637c0896592cd15d6496f94669948043b2e3ef6b2494c7df1817bc9a",
+          "offered_tools": [
+            "launch_diagnostic",
+            "inspect_concept"
+          ],
+          "source": "controller explanation"
+        },
+        {
+          "time": 1792267373.927029,
+          "type": "tool_started",
+          "tool": "launch_diagnostic",
+          "arguments": {
+            "activity_id": "particles",
+            "revision": 0
+          }
+        },
+        {
+          "time": 1792267374.0176296,
+          "type": "tool_finished",
+          "tool": "launch_diagnostic",
+          "arguments": {
+            "activity_id": "particles",
+            "revision": 0
+          },
+          "result_hash": "9065cbd09cf43ff393f26ae5936f50725c702525ec2f63afc4be2a869845ff1f",
+          "offered_tools": [
+            "launch_diagnostic",
+            "inspect_concept"
+          ],
+          "source": "model-selected"
+        }
+      ]
+    },
+    {
+      "action": {
+        "action": "aaefe69ebd1b4ff1b72fe96096c50bdc",
+        "activity": {
+          "id": "particles",
+          "concept": "mt_htAYR-iCFF",
+          "title": "A closer look",
+          "subtitle": "Use a tiny-particle model to explain a big change.",
+          "kind": "particles",
+          "version": 1,
+          "review_status": "prototype"
+        },
+        "item": {
+          "id": "particles-1",
+          "question": "Which description fits particles in liquid water?",
+          "options": [
+            "Fixed in a neat grid",
+            "Close together, moving past each other",
+            "There are no particles"
+          ]
+        },
+        "revision": 1,
+        "kind": "activity",
+        "witness": [
+          "mt_htAYR-iCFF",
+          "mt_Pl-nsjYGZ3",
+          "mt_Qkewo5M3_c"
+        ],
+        "plan_fingerprint": "05dbfbf3c67e97649250f411fe2e68d56264ceda00b9f7c3ca5b41e416014a17"
+      },
+      "model": "qwen2.5:7b",
+      "reason": "A closer look investigates a foundation connected to 3 concepts in this route.",
+      "witness": [
+        "mt_htAYR-iCFF",
+        "mt_Pl-nsjYGZ3",
+        "mt_Qkewo5M3_c"
+      ],
+      "model_reason_unverified": "Start with a high-ranked unresolved foundation.",
+      "trace": [
+        {
+          "tool": "inspect_learning_goal",
+          "arguments": {},
+          "result_hash": "0dab5466666d993d5e57cb2842783d0cfc12153762afa40537cb8ad38ab1417f",
+          "offered_tools": [],
+          "source": "harness prerequisite"
+        },
+        {
+          "tool": "rank_checks",
+          "arguments": {},
+          "result_hash": "55a27e25c98b2bc2ba98cf05a40083bdcc1daec26a59d37a984d03b5fd44d8f1",
+          "offered_tools": [
+            "rank_checks"
+          ],
+          "source": "model-selected"
+        },
+        {
+          "tool": "explain_next_step",
+          "arguments": {
+            "activity_id": "particles"
+          },
+          "result_hash": "a1ea83ec637c0896592cd15d6496f94669948043b2e3ef6b2494c7df1817bc9a",
+          "offered_tools": [
+            "launch_diagnostic",
+            "inspect_concept"
+          ],
+          "source": "controller explanation"
+        },
+        {
+          "tool": "launch_diagnostic",
+          "arguments": {
+            "activity_id": "particles",
+            "revision": 1
+          },
+          "result_hash": "59c2227c30e93d94ea713f9cef7112290700dd1ed9097e51d978089d52c14b09",
+          "offered_tools": [
+            "launch_diagnostic",
+            "inspect_concept"
+          ],
+          "source": "model-selected"
+        }
+      ],
+      "usage": {
+        "input": 812,
+        "output": 62,
+        "calls": 2,
+        "records": [
+          {
+            "input": 98,
+            "output": 33
+          },
+          {
+            "input": 714,
+            "output": 29
+          }
+        ]
+      },
+      "plan_fingerprint": "05dbfbf3c67e97649250f411fe2e68d56264ceda00b9f7c3ca5b41e416014a17",
+      "provenance": {
+        "model_digest": "845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e",
+        "ollama_version": "0.32.0",
+        "options": {
+          "temperature": 0,
+          "num_ctx": 4096,
+          "num_predict": 200
+        },
+        "interface": "bounded schema-constrained tool selection over real MCP"
+      },
+      "events": [
+        {
+          "time": 1792267376.27727,
+          "type": "tool_started",
+          "tool": "inspect_learning_goal",
+          "arguments": {}
+        },
+        {
+          "time": 1792267376.3406856,
+          "type": "tool_finished",
+          "tool": "inspect_learning_goal",
+          "arguments": {},
+          "result_hash": "0dab5466666d993d5e57cb2842783d0cfc12153762afa40537cb8ad38ab1417f",
+          "offered_tools": [],
+          "source": "harness prerequisite"
+        },
+        {
+          "time": 1792267376.562775,
+          "type": "model_started",
+          "step": 1,
+          "model": "qwen2.5:7b",
+          "offered_tools": [
+            "rank_checks"
+          ],
+          "candidate_count": 0
+        },
+        {
+          "time": 1792267388.0485234,
+          "type": "model_decision",
+          "step": 1,
+          "decision": {
+            "tool": "rank_checks",
+            "activity_id": "",
+            "reason": "To identify key concepts in evaporation and the water cycle for focused investigation."
+          },
+          "offered_tools": [
+            "rank_checks"
+          ],
+          "usage": {
+            "input": 98,
+            "output": 33
+          },
+          "ranked_options": []
+        },
+        {
+          "time": 1792267388.048528,
+          "type": "tool_started",
+          "tool": "rank_checks",
+          "arguments": {}
+        },
+        {
+          "time": 1792267388.0932367,
+          "type": "tool_finished",
+          "tool": "rank_checks",
+          "arguments": {},
+          "result_hash": "55a27e25c98b2bc2ba98cf05a40083bdcc1daec26a59d37a984d03b5fd44d8f1",
+          "offered_tools": [
+            "rank_checks"
+          ],
+          "source": "model-selected"
+        },
+        {
+          "time": 1792267388.093247,
+          "type": "model_started",
+          "step": 2,
+          "model": "qwen2.5:7b",
+          "offered_tools": [
+            "launch_diagnostic",
+            "inspect_concept"
+          ],
+          "candidate_count": 6
+        },
+        {
+          "time": 1792267400.3818092,
+          "type": "model_decision",
+          "step": 2,
+          "decision": {
+            "tool": "launch_diagnostic",
+            "activity_id": "particles",
+            "reason": "Start with a high-ranked unresolved foundation."
+          },
+          "offered_tools": [
+            "launch_diagnostic",
+            "inspect_concept"
+          ],
+          "usage": {
+            "input": 714,
+            "output": 29
+          },
+          "ranked_options": [
+            {
+              "id": "particles",
+              "title": "A closer look"
+            },
+            {
+              "id": "states",
+              "title": "Meet the three states"
+            },
+            {
+              "id": "check:mt_1JFUNQDwAJ",
+              "title": "Check: States of Matter Vocabulary"
+            },
+            {
+              "id": "check:mt_htAYR-iCFF",
+              "title": "Check: Drawing Particle Diagrams"
+            },
+            {
+              "id": "words",
+              "title": "Name the change"
+            },
+            {
+              "id": "check:mt_ahSqW_kK1b",
+              "title": "Check: Changes & Separation Vocabulary"
+            }
+          ]
+        },
+        {
+          "time": 1792267400.3818154,
+          "type": "tool_started",
+          "tool": "explain_next_step",
+          "arguments": {
+            "activity_id": "particles"
+          }
+        },
+        {
+          "time": 1792267400.4403667,
+          "type": "tool_finished",
+          "tool": "explain_next_step",
+          "arguments": {
+            "activity_id": "particles"
+          },
+          "result_hash": "a1ea83ec637c0896592cd15d6496f94669948043b2e3ef6b2494c7df1817bc9a",
+          "offered_tools": [
+            "launch_diagnostic",
+            "inspect_concept"
+          ],
+          "source": "controller explanation"
+        },
+        {
+          "time": 1792267400.4403749,
+          "type": "tool_started",
+          "tool": "launch_diagnostic",
+          "arguments": {
+            "activity_id": "particles",
+            "revision": 1
+          }
+        },
+        {
+          "time": 1792267400.5373154,
+          "type": "tool_finished",
+          "tool": "launch_diagnostic",
+          "arguments": {
+            "activity_id": "particles",
+            "revision": 1
+          },
+          "result_hash": "59c2227c30e93d94ea713f9cef7112290700dd1ed9097e51d978089d52c14b09",
+          "offered_tools": [
+            "launch_diagnostic",
+            "inspect_concept"
+          ],
+          "source": "model-selected"
+        }
+      ]
+    }
+  ],
+  "plan": {
+    "goal": {
+      "id": "mt_Qkewo5M3_c",
+      "name": "Evaporation & the Water Cycle",
+      "subject": "Science",
+      "description": "Identify the role of evaporation and condensation in the water cycle, and associate the rate of evaporation with temperature",
+      "ages": [
+        8,
+        9
+      ],
+      "status": "unknown",
+      "correct_items": [],
+      "wrong": 0,
+      "criteria": [
+        "Describe evaporation as liquid turning to gas and condensation as gas turning to liquid",
+        "Explain the water cycle: evaporation from seas/lakes → condensation into clouds → precipitation",
+        "Explain why evaporation happens faster at higher temperatures (e.g. puddles dry faster on hot days)"
+      ],
+      "standards": [
+        "uk-nc-2013:Y4.Sci.SM.3"
+      ],
+      "depth": 0,
+      "task_status": "unknown",
+      "reports": [],
+      "evidence_kind": "no evidence"
+    },
+    "nodes": [
+      {
+        "id": "mt_htAYR-iCFF",
+        "name": "Drawing Particle Diagrams",
+        "subject": "Science",
+        "description": "Draw and interpret particle diagrams — dot representations showing the arrangement, spacing, and movement of particles in solids (close, regular, vibrating in place), liquids (close, random, flowing past each other), and gases (widely spaced, moving rapidly in all directions) — and use these diagrams to explain observable properties such as fixed shape, fixed volume, and compressibility",
+        "ages": [
+          7,
+          11
+        ],
+        "status": "needs_check",
+        "correct_items": [],
+        "wrong": 1,
+        "criteria": [
+          "Draw labelled particle diagrams for solids, liquids, and gases showing the correct arrangement and spacing of particles",
+          "Use their particle diagram to explain why solids keep their shape but liquids flow",
+          "Sketch what happens to particles during a change of state (e.g. melting) and explain the energy changes involved"
+        ],
+        "standards": [],
+        "depth": 2,
+        "task_status": "needs_check",
+        "reports": [],
+        "evidence_kind": "observed task"
+      },
+      {
+        "id": "mt_1JFUNQDwAJ",
+        "name": "States of Matter Vocabulary",
+        "subject": "Science",
+        "description": "Name and distinguish the three states of matter — solid, liquid, and gas — using properties vocabulary: hard, rigid, runny, flows, keeps its shape, fills its container; use 'change of state' to describe what happens when materials are heated or cooled",
+        "ages": [
+          5,
+          7
+        ],
+        "status": "unknown",
+        "correct_items": [],
+        "wrong": 0,
+        "criteria": [
+          "Correctly sort a set of everyday materials as solid, liquid, or gas and give a reason for each",
+          "Use the terms solid, liquid, and gas accurately when describing everyday substances",
+          "Use 'change of state' to describe what happens when ice melts or water boils"
+        ],
+        "standards": [],
+        "depth": 2,
+        "task_status": "unknown",
+        "reports": [],
+        "evidence_kind": "no evidence"
+      },
+      {
+        "id": "mt_ahSqW_kK1b",
+        "name": "Changes & Separation Vocabulary",
+        "subject": "Science",
+        "description": "Use process vocabulary for changes of state and material separation — dissolve, solution, soluble, insoluble, evaporate, condense, melt, freeze, filter, sieve, mixture, separate — and understand precisely what each term describes, including the important distinction between dissolving and melting",
+        "ages": [
+          7,
+          9
+        ],
+        "status": "unknown",
+        "correct_items": [],
+        "wrong": 0,
+        "criteria": [
+          "Distinguish 'dissolve' from 'melt' correctly in context and explain the difference",
+          "Use 'soluble' and 'insoluble' accurately when describing whether a material dissolves in water",
+          "Explain the difference between evaporation and condensation using the correct terms"
+        ],
+        "standards": [],
+        "depth": 1,
+        "task_status": "unknown",
+        "reports": [],
+        "evidence_kind": "no evidence"
+      },
+      {
+        "id": "mt_Pl-nsjYGZ3",
+        "name": "Heating & Cooling Changes",
+        "subject": "Science",
+        "description": "Observe and describe that some materials change state when heated or cooled, and measure the temperature at which changes occur in degrees Celsius",
+        "ages": [
+          7,
+          9
+        ],
+        "status": "unknown",
+        "correct_items": [],
+        "wrong": 0,
+        "criteria": [
+          "Describe melting (solid to liquid) and freezing (liquid to solid) with everyday examples",
+          "State that water freezes at 0°C and boils at 100°C",
+          "Explain that heating adds energy causing particles to move more, leading to state changes"
+        ],
+        "standards": [
+          "ngss-k5:2-PS1-4",
+          "uk-nc-2013:Y4.Sci.SM.2"
+        ],
+        "depth": 1,
+        "task_status": "unknown",
+        "reports": [],
+        "evidence_kind": "no evidence"
+      },
+      {
+        "id": "mt_Qkewo5M3_c",
+        "name": "Evaporation & the Water Cycle",
+        "subject": "Science",
+        "description": "Identify the role of evaporation and condensation in the water cycle, and associate the rate of evaporation with temperature",
+        "ages": [
+          8,
+          9
+        ],
+        "status": "unknown",
+        "correct_items": [],
+        "wrong": 0,
+        "criteria": [
+          "Describe evaporation as liquid turning to gas and condensation as gas turning to liquid",
+          "Explain the water cycle: evaporation from seas/lakes → condensation into clouds → precipitation",
+          "Explain why evaporation happens faster at higher temperatures (e.g. puddles dry faster on hot days)"
+        ],
+        "standards": [
+          "uk-nc-2013:Y4.Sci.SM.3"
+        ],
+        "depth": 0,
+        "task_status": "unknown",
+        "reports": [],
+        "evidence_kind": "no evidence"
+      }
+    ],
+    "edges": [
+      {
+        "from": "mt_Pl-nsjYGZ3",
+        "to": "mt_1JFUNQDwAJ",
+        "reason": "Describing and measuring changes of state requires solid/liquid/gas vocabulary and the term 'change of state'",
+        "strength": "hard"
+      },
+      {
+        "from": "mt_Pl-nsjYGZ3",
+        "to": "mt_htAYR-iCFF",
+        "reason": "Observing and describing change of state requires reading particle diagrams showing how arrangement changes on heating or cooling",
+        "strength": "hard"
+      },
+      {
+        "from": "mt_Qkewo5M3_c",
+        "to": "mt_Pl-nsjYGZ3",
+        "reason": "Must understand state changes before learning about evaporation/condensation in water cycle",
+        "strength": "hard"
+      },
+      {
+        "from": "mt_Qkewo5M3_c",
+        "to": "mt_ahSqW_kK1b",
+        "reason": "Identifying the role of evaporation and condensation requires knowing these process terms precisely",
+        "strength": "hard"
+      }
+    ],
+    "candidates": [
+      {
+        "id": "particles",
+        "concept": "mt_htAYR-iCFF",
+        "title": "A closer look",
+        "coverage": 3,
+        "missing": [],
+        "depth": 2,
+        "diagnostic": true,
+        "kind": "activity",
+        "reported_support": false,
+        "witness": [
+          "mt_htAYR-iCFF",
+          "mt_Pl-nsjYGZ3",
+          "mt_Qkewo5M3_c"
+        ]
+      },
+      {
+        "id": "states",
+        "concept": "mt_1JFUNQDwAJ",
+        "title": "Meet the three states",
+        "coverage": 3,
+        "missing": [],
+        "depth": 2,
+        "diagnostic": true,
+        "kind": "activity",
+        "reported_support": false,
+        "witness": [
+          "mt_1JFUNQDwAJ",
+          "mt_Pl-nsjYGZ3",
+          "mt_Qkewo5M3_c"
+        ]
+      },
+      {
+        "id": "check:mt_1JFUNQDwAJ",
+        "concept": "mt_1JFUNQDwAJ",
+        "title": "Check: States of Matter Vocabulary",
+        "kind": "parent_check",
+        "coverage": 3,
+        "depth": 2,
+        "missing": [],
+        "criterion": 0,
+        "reported_support": false,
+        "witness": [
+          "mt_1JFUNQDwAJ",
+          "mt_Pl-nsjYGZ3",
+          "mt_Qkewo5M3_c"
+        ]
+      },
+      {
+        "id": "check:mt_htAYR-iCFF",
+        "concept": "mt_htAYR-iCFF",
+        "title": "Check: Drawing Particle Diagrams",
+        "kind": "parent_check",
+        "coverage": 3,
+        "depth": 2,
+        "missing": [],
+        "criterion": 0,
+        "reported_support": false,
+        "witness": [
+          "mt_htAYR-iCFF",
+          "mt_Pl-nsjYGZ3",
+          "mt_Qkewo5M3_c"
+        ]
+      },
+      {
+        "id": "words",
+        "concept": "mt_ahSqW_kK1b",
+        "title": "Name the change",
+        "coverage": 2,
+        "missing": [],
+        "depth": 1,
+        "diagnostic": true,
+        "kind": "activity",
+        "reported_support": false,
+        "witness": [
+          "mt_ahSqW_kK1b",
+          "mt_Qkewo5M3_c"
+        ]
+      },
+      {
+        "id": "check:mt_ahSqW_kK1b",
+        "concept": "mt_ahSqW_kK1b",
+        "title": "Check: Changes & Separation Vocabulary",
+        "kind": "parent_check",
+        "coverage": 2,
+        "depth": 1,
+        "missing": [],
+        "criterion": 0,
+        "reported_support": false,
+        "witness": [
+          "mt_ahSqW_kK1b",
+          "mt_Qkewo5M3_c"
+        ]
+      },
+      {
+        "id": "warming",
+        "concept": "mt_Pl-nsjYGZ3",
+        "title": "Turn up the heat",
+        "coverage": 2,
+        "missing": [
+          "mt_1JFUNQDwAJ",
+          "mt_htAYR-iCFF"
+        ],
+        "depth": 1,
+        "diagnostic": true,
+        "kind": "activity",
+        "reported_support": false,
+        "witness": [
+          "mt_Pl-nsjYGZ3",
+          "mt_Qkewo5M3_c"
+        ]
+      },
+      {
+        "id": "check:mt_Pl-nsjYGZ3",
+        "concept": "mt_Pl-nsjYGZ3",
+        "title": "Check: Heating & Cooling Changes",
+        "kind": "parent_check",
+        "coverage": 2,
+        "depth": 1,
+        "missing": [
+          "mt_1JFUNQDwAJ",
+          "mt_htAYR-iCFF"
+        ],
+        "criterion": 0,
+        "reported_support": false,
+        "witness": [
+          "mt_Pl-nsjYGZ3",
+          "mt_Qkewo5M3_c"
+        ]
+      },
+      {
+        "id": "evaporation",
+        "concept": "mt_Qkewo5M3_c",
+        "title": "Where did the puddle go?",
+        "coverage": 1,
+        "missing": [
+          "mt_Pl-nsjYGZ3",
+          "mt_ahSqW_kK1b"
+        ],
+        "depth": 0,
+        "diagnostic": true,
+        "kind": "activity",
+        "reported_support": false,
+        "witness": [
+          "mt_Qkewo5M3_c"
+        ]
+      },
+      {
+        "id": "check:mt_Qkewo5M3_c",
+        "concept": "mt_Qkewo5M3_c",
+        "title": "Check: Evaporation & the Water Cycle",
+        "kind": "parent_check",
+        "coverage": 1,
+        "depth": 0,
+        "missing": [
+          "mt_Pl-nsjYGZ3",
+          "mt_ahSqW_kK1b"
+        ],
+        "criterion": 0,
+        "reported_support": false,
+        "witness": [
+          "mt_Qkewo5M3_c"
+        ]
+      }
+    ],
+    "revision": 1,
+    "complete": true,
+    "query_ms": 7.06,
+    "selected": {
+      "id": "particles",
+      "concept": "mt_htAYR-iCFF",
+      "title": "A closer look",
+      "coverage": 3,
+      "missing": [],
+      "depth": 2,
+      "diagnostic": true,
+      "kind": "activity",
+      "reported_support": false,
+      "witness": [
+        "mt_htAYR-iCFF",
+        "mt_Pl-nsjYGZ3",
+        "mt_Qkewo5M3_c"
+      ]
+    },
+    "scope": "Parent reports are not graded performance. Task support is provisional. Source prerequisites may be incomplete.",
+    "graph": "trellis_learner_62d28db54a1343129d3e6d629d3834e3",
+    "graph_reasoning": {
+      "ids": [
+        "mt_1JFUNQDwAJ",
+        "mt_Pl-nsjYGZ3",
+        "mt_Qkewo5M3_c",
+        "mt_ahSqW_kK1b",
+        "mt_htAYR-iCFF"
+      ],
+      "edges": [
+        {
+          "from": "mt_Pl-nsjYGZ3",
+          "to": "mt_1JFUNQDwAJ",
+          "reason": "Describing and measuring changes of state requires solid/liquid/gas vocabulary and the term 'change of state'",
+          "strength": "hard"
+        },
+        {
+          "from": "mt_Pl-nsjYGZ3",
+          "to": "mt_htAYR-iCFF",
+          "reason": "Observing and describing change of state requires reading particle diagrams showing how arrangement changes on heating or cooling",
+          "strength": "hard"
+        },
+        {
+          "from": "mt_Qkewo5M3_c",
+          "to": "mt_Pl-nsjYGZ3",
+          "reason": "Must understand state changes before learning about evaporation/condensation in water cycle",
+          "strength": "hard"
+        },
+        {
+          "from": "mt_Qkewo5M3_c",
+          "to": "mt_ahSqW_kK1b",
+          "reason": "Identifying the role of evaporation and condensation requires knowing these process terms precisely",
+          "strength": "hard"
+        }
+      ],
+      "coverage": {
+        "mt_1JFUNQDwAJ": 3,
+        "mt_Pl-nsjYGZ3": 2,
+        "mt_Qkewo5M3_c": 1,
+        "mt_ahSqW_kK1b": 2,
+        "mt_htAYR-iCFF": 3
+      },
+      "witnesses": {
+        "mt_Qkewo5M3_c": [
+          "mt_Qkewo5M3_c"
+        ],
+        "mt_1JFUNQDwAJ": [
+          "mt_1JFUNQDwAJ",
+          "mt_Pl-nsjYGZ3",
+          "mt_Qkewo5M3_c"
+        ],
+        "mt_Pl-nsjYGZ3": [
+          "mt_Pl-nsjYGZ3",
+          "mt_Qkewo5M3_c"
+        ],
+        "mt_ahSqW_kK1b": [
+          "mt_ahSqW_kK1b",
+          "mt_Qkewo5M3_c"
+        ],
+        "mt_htAYR-iCFF": [
+          "mt_htAYR-iCFF",
+          "mt_Pl-nsjYGZ3",
+          "mt_Qkewo5M3_c"
+        ]
+      },
+      "depth": {
+        "mt_Qkewo5M3_c": 0,
+        "mt_1JFUNQDwAJ": 2,
+        "mt_Pl-nsjYGZ3": 1,
+        "mt_ahSqW_kK1b": 1,
+        "mt_htAYR-iCFF": 2
+      },
+      "queries": [
+        {
+          "name": "hard prerequisite closure",
+          "cypher": "MATCH (g:Concept {id:$goal})-[:REQUIRES*0..]->(c:Concept)\nRETURN DISTINCT c.id ORDER BY c.id",
+          "parameters": {
+            "goal": "mt_Qkewo5M3_c"
+          },
+          "server_ms": 0.173798,
+          "wall_ms": 0.773,
+          "rows": 5
+        },
+        {
+          "name": "hard edges",
+          "cypher": "MATCH (c:Concept)-[r:REQUIRES]->(p:Concept)\nWHERE c.id IN $ids AND p.id IN $ids\nRETURN c.id,p.id,r.reason ORDER BY c.id,p.id",
+          "parameters": {
+            "ids": [
+              "mt_1JFUNQDwAJ",
+              "mt_Pl-nsjYGZ3",
+              "mt_Qkewo5M3_c",
+              "mt_ahSqW_kK1b",
+              "mt_htAYR-iCFF"
+            ]
+          },
+          "server_ms": 0.06682,
+          "wall_ms": 0.64,
+          "rows": 4
+        },
+        {
+          "name": "reverse branch coverage",
+          "cypher": "MATCH (c:Concept) WHERE c.id IN $ids\nMATCH (d:Concept)-[:REQUIRES*0..]->(c) WHERE d.id IN $ids\nRETURN c.id,count(DISTINCT d) ORDER BY c.id",
+          "parameters": {
+            "ids": [
+              "mt_1JFUNQDwAJ",
+              "mt_Pl-nsjYGZ3",
+              "mt_Qkewo5M3_c",
+              "mt_ahSqW_kK1b",
+              "mt_htAYR-iCFF"
+            ]
+          },
+          "server_ms": 0.209588,
+          "wall_ms": 0.749,
+          "rows": 5
+        },
+        {
+          "name": "shortest witness paths",
+          "cypher": "MATCH (g:Concept {id:$goal}), (c:Concept)\nWHERE c.id IN $ids AND c.id <> $goal\nWITH c,shortestPath((g)-[:REQUIRES*]->(c)) AS p\nRETURN c.id,[n IN nodes(p)|n.id],length(p) ORDER BY c.id",
+          "parameters": {
+            "goal": "mt_Qkewo5M3_c",
+            "ids": [
+              "mt_1JFUNQDwAJ",
+              "mt_Pl-nsjYGZ3",
+              "mt_Qkewo5M3_c",
+              "mt_ahSqW_kK1b",
+              "mt_htAYR-iCFF"
+            ]
+          },
+          "server_ms": 0.077241,
+          "wall_ms": 0.776,
+          "rows": 4
+        },
+        {
+          "name": "rank eligible checks",
+          "cypher": "UNWIND $candidates AS c\nRETURN c.id ORDER BY c.blocked ASC,c.reported ASC,c.coverage DESC,\nc.parent_check ASC,c.depth DESC,c.id ASC",
+          "parameters": {
+            "candidates": [
+              {
+                "id": "states",
+                "blocked": false,
+                "reported": false,
+                "coverage": 3,
+                "parent_check": false,
+                "depth": 2
+              },
+              {
+                "id": "words",
+                "blocked": false,
+                "reported": false,
+                "coverage": 2,
+                "parent_check": false,
+                "depth": 1
+              },
+              {
+                "id": "particles",
+                "blocked": false,
+                "reported": false,
+                "coverage": 3,
+                "parent_check": false,
+                "depth": 2
+              },
+              {
+                "id": "warming",
+                "blocked": true,
+                "reported": false,
+                "coverage": 2,
+                "parent_check": false,
+                "depth": 1
+              },
+              {
+                "id": "evaporation",
+                "blocked": true,
+                "reported": false,
+                "coverage": 1,
+                "parent_check": false,
+                "depth": 0
+              }
+            ]
+          },
+          "server_ms": 0.02049,
+          "wall_ms": 0.669,
+          "rows": 5
+        },
+        {
+          "name": "rank eligible checks",
+          "cypher": "UNWIND $candidates AS c\nRETURN c.id ORDER BY c.blocked ASC,c.reported ASC,c.coverage DESC,\nc.parent_check ASC,c.depth DESC,c.id ASC",
+          "parameters": {
+            "candidates": [
+              {
+                "id": "particles",
+                "blocked": false,
+                "reported": false,
+                "coverage": 3,
+                "parent_check": false,
+                "depth": 2
+              },
+              {
+                "id": "states",
+                "blocked": false,
+                "reported": false,
+                "coverage": 3,
+                "parent_check": false,
+                "depth": 2
+              },
+              {
+                "id": "words",
+                "blocked": false,
+                "reported": false,
+                "coverage": 2,
+                "parent_check": false,
+                "depth": 1
+              },
+              {
+                "id": "warming",
+                "blocked": true,
+                "reported": false,
+                "coverage": 2,
+                "parent_check": false,
+                "depth": 1
+              },
+              {
+                "id": "evaporation",
+                "blocked": true,
+                "reported": false,
+                "coverage": 1,
+                "parent_check": false,
+                "depth": 0
+              },
+              {
+                "id": "check:mt_htAYR-iCFF",
+                "blocked": false,
+                "reported": false,
+                "coverage": 3,
+                "parent_check": true,
+                "depth": 2
+              },
+              {
+                "id": "check:mt_1JFUNQDwAJ",
+                "blocked": false,
+                "reported": false,
+                "coverage": 3,
+                "parent_check": true,
+                "depth": 2
+              },
+              {
+                "id": "check:mt_ahSqW_kK1b",
+                "blocked": false,
+                "reported": false,
+                "coverage": 2,
+                "parent_check": true,
+                "depth": 1
+              },
+              {
+                "id": "check:mt_Pl-nsjYGZ3",
+                "blocked": true,
+                "reported": false,
+                "coverage": 2,
+                "parent_check": true,
+                "depth": 1
+              },
+              {
+                "id": "check:mt_Qkewo5M3_c",
+                "blocked": true,
+                "reported": false,
+                "coverage": 1,
+                "parent_check": true,
+                "depth": 0
+              }
+            ]
+          },
+          "server_ms": 0.023606,
+          "wall_ms": 0.617,
+          "rows": 10
+        }
+      ]
+    },
+    "soft_edges": [
+      {
+        "from": "mt_Qkewo5M3_c",
+        "to": "mt_fhqVdj4BYr",
+        "name": "The Water Cycle",
+        "reason": "Water cycle connects to curriculum evaporation/condensation topic",
+        "strength": "soft"
+      }
+    ],
+    "supported_count": 0,
+    "reported_count": 0,
+    "coverage_gaps": [],
+    "activity_count": 5,
+    "fingerprint": "05dbfbf3c67e97649250f411fe2e68d56264ceda00b9f7c3ca5b41e416014a17",
+    "route": {
+      "goal": "Evaporation & the Water Cycle",
+      "observed_support": [],
+      "reported_support": [],
+      "uncertain": [
+        "Drawing Particle Diagrams",
+        "States of Matter Vocabulary",
+        "Changes & Separation Vocabulary",
+        "Heating & Cooling Changes",
+        "Evaporation & the Water Cycle"
+      ],
+      "next": {
+        "id": "particles",
+        "concept": "mt_htAYR-iCFF",
+        "title": "A closer look",
+        "coverage": 3,
+        "missing": [],
+        "depth": 2,
+        "diagnostic": true,
+        "kind": "activity",
+        "reported_support": false,
+        "witness": [
+          "mt_htAYR-iCFF",
+          "mt_Pl-nsjYGZ3",
+          "mt_Qkewo5M3_c"
+        ]
+      },
+      "gaps": [],
+      "scope": "Parent reports are not graded performance. Task support is provisional. Source prerequisites may be incomplete.",
+      "fingerprint": "05dbfbf3c67e97649250f411fe2e68d56264ceda00b9f7c3ca5b41e416014a17"
+    }
+  },
+  "parent_observations": [],
+  "attribution": "Marble Skill Taxonomy v1, Generative Spark, Inc. ODbL 1.0 database and CC BY-SA 4.0 content.",
+  "scope": "Synthetic local notebook. Prototype tasks, not independently validated educational assessments."
+}

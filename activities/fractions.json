@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "rubric": "fractions-v1",
+  "review_status": "Prototype. Answer logic is generated and tested exactly; the teaching design is not educator-reviewed.",
+  "objectives": [
+    {"id": "equal-parts-v1", "family": "equal_parts", "text": "Tell whether a whole is split into equal parts"},
+    {"id": "build-fraction-v1", "family": "build", "text": "Show a fraction using equal-sized parts of a whole"},
+    {"id": "number-line-v1", "family": "number_line", "text": "Place or read a fraction on a number line"}
+  ],
+  "activities": [
+    {"id": "fair-halves", "concept": "mt_-hTTat0mBR", "objective": "equal-parts-v1", "criteria": [2],
+     "title": "Two fair halves", "params": {"n": [2]}, "representations": ["bar", "circle", "grid"]},
+    {"id": "fair-quarters", "concept": "mt_g3W0mdADVu", "objective": "equal-parts-v1", "criteria": [2],
+     "title": "Four fair quarters", "params": {"n": [4]}, "representations": ["bar", "circle", "grid"]},
+    {"id": "fair-shares", "concept": "mt_Xp-rj46S2w", "objective": "equal-parts-v1", "criteria": [2],
+     "title": "Fair shares that look different", "params": {"n": [3, 4, 6]}, "representations": ["grid", "circle", "bar"]},
+    {"id": "shade-amounts", "concept": "mt_cFltwUQi-d", "objective": "build-fraction-v1", "criteria": [0, 1],
+     "title": "Shade a fraction", "params": {"b": [2, 3, 4]}, "representations": ["bar", "set", "circle"]},
+    {"id": "parts-of-whole", "concept": "mt_ndGqFPWyen", "objective": "build-fraction-v1", "criteria": [1, 2],
+     "title": "Parts of a whole", "params": {"b": [3, 4, 5, 6, 8]}, "representations": ["bar", "circle", "set"]},
+    {"id": "line-first", "concept": "mt_Kr3IyA6m-O", "objective": "number-line-v1", "criteria": [0],
+     "title": "Fractions on the line", "params": {"b": [2, 3, 4], "span": [1]}, "representations": ["ticks", "fine", "read"]},
+    {"id": "line-further", "concept": "mt_NoB20kVa4w", "objective": "number-line-v1", "criteria": [3, 5],
+     "title": "Further along the line", "params": {"b": [3, 4, 6, 8], "span": [1, 2]}, "representations": ["ticks", "fine", "read"]}
+  ]
+}

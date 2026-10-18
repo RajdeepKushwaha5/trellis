@@ -1,0 +1,42 @@
+{
+  "query": "MATCH (g:Concept)-[:REQUIRES*0..]->(c:Concept)\nRETURN g.id,collect(DISTINCT c.id) ORDER BY g.id",
+  "goals": 1590,
+  "largest_closure_including_goal": 120,
+  "samples": [
+    {
+      "server_ms": 27.462363,
+      "wall_ms": 68.174
+    },
+    {
+      "server_ms": 26.539169,
+      "wall_ms": 65.624
+    },
+    {
+      "server_ms": 26.25373,
+      "wall_ms": 65.853
+    },
+    {
+      "server_ms": 27.971981,
+      "wall_ms": 74.24
+    },
+    {
+      "server_ms": 27.434108,
+      "wall_ms": 72.621
+    },
+    {
+      "server_ms": 26.599847,
+      "wall_ms": 70.176
+    },
+    {
+      "server_ms": 27.654098,
+      "wall_ms": 70.406
+    },
+    {
+      "server_ms": 27.272191,
+      "wall_ms": 74.69
+    }
+  ],
+  "warm_median_server_ms": 27.272191,
+  "warm_median_wall_ms": 70.406,
+  "scope": "Local read-only bulk closure query, 1 warmup and 7 measured warm runs. Not end-to-end agent latency or learning effectiveness."
+}

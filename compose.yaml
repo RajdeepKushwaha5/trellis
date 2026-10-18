@@ -1,0 +1,12 @@
+services:
+  graph:
+    image: falkordb/falkordb@sha256:e2765e207e5ba4ee90e47ed31eb7491ad6dd3d42241c326e429375c02ad9882f
+    ports:
+      - "127.0.0.1:6384:6379"
+      - "127.0.0.1:3011:3000"
+    environment:
+      REDIS_ARGS: "--appendonly yes --appendfsync everysec"
+    volumes:
+      - trellis-data:/var/lib/falkordb/data
+volumes:
+  trellis-data:
