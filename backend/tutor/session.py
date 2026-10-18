@@ -412,7 +412,9 @@ def _investigation_status(g, t, probe_options, log):
     ambiguous explanation, no distinguishing check has been asked yet, and one is available."""
     since = t.get('episode_started', 0)
     latest = graphq.latest_mistake(g, t['concept'], since, log)
-    tried = graphq.tried_strategies(g, [l['task'] for l in t['lessons']], log)
+    # A lesson still in progress has not failed yet, so its strategy is not listed as already tried.
+    finished = t['lessons'][:-1] if t['state'] == 'teaching' else t['lessons']
+    tried = graphq.tried_strategies(g, [l['task'] for l in finished], log)
     probe_done = len(t['probes']) >= 1
     outcome = None
     if probe_done:

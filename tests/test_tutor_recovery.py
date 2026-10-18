@@ -49,6 +49,9 @@ class Recovery(unittest.TestCase):
         rep2 = next(r['id'] for r in ctx['representations'] if r['id'] in nxt['reps'])
         second = t.tinker_teach(self.token, rep2, 'try_first', ctx['version'], nxt['id'])
         self.assertNotEqual(second['teaching_strategy']['id'], 'walk-gaps')
+        # While the second lesson is in progress, only the first strategy is listed as tried.
+        during = t.episode_view(self.token)['status']['tried_strategies']
+        self.assertEqual([x['id'] for x in during], ['walk-gaps'])
         # 5. The graph keeps the whole episode: observed, suggested, tried.
         steps = t.episode_view(self.token)['steps']
         self.assertEqual([s['purpose'] for s in steps], ['diagnostic', 'probe', 'lesson', 'transfer'])
