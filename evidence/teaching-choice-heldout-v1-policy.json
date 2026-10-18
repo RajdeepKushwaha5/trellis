@@ -1,0 +1,108 @@
+{
+  "fixture": "teaching-choice-heldout-v1.json",
+  "fixture_sha256": "b5a1de17d670219c9920e165fa07e7e9923c363cbcf15ec54006b0146d7c4934",
+  "scope": "Held-out synthetic action-selection cases, written and committed before any run, after the ambiguity design change. Same rubric as teaching-choice-v2: a specific mistake should get the strategy that addresses it; an ambiguous placement should get the reading probe. Not educator-reviewed; not a learning-outcomes study.",
+  "model": null,
+  "options": {
+    "temperature": 0,
+    "num_ctx": 4096,
+    "num_predict": 160
+  },
+  "cases": [
+    {
+      "id": "shares-grid-unequal",
+      "difficulty": "unequal_parts",
+      "acceptable": [
+        "compare-area"
+      ],
+      "first_permitted": "tinker_teach",
+      "mistake_aware": "compare-area",
+      "model_orders": []
+    },
+    {
+      "id": "shares-circle-count",
+      "difficulty": "wrong_count",
+      "acceptable": [
+        "count-shares"
+      ],
+      "first_permitted": "tinker_teach",
+      "mistake_aware": "count-shares",
+      "model_orders": []
+    },
+    {
+      "id": "quarters-bar-unequal",
+      "difficulty": "unequal_parts",
+      "acceptable": [
+        "compare-area"
+      ],
+      "first_permitted": "tinker_teach",
+      "mistake_aware": "compare-area",
+      "model_orders": []
+    },
+    {
+      "id": "halves-pie-count",
+      "difficulty": "wrong_count",
+      "acceptable": [
+        "count-shares"
+      ],
+      "first_permitted": "tinker_teach",
+      "mistake_aware": "count-shares",
+      "model_orders": []
+    },
+    {
+      "id": "amounts-pie-shade",
+      "difficulty": "shade_count",
+      "acceptable": [
+        "group-whole"
+      ],
+      "first_permitted": "tinker_teach",
+      "mistake_aware": "group-whole",
+      "model_orders": []
+    },
+    {
+      "id": "whole-pie-shade",
+      "difficulty": "shade_count",
+      "acceptable": [
+        "group-whole"
+      ],
+      "first_permitted": "tinker_teach",
+      "mistake_aware": "group-whole",
+      "model_orders": []
+    },
+    {
+      "id": "further-ticks-placement",
+      "difficulty": "placement",
+      "acceptable": [
+        "probe:read-unit"
+      ],
+      "first_permitted": "tinker_teach",
+      "mistake_aware": "probe:read-unit",
+      "model_orders": []
+    },
+    {
+      "id": "first-fine-placement",
+      "difficulty": "placement",
+      "acceptable": [
+        "probe:read-unit"
+      ],
+      "first_permitted": "tinker_teach",
+      "mistake_aware": "probe:read-unit",
+      "model_orders": []
+    }
+  ],
+  "graph_links": "present",
+  "baselines": {
+    "first_permitted": "the first option in the offered list",
+    "mistake_aware": "the product rule, runner.rule_choice"
+  },
+  "model_protocol": "terminal action choice after a shared controller history inspection; two shuffled orders per case. Full role MCP execution is covered separately by integration tests",
+  "fixture_revision_note": "v2 replaces two unconstructable direction-error cases with generated off-by-one cases before the completed comparison. No valid result was reported for the initial fixture.",
+  "summary": {
+    "cases": 8,
+    "first_permitted_acceptable": 0,
+    "mistake_aware_acceptable": 8,
+    "model_trials": 0,
+    "model_acceptable": 0,
+    "order_stable_cases": 0
+  }
+}

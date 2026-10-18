@@ -8,7 +8,8 @@ try{
  await p.setViewport({width:1440,height:1050});await p.goto('http://127.0.0.1:8020/#curriculum',{waitUntil:'networkidle0'});
  await p.waitForSelector('.curriculum-card');assert(await p.$eval('#curriculum-count',e=>e.textContent.includes('1,590')),'Full curriculum count missing');
  await p.screenshot({path:'artifacts/curriculum-desktop.png',fullPage:true});
- await p.click('[data-subject="Mathematics"]');await p.type('#curriculum-search','fractions');await p.waitForFunction(()=>document.querySelector('#curriculum-count').textContent.includes('53 matching'));
+ await p.click('[data-subject="Mathematics"]');await p.type('#curriculum-search','fractions');await p.waitForFunction(()=>{const m=document.querySelector('#curriculum-count').textContent.match(/^(\d+) matching/);return m&&Number(m[1])>=53&&Number(m[1])<503;});
+ assert(/fraction/i.test(await p.$eval('#curriculum-grid h3',e=>e.textContent)),'Full-text search did not rank a fraction concept first');
  const goal=await p.$eval('#curriculum-grid [data-goal]',e=>e.dataset.goal);await p.click(`#curriculum-grid [data-goal="${goal}"]`);
  await p.waitForFunction(()=>!document.querySelector('#lab').hidden&&document.querySelector('#goal-title').textContent.includes('Fractions'));
  assert(await p.$eval('#water-demo',e=>e.hidden),'Unrelated water demo shown for fractions');

@@ -1,0 +1,597 @@
+{
+  "fixture": "teaching-choice-heldout-v1.json",
+  "fixture_sha256": "b5a1de17d670219c9920e165fa07e7e9923c363cbcf15ec54006b0146d7c4934",
+  "scope": "Held-out synthetic action-selection cases, written and committed before any run, after the ambiguity design change. Same rubric as teaching-choice-v2: a specific mistake should get the strategy that addresses it; an ambiguous placement should get the reading probe. Not educator-reviewed; not a learning-outcomes study.",
+  "model": "qwen2.5:7b",
+  "options": {
+    "temperature": 0,
+    "num_ctx": 4096,
+    "num_predict": 160
+  },
+  "cases": [
+    {
+      "id": "shares-grid-unequal",
+      "difficulty": "unequal_parts",
+      "acceptable": [
+        "compare-area"
+      ],
+      "first_permitted": "tinker_teach",
+      "mistake_aware": "compare-area",
+      "model_orders": [
+        {
+          "choice": "compare-area",
+          "valid": true,
+          "acceptable": true,
+          "offered_order": [
+            "strategy:compare-area:circle:example_first",
+            "circle+try_first",
+            "strategy:compare-area:bar:example_first",
+            "strategy:compare-area:grid:try_first",
+            "circle+example_first",
+            "grid+example_first",
+            "bar+example_first",
+            "bar+try_first",
+            "strategy:compare-area:bar:try_first",
+            "strategy:compare-area:grid:example_first",
+            "grid+try_first",
+            "strategy:compare-area:circle:try_first"
+          ],
+          "choice_position": 10,
+          "seconds": 19.845,
+          "usage": {
+            "input": 1130,
+            "output": 45,
+            "ms": 19840
+          },
+          "reason_unverified": "The previous lesson involved unequal parts in a grid representation, so comparing areas and counting should help clarify the concept of equal shares."
+        },
+        {
+          "choice": "tinker_teach",
+          "valid": true,
+          "acceptable": false,
+          "offered_order": [
+            "strategy:compare-area:grid:try_first",
+            "bar+example_first",
+            "circle+try_first",
+            "strategy:compare-area:circle:example_first",
+            "circle+example_first",
+            "grid+example_first",
+            "grid+try_first",
+            "strategy:compare-area:bar:example_first",
+            "bar+try_first",
+            "strategy:compare-area:circle:try_first",
+            "strategy:compare-area:grid:example_first",
+            "strategy:compare-area:bar:try_first"
+          ],
+          "choice_position": 7,
+          "seconds": 8.016,
+          "usage": {
+            "input": 1130,
+            "output": 55,
+            "ms": 8011
+          },
+          "reason_unverified": "The previous lesson involved grid shares that looked different and the student had difficulty recognizing equal parts. Starting with a try-first approach will allow Tinker to observe the student's thought process and provide targeted guidance."
+        }
+      ]
+    },
+    {
+      "id": "shares-circle-count",
+      "difficulty": "wrong_count",
+      "acceptable": [
+        "count-shares"
+      ],
+      "first_permitted": "tinker_teach",
+      "mistake_aware": "count-shares",
+      "model_orders": [
+        {
+          "choice": "count-shares",
+          "valid": true,
+          "acceptable": true,
+          "offered_order": [
+            "strategy:count-shares:grid:try_first",
+            "strategy:count-shares:grid:example_first",
+            "grid+try_first",
+            "bar+try_first",
+            "strategy:count-shares:bar:try_first",
+            "strategy:count-shares:circle:try_first",
+            "circle+example_first",
+            "circle+try_first",
+            "bar+example_first",
+            "strategy:count-shares:circle:example_first",
+            "grid+example_first",
+            "strategy:count-shares:bar:example_first"
+          ],
+          "choice_position": 6,
+          "seconds": 16.415,
+          "usage": {
+            "input": 1135,
+            "output": 54,
+            "ms": 16403
+          },
+          "reason_unverified": "The learner had difficulty with the circle representation and overlooked the number of equal parts. A strategy that involves counting shares while touching each one will help address this specific issue."
+        },
+        {
+          "choice": "count-shares",
+          "valid": true,
+          "acceptable": true,
+          "offered_order": [
+            "strategy:count-shares:grid:try_first",
+            "grid+example_first",
+            "circle+example_first",
+            "strategy:count-shares:bar:try_first",
+            "strategy:count-shares:grid:example_first",
+            "bar+try_first",
+            "bar+example_first",
+            "strategy:count-shares:circle:example_first",
+            "strategy:count-shares:circle:try_first",
+            "circle+try_first",
+            "grid+try_first",
+            "strategy:count-shares:bar:example_first"
+          ],
+          "choice_position": 9,
+          "seconds": 14.094,
+          "usage": {
+            "input": 1135,
+            "output": 49,
+            "ms": 14086
+          },
+          "reason_unverified": "The student is having trouble with the correct count of equal parts in circles, so starting with a try will allow for immediate feedback and correction."
+        }
+      ]
+    },
+    {
+      "id": "quarters-bar-unequal",
+      "difficulty": "unequal_parts",
+      "acceptable": [
+        "compare-area"
+      ],
+      "first_permitted": "tinker_teach",
+      "mistake_aware": "compare-area",
+      "model_orders": [
+        {
+          "choice": "compare-area",
+          "valid": true,
+          "acceptable": true,
+          "offered_order": [
+            "strategy:compare-area:grid:try_first",
+            "strategy:compare-area:circle:example_first",
+            "strategy:compare-area:bar:example_first",
+            "bar+try_first",
+            "circle+example_first",
+            "circle+try_first",
+            "bar+example_first",
+            "strategy:compare-area:grid:example_first",
+            "grid+try_first",
+            "strategy:compare-area:bar:try_first",
+            "grid+example_first",
+            "strategy:compare-area:circle:try_first"
+          ],
+          "choice_position": 1,
+          "seconds": 15.179,
+          "usage": {
+            "input": 1131,
+            "output": 51,
+            "ms": 15173
+          },
+          "reason_unverified": "The student may benefit from trying to compare and count grid shares before seeing a worked example, as this can help them understand the concept of equal parts visually."
+        },
+        {
+          "choice": "compare-area",
+          "valid": true,
+          "acceptable": true,
+          "offered_order": [
+            "strategy:compare-area:circle:try_first",
+            "strategy:compare-area:circle:example_first",
+            "grid+example_first",
+            "bar+example_first",
+            "strategy:compare-area:bar:try_first",
+            "strategy:compare-area:grid:example_first",
+            "circle+example_first",
+            "strategy:compare-area:bar:example_first",
+            "grid+try_first",
+            "strategy:compare-area:grid:try_first",
+            "circle+try_first",
+            "bar+try_first"
+          ],
+          "choice_position": 2,
+          "seconds": 16.029,
+          "usage": {
+            "input": 1131,
+            "output": 58,
+            "ms": 16022
+          },
+          "reason_unverified": "The student previously had difficulty comparing areas when using bar representations, so a different representation (pie pieces) is needed. The strategy of showing an example first can help clarify the concept before practice."
+        }
+      ]
+    },
+    {
+      "id": "halves-pie-count",
+      "difficulty": "wrong_count",
+      "acceptable": [
+        "count-shares"
+      ],
+      "first_permitted": "tinker_teach",
+      "mistake_aware": "count-shares",
+      "model_orders": [
+        {
+          "choice": "count-shares",
+          "valid": true,
+          "acceptable": true,
+          "offered_order": [
+            "circle+example_first",
+            "strategy:count-shares:circle:example_first",
+            "bar+example_first",
+            "strategy:count-shares:bar:example_first",
+            "circle+try_first",
+            "grid+example_first",
+            "strategy:count-shares:grid:example_first",
+            "grid+try_first",
+            "bar+try_first",
+            "strategy:count-shares:circle:try_first",
+            "strategy:count-shares:bar:try_first",
+            "strategy:count-shares:grid:try_first"
+          ],
+          "choice_position": 2,
+          "seconds": 16.488,
+          "usage": {
+            "input": 1124,
+            "output": 51,
+            "ms": 16483
+          },
+          "reason_unverified": "The learner had difficulty with the correct number of equal parts in a circle, so focusing on counting shares using pie pieces will help address this specific mistake."
+        },
+        {
+          "choice": "count-shares",
+          "valid": true,
+          "acceptable": true,
+          "offered_order": [
+            "strategy:count-shares:grid:try_first",
+            "strategy:count-shares:circle:try_first",
+            "strategy:count-shares:bar:example_first",
+            "circle+try_first",
+            "grid+try_first",
+            "grid+example_first",
+            "strategy:count-shares:bar:try_first",
+            "strategy:count-shares:circle:example_first",
+            "strategy:count-shares:grid:example_first",
+            "circle+example_first",
+            "bar+example_first",
+            "bar+try_first"
+          ],
+          "choice_position": 2,
+          "seconds": 14.264,
+          "usage": {
+            "input": 1124,
+            "output": 50,
+            "ms": 14256
+          },
+          "reason_unverified": "The learner previously had difficulty with the correct number of equal shares in a circle representation, so starting with an attempt and then providing guidance is appropriate."
+        }
+      ]
+    },
+    {
+      "id": "amounts-pie-shade",
+      "difficulty": "shade_count",
+      "acceptable": [
+        "group-whole"
+      ],
+      "first_permitted": "tinker_teach",
+      "mistake_aware": "group-whole",
+      "model_orders": [
+        {
+          "choice": "group-whole",
+          "valid": true,
+          "acceptable": true,
+          "offered_order": [
+            "strategy:group-whole:bar:try_first",
+            "strategy:group-whole:set:example_first",
+            "circle+example_first",
+            "set+example_first",
+            "strategy:group-whole:set:try_first",
+            "strategy:group-whole:bar:example_first",
+            "set+try_first",
+            "circle+try_first",
+            "strategy:group-whole:circle:example_first",
+            "bar+example_first",
+            "bar+try_first",
+            "strategy:group-whole:circle:try_first"
+          ],
+          "choice_position": 1,
+          "seconds": 15.783,
+          "usage": {
+            "input": 1142,
+            "output": 50,
+            "ms": 15770
+          },
+          "reason_unverified": "The learner needs to understand the concept of grouping the whole into equal parts before shading, and using a fraction strip can provide a clear visual representation."
+        },
+        {
+          "choice": "group-whole",
+          "valid": true,
+          "acceptable": true,
+          "offered_order": [
+            "strategy:group-whole:circle:try_first",
+            "strategy:group-whole:bar:example_first",
+            "strategy:group-whole:set:try_first",
+            "circle+example_first",
+            "bar+example_first",
+            "strategy:group-whole:circle:example_first",
+            "set+try_first",
+            "strategy:group-whole:bar:try_first",
+            "circle+try_first",
+            "bar+try_first",
+            "set+example_first",
+            "strategy:group-whole:set:example_first"
+          ],
+          "choice_position": 1,
+          "seconds": 19.739,
+          "usage": {
+            "input": 1142,
+            "output": 69,
+            "ms": 19731
+          },
+          "reason_unverified": "The learner had difficulty shading the correct number of equal parts in a circle, suggesting they need guidance on identifying and working with the whole before attempting to shade. The 'Group the whole into denominator shares' strategy aligns well with this need."
+        }
+      ]
+    },
+    {
+      "id": "whole-pie-shade",
+      "difficulty": "shade_count",
+      "acceptable": [
+        "group-whole"
+      ],
+      "first_permitted": "tinker_teach",
+      "mistake_aware": "group-whole",
+      "model_orders": [
+        {
+          "choice": "group-whole",
+          "valid": true,
+          "acceptable": true,
+          "offered_order": [
+            "strategy:group-whole:set:try_first",
+            "set+example_first",
+            "set+try_first",
+            "strategy:group-whole:bar:try_first",
+            "bar+try_first",
+            "strategy:group-whole:set:example_first",
+            "strategy:group-whole:circle:try_first",
+            "circle+example_first",
+            "circle+try_first",
+            "bar+example_first",
+            "strategy:group-whole:circle:example_first",
+            "strategy:group-whole:bar:example_first"
+          ],
+          "choice_position": 1,
+          "seconds": 15.377,
+          "usage": {
+            "input": 1139,
+            "output": 48,
+            "ms": 15370
+          },
+          "reason_unverified": "The learner needs to understand the concept of grouping the whole before shading the correct number of parts, and using counters can help in this understanding."
+        },
+        {
+          "choice": "group-whole",
+          "valid": true,
+          "acceptable": true,
+          "offered_order": [
+            "strategy:group-whole:bar:example_first",
+            "circle+example_first",
+            "circle+try_first",
+            "set+try_first",
+            "strategy:group-whole:set:example_first",
+            "strategy:group-whole:circle:try_first",
+            "strategy:group-whole:bar:try_first",
+            "strategy:group-whole:set:try_first",
+            "set+example_first",
+            "strategy:group-whole:circle:example_first",
+            "bar+example_first",
+            "bar+try_first"
+          ],
+          "choice_position": 6,
+          "seconds": 18.04,
+          "usage": {
+            "input": 1139,
+            "output": 51,
+            "ms": 18030
+          },
+          "reason_unverified": "The learner had difficulty shading the correct number of parts in a circle, so starting with an attempt and then providing guidance will help address this specific mistake."
+        }
+      ]
+    },
+    {
+      "id": "further-ticks-placement",
+      "difficulty": "placement",
+      "acceptable": [
+        "probe:read-unit"
+      ],
+      "first_permitted": "tinker_teach",
+      "mistake_aware": "probe:read-unit",
+      "model_orders": [
+        {
+          "choice": "probe:place-unit",
+          "valid": true,
+          "acceptable": false,
+          "offered_order": [
+            "fine+example_first",
+            "strategy:anchor-zero:fine:example_first",
+            "fine+try_first",
+            "probe:read-unit",
+            "strategy:read-intervals:ticks:example_first",
+            "strategy:anchor-zero:fine:try_first",
+            "strategy:read-intervals:read:example_first",
+            "ticks+try_first",
+            "strategy:anchor-zero:ticks:try_first",
+            "read+example_first",
+            "strategy:anchor-zero:read:try_first",
+            "read+try_first",
+            "ticks+example_first",
+            "strategy:walk-gaps:fine:example_first",
+            "strategy:anchor-zero:ticks:example_first",
+            "strategy:read-intervals:read:try_first",
+            "strategy:anchor-zero:read:example_first",
+            "strategy:walk-gaps:fine:try_first",
+            "probe:place-unit",
+            "strategy:walk-gaps:ticks:try_first",
+            "strategy:read-intervals:fine:try_first",
+            "strategy:walk-gaps:ticks:example_first",
+            "strategy:read-intervals:fine:example_first",
+            "strategy:read-intervals:ticks:try_first"
+          ],
+          "choice_position": 19,
+          "seconds": 17.275,
+          "usage": {
+            "input": 2170,
+            "output": 32,
+            "ms": 17266
+          },
+          "reason_unverified": "Compare placement with the previous response to distinguish interval counting, unit size or direction errors."
+        },
+        {
+          "choice": "read-intervals",
+          "valid": true,
+          "acceptable": false,
+          "offered_order": [
+            "strategy:read-intervals:fine:example_first",
+            "strategy:walk-gaps:fine:example_first",
+            "strategy:read-intervals:read:try_first",
+            "fine+example_first",
+            "strategy:read-intervals:read:example_first",
+            "read+example_first",
+            "strategy:anchor-zero:read:try_first",
+            "strategy:read-intervals:ticks:try_first",
+            "probe:read-unit",
+            "ticks+example_first",
+            "ticks+try_first",
+            "strategy:read-intervals:ticks:example_first",
+            "strategy:walk-gaps:ticks:example_first",
+            "strategy:anchor-zero:fine:example_first",
+            "strategy:anchor-zero:fine:try_first",
+            "strategy:walk-gaps:fine:try_first",
+            "strategy:anchor-zero:read:example_first",
+            "strategy:walk-gaps:ticks:try_first",
+            "strategy:anchor-zero:ticks:example_first",
+            "strategy:anchor-zero:ticks:try_first",
+            "read+try_first",
+            "fine+try_first",
+            "strategy:read-intervals:fine:try_first",
+            "probe:place-unit"
+          ],
+          "choice_position": 1,
+          "seconds": 19.756,
+          "usage": {
+            "input": 2170,
+            "output": 63,
+            "ms": 19747
+          },
+          "reason_unverified": "The learner needs to understand how to count intervals correctly, and using a finer number line will help them see smaller gaps more clearly. Showing a worked example first can provide a clear reference before letting the learner practice."
+        }
+      ]
+    },
+    {
+      "id": "first-fine-placement",
+      "difficulty": "placement",
+      "acceptable": [
+        "probe:read-unit"
+      ],
+      "first_permitted": "tinker_teach",
+      "mistake_aware": "probe:read-unit",
+      "model_orders": [
+        {
+          "choice": "probe:read-unit",
+          "valid": true,
+          "acceptable": true,
+          "offered_order": [
+            "probe:read-unit",
+            "strategy:read-intervals:read:example_first",
+            "strategy:anchor-zero:ticks:example_first",
+            "strategy:anchor-zero:fine:example_first",
+            "ticks+example_first",
+            "strategy:read-intervals:ticks:example_first",
+            "strategy:walk-gaps:fine:example_first",
+            "ticks+try_first",
+            "strategy:anchor-zero:read:try_first",
+            "strategy:anchor-zero:fine:try_first",
+            "read+try_first",
+            "fine+try_first",
+            "strategy:read-intervals:fine:example_first",
+            "strategy:walk-gaps:ticks:example_first",
+            "strategy:anchor-zero:read:example_first",
+            "strategy:walk-gaps:fine:try_first",
+            "read+example_first",
+            "strategy:walk-gaps:ticks:try_first",
+            "fine+example_first",
+            "strategy:anchor-zero:ticks:try_first",
+            "strategy:read-intervals:ticks:try_first",
+            "probe:place-unit",
+            "strategy:read-intervals:read:try_first",
+            "strategy:read-intervals:fine:try_first"
+          ],
+          "choice_position": 1,
+          "seconds": 11.031,
+          "usage": {
+            "input": 2165,
+            "output": 32,
+            "ms": 11021
+          },
+          "reason_unverified": "To distinguish between interval counting, unit size, or direction errors before proceeding with instruction."
+        },
+        {
+          "choice": "walk-gaps",
+          "valid": true,
+          "acceptable": false,
+          "offered_order": [
+            "fine+try_first",
+            "strategy:anchor-zero:fine:example_first",
+            "read+example_first",
+            "strategy:anchor-zero:ticks:example_first",
+            "strategy:read-intervals:read:example_first",
+            "strategy:walk-gaps:ticks:try_first",
+            "strategy:read-intervals:fine:example_first",
+            "strategy:walk-gaps:fine:try_first",
+            "strategy:walk-gaps:ticks:example_first",
+            "strategy:anchor-zero:ticks:try_first",
+            "strategy:read-intervals:ticks:try_first",
+            "probe:read-unit",
+            "strategy:anchor-zero:read:example_first",
+            "read+try_first",
+            "strategy:read-intervals:read:try_first",
+            "strategy:anchor-zero:read:try_first",
+            "probe:place-unit",
+            "strategy:read-intervals:fine:try_first",
+            "fine+example_first",
+            "strategy:anchor-zero:fine:try_first",
+            "strategy:walk-gaps:fine:example_first",
+            "strategy:read-intervals:ticks:example_first",
+            "ticks+example_first",
+            "ticks+try_first"
+          ],
+          "choice_position": 8,
+          "seconds": 24.917,
+          "usage": {
+            "input": 2165,
+            "output": 64,
+            "ms": 24903
+          },
+          "reason_unverified": "The student placed the point at the wrong mark on a finer number line, suggesting an issue with interval counting or understanding of unit size and direction. The 'Walk the gaps from zero' strategy helps clarify these concepts."
+        }
+      ]
+    }
+  ],
+  "graph_links": "present",
+  "baselines": {
+    "first_permitted": "the first option in the offered list",
+    "mistake_aware": "the product rule, runner.rule_choice"
+  },
+  "model_protocol": "terminal action choice after a shared controller history inspection; two shuffled orders per case. Full role MCP execution is covered separately by integration tests",
+  "fixture_revision_note": "v2 replaces two unconstructable direction-error cases with generated off-by-one cases before the completed comparison. No valid result was reported for the initial fixture.",
+  "model_digest": "845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e",
+  "summary": {
+    "cases": 8,
+    "first_permitted_acceptable": 0,
+    "mistake_aware_acceptable": 8,
+    "model_trials": 16,
+    "model_acceptable": 12,
+    "order_stable_cases": 5
+  }
+}

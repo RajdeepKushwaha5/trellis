@@ -1,0 +1,30 @@
+{
+  "goals": 1590,
+  "bfs_rows": 1375,
+  "mismatches": 0,
+  "bfs_query": "MATCH (g:Concept) CALL algo.bfs(g,1590,'REQUIRES') YIELD nodes RETURN g.id,[n IN nodes | n.id]",
+  "normalization": "Add source concept; zero-descendant sources get singleton closures. Max depth 1590 covers any simple path in this validated 1590-concept DAG.",
+  "timings": {
+    "variable_length": {
+      "server_ms": [
+        76.590178,
+        144.81925,
+        240.600706,
+        121.504757,
+        80.056294
+      ],
+      "median_server_ms": 121.504757
+    },
+    "bfs": {
+      "server_ms": [
+        810.886421,
+        789.677365,
+        1130.086152,
+        853.262048,
+        988.713349
+      ],
+      "median_server_ms": 853.262048
+    }
+  },
+  "scope": "Five warm local read runs per query, not end-to-end latency or evidence of superior teaching."
+}

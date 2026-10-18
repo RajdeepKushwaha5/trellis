@@ -49,7 +49,7 @@ flowchart LR
 | | Role | Real choice | Boundary |
 |---|---|---|---|
 | <img src="web/assets/agents/scout.svg" width="56" alt="Scout the fox"> | **Scout**, pathfinder | Which permitted foundation to check; whether to inspect its criteria first | Cannot teach or grade |
-| <img src="web/assets/agents/tinker.svg" width="56" alt="Tinker the beaver"> | **Tinker**, experiment guide | Which permitted representation and lesson opening to use | Cannot inspect transfer answers or declare success |
+| <img src="web/assets/agents/tinker.svg" width="56" alt="Tinker the beaver"> | **Tinker**, experiment guide | Whether to investigate an ambiguous mistake first, and which graph-connected teaching strategy, representation and opening to use | Cannot inspect transfer answers or declare success |
 | <img src="web/assets/agents/lens.svg" width="56" alt="Lens the owl"> | **Lens**, challenger | Which eligible representation should test transfer | Cannot inspect task parameters or grade |
 
 These are three role-specific agent contexts using the same local model, each with its own stdio MCP server and restricted tools. They are not three separately trained models. Assay and Notebook are deterministic controller code, not additional agents.
@@ -75,6 +75,11 @@ FalkorDB supplies the topology, evidence queries and ranked options from which a
 - **Observed support changes the route.** The support streak joins answers to their issued tasks and representations.
 - **Inference stays a hypothesis.** An unobserved foundation below an observed supported skill can move later in the checking order. It is labelled inferred and never written as observed support.
 - **Lens excludes familiar representations.** Graph queries identify what the lesson offered and which representations already produced correct checks in the current run.
+- **A mistake picks the teaching strategy.** `Observation-[:SUGGESTS]->DifficultyHypothesis<-[:ADDRESSES]-TeachingStrategy` decides which strategies Tinker may use. A distinguishing check is offered only when the explanation node is marked `ambiguous`, and the issued item is chosen so its wrong answers split the open explanations.
+
+**FalkorDB features used.** Variable-length traversal (`REQUIRES*`), `shortestPath`, Cypher ranking, `GRAPH.COPY` (one graph per notebook, plus what-if copies), unique constraints and range indexes on every written id (`GRAPH.CONSTRAINT`, inherited by each copied notebook, so duplicates are refused by the database), a full-text index with stemming for curriculum search (`db.idx.fulltext.queryNodes`), and `GRAPH.EXPLAIN`: every deciding query on *Behind the lesson* can show FalkorDB's execution plan. Only the product's own query text can be explained; arbitrary Cypher is refused.
+
+**Agent design.** Each role sees only its own inputs and its permitted options, so a tool it should not use is not offered. Generation and judgement are separate: Tinker teaches, Lens challenges with a different representation, and code grades. The controller re-checks role, turn and state version immediately before every action, and a stale or out-of-turn call is refused rather than retried.
 
 These tutor queries live in [graphq.py](backend/tutor/graphq.py). For example:
 
@@ -99,6 +104,8 @@ The UI also includes the whole-curriculum constellation, a **Two learners** page
 
 ![A selected prerequisite route across the curriculum](evidence/screens/constellation-cross-subject-route.png)
 
+For the reasoning behind each algorithm and the alternatives considered, see [ALGORITHMS.md](ALGORITHMS.md).
+
 ## Architecture and evidence model
 
 The frontend is plain HTML, CSS, JavaScript and SVG. FastAPI serves the application. Ollama runs Qwen locally; MCP carries tool calls; FalkorDB stores the curriculum, learner evidence and tutor decisions.
@@ -121,19 +128,54 @@ flowchart TB
     Import --> DB
 ```
 
+### The graph model
+
 ```mermaid
 flowchart LR
-    C["Concept"] -->|REQUIRES| P["Prerequisite concept"]
-    A["Activity"] -->|TEACHES| C
-    A -->|OFFERS| R["Representation"]
-    A -->|ADDRESSES| Obj["Objective"]
-    Task["TaskIssue"] -->|CHECKS| C
-    Task -->|IN| R
-    Task -->|PRODUCED| O["Observation"]
-    O -->|ABOUT| C
-    L["Learner"] -->|HAS_STATE| S["LearningState"]
-    S -->|ABOUT| C
+    subgraph Curriculum["Curriculum (1,590 concepts, imported)"]
+        C["Concept"] -->|REQUIRES| P["Concept"]
+        C -.->|BENEFITS_FROM| P
+    end
+    subgraph Lessons["Lessons and teaching (ours)"]
+        A["Activity"] -->|TEACHES| C
+        A -->|OFFERS| R["Representation"]
+        A -->|ADDRESSES| Obj["Objective"]
+        A -->|USES_STRATEGY| TS["TeachingStrategy"]
+        TS -->|ADDRESSES| H["DifficultyHypothesis"]
+        D["Diagnostic"] -->|DISTINGUISHES| H
+    end
+    subgraph Evidence["One learner's evidence (a GRAPH.COPY per notebook)"]
+        Task["TaskIssue"] -->|CHECKS| C
+        Task -->|IN| R
+        Task -->|PRODUCED| O["Observation"]
+        O -->|ABOUT| C
+        O -->|SUGGESTS| H
+        L["Learner"] -->|HAS_STATE| S["LearningState"]
+        S -->|ABOUT| C
+        S -->|DERIVED_FROM| O
+    end
 ```
+
+Read an arrow as "depends on" for `REQUIRES`: `(goal)-[:REQUIRES]->(foundation)`. The ids of concepts, activities, representations, objectives, tasks, observations, learning states and the teaching nodes have unique constraints enforced by FalkorDB, and each notebook copy inherits them.
+
+### Where each agent decision comes from
+
+Each agent reads the graph only through its own MCP tools; the tools run these queries ([reasoning.py](backend/reasoning.py), [graphq.py](backend/tutor/graphq.py)). The model can only pick among the options they return.
+
+| Decision | Agent and tool | What FalkorDB computes |
+|---|---|---|
+| Which foundations exist behind this goal | Scout · `scout_route` | `(goal)-[:REQUIRES*0..]->(c)`: the complete multi-hop closure |
+| Why a foundation matters | Scout · `scout_route` | `shortestPath((goal)-[:REQUIRES*]->(c))`: the witness path shown to the parent |
+| How much of the route depends on it | Scout · `scout_route` | reverse `REQUIRES*0..` counted per candidate: route coverage |
+| Where to look after a mistake | Scout · `scout_route` | `(struggled)-[:REQUIRES*1..]->(p)<-[:TEACHES]-(:Activity)`: lessons below the difficulty, nearest first |
+| What can be skipped for now | Scout · `scout_route` | foundations below observed support with no observation of their own: inferred only, ranked later |
+| The order Scout sees | Scout · `scout_route` | one Cypher `ORDER BY` over suspect, distance, unchecked prerequisites, inference and coverage |
+| How to teach this mistake | Tinker · `tinker_handoff` | `Observation-[:SUGGESTS]->DifficultyHypothesis<-[:ADDRESSES]-TeachingStrategy<-[:USES_STRATEGY]-Activity` |
+| Whether to investigate first | Tinker · `tinker_probe` | `Diagnostic-[:DISTINGUISHES]->DifficultyHypothesis {ambiguous:true}`: offered only when the mistake is ambiguous |
+| Which representation tests transfer | Lens · `lens_handoff` | `Activity-[:OFFERS]->Representation`, minus representations already used by a correct check (`TaskIssue-[:IN]->Representation`) |
+| Whether the idea now counts as supported | Notebook (code) | the correct-check streak since the last mistake, joined through `PRODUCED`, `ABOUT` and `IN` |
+
+Remove the teaching links (`ADDRESSES`, `DISTINGUISHES`) and the targeted choices disappear: on the frozen cases the product rule drops from 12/12 to 0/12 and the model from 11/24 to 0/24 ([graph ablation](evidence/teaching-choice-model-no-graph-links.json)). Every query above can show FalkorDB's own execution plan on *Behind the lesson*.
 
 Each notebook is a graph copy of the versioned public curriculum plus private synthetic evidence. Task issues, observations, parent-report history and role decisions persist in the local database volume. Copying the curriculum per learner is a demo architecture, not a measured large-scale tenancy design.
 
@@ -184,16 +226,17 @@ These checks evaluate software behaviour on synthetic profiles. They do not meas
 
 | Evidence | Result and scope |
 |---|---|
-| [Software evaluation](evidence/evaluation.json) | **39 tests passed**: curriculum and investigation, fraction engine, tutor loop, and the investigation tools (probe, strategies, rule) |
+| [Software evaluation](evidence/evaluation.json) | **44 tests passed**: curriculum and investigation, fraction engine, tutor loop, investigation tools (probe, strategies, rule), and FalkorDB features (constraints, full-text search, EXPLAIN, ambiguity-gated probes) |
 | [Native reasoning tests](tests/test_native_reasoning.py) | All **1,590** prerequisite closures checked against an independent source-file traversal; selected coverage and shortest witnesses checked too |
 | [Query benchmark](evidence/native-query-benchmark.json) | All 1,590 closures in one query: about **27 ms median server time**, seven warm local runs; largest closure 120 concepts including the goal |
 | [Live tutor trace](evidence/tutor-live-loop.json) | Scout, Tinker and Lens acted through separate MCP servers using local Qwen; learner responses were scripted to exercise teaching |
 | [Browser agent loop](evidence/browser-agent-loop.json) | An actual browser response triggered a fresh investigation at the new evidence revision |
 | [Teaching-choice evaluation](evidence/teaching-choice-model.json) | 12 frozen synthetic cases, committed before the runs. Acceptable teaching choice: product rule **12/12**, local model **11/24** (two shuffled orders per case), always-first-option **0/12** |
+| [Held-out cases](evidence/teaching-choice-heldout-v1-model.json) | 8 new cases committed before running, after offering probes only for ambiguous mistakes: rule **8/8**, model **12/16** (11/12 on specific mistakes, 1/4 on ambiguous ones), always-first-option **0/8** |
 | [Graph ablation](evidence/teaching-choice-model-no-graph-links.json) | Same cases with the graph's mistake-to-strategy links deleted: rule **0/12**, model **0/24** |
 | [Screenshots](evidence/screens/) | Lessons, feedback, deciding queries, parent notes, comparison and mobile layout |
 
-**What the teaching-choice evaluation shows.** The cases and their acceptable actions were committed to the repository before these runs (see the commit history for `tests/fixtures/teaching-choice-v1.json`). The graph is what makes good choices possible: with its links between a mistake, a possible explanation and a strategy removed, every chooser fails. The model genuinely chooses (its picks fall at many positions in the shuffled list, not just the first), but it does **not** beat the simple rule: its main error was asking a distinguishing check when the mistake was already specific. An earlier run by a different setup, before the cases were committed, scored 18/24, so model results vary between runs. That is why the product exposes both modes and labels which one acted. The separate [two-goal model comparison](evidence/model-comparison.json) is a tiny investigation check, not a general model benchmark. Query timing is not end-to-end agent latency. No token-reduction or learning-effectiveness claim is made.
+**What the teaching-choice evaluation shows.** The cases and their acceptable actions were committed to the repository before these runs (see the commit history for `tests/fixtures/teaching-choice-v1.json`). The graph is what makes good choices possible: with its links between a mistake, a possible explanation and a strategy removed, every chooser fails. The model genuinely chooses (its picks fall at many positions in the shuffled list, not just the first), but it does **not** beat the simple rule: its main error was asking a distinguishing check when the mistake was already specific. An earlier run by a different setup, before the cases were committed, scored 18/24, so model results vary between runs. After that frozen run we changed one design decision: a distinguishing check is now offered only when the graph marks the mistake as ambiguous, because a specific mistake already points at its explanation. To avoid scoring a change against cases we had already seen, we wrote 8 new cases, committed them, and only then ran them: the model chose acceptably in 12 of 16 trials. It now handles specific mistakes well but still struggles to ask the distinguishing check when a placement error is ambiguous. The rule remains the stronger chooser on these cases, which is why the product exposes both modes and labels which one acted. The separate [two-goal model comparison](evidence/model-comparison.json) is a tiny investigation check, not a general model benchmark. Query timing is not end-to-end agent latency. No token-reduction or learning-effectiveness claim is made.
 
 ### Reproduce the checks
 
@@ -224,6 +267,7 @@ For model-driven checks, also start Ollama with the selected model available:
 .\.venv\Scripts\python.exe -m backend.tutor.live_check
 .\.venv\Scripts\python.exe -m backend.tutor.choice_eval            # rule baselines, no model
 .\.venv\Scripts\python.exe -m backend.tutor.choice_eval --model    # add --ablate to remove the graph links
+.\.venv\Scripts\python.exe -m backend.tutor.choice_eval --model --fixture tests/fixtures/teaching-choice-heldout-v1.json
 npm run check:agent
 ```
 
@@ -246,14 +290,4 @@ The general investigation trace also records model identity, actual token usage 
 | [activities/](activities/) | Water diagnostics and fraction lesson mappings |
 | [tests/](tests/) · [evidence/](evidence/) | Executable checks and saved reports |
 
-## Limits and next steps
-
-This is a local prototype with synthetic notebooks. Lessons need educator review. The 1,590-concept graph has source criteria on 1,555 concepts; 35 are explicit coverage gaps. Interactive teaching covers seven fractions lessons; five water activities remain diagnostics. Rule v2 makes guessing unlikely but not impossible, and it is a product policy rather than a validated mastery threshold. The teaching strategies and possible explanations are authored prototype content, not educator-reviewed pedagogy.
-
-Next priorities are educator-reviewed content, broader activity coverage, accessible alternatives and a larger frozen evaluation. Production accounts, consent flows, quotas, backups, multi-worker concurrency and robust rubric migration remain work to do. Keep this prototype on localhost. Current notebook isolation is not production child-data security.
-
-## Data, licenses and AI assistance
-
-Bundled curriculum data and content retain applicable licenses and attribution in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and the bundled license files. Trellis layers its activities, agents and evidence model over that curriculum.
-
-Built during the hackathon with AI coding assistance. Project authors remain responsible for reviewing and understanding the implementation.
+Built during the hackathon with AI coding assistance. Project authors remain responsible for reviewing and understanding the implementation. The bundled curriculum data keeps its own licences and attribution: see [vendor/os-taxonomy/LICENSE](vendor/os-taxonomy/LICENSE) and [LICENSE-CONTENT](vendor/os-taxonomy/LICENSE-CONTENT).
