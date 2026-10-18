@@ -117,10 +117,27 @@ def pool(family, rep, allowed):
     return out
 
 
-def pick(family, rep, allowed, used, seed):
-    """First unused task in this learner's own shuffled order. Raises Exhausted instead of repeating."""
+READ_CODES = {'marks': 'counted_marks', 'extra': 'off_by_one', 'from_right': 'from_right'}
+
+
+def reveals(p):
+    """The mistakes this item's wrong answers can expose. A distinguishing check prefers items that split open ones."""
+    if p['family'] == 'equal_parts':
+        return {'unequal_parts', 'wrong_count'}
+    if p['family'] == 'build':
+        return {'shade_count'}
+    if p['rep'] == 'read':
+        return {READ_CODES[k] for k, _ in _read_options(p) if k in READ_CODES}
+    return {'placement'}
+
+
+def pick(family, rep, allowed, used, seed, want=None):
+    """First unused task in this learner's own shuffled order. Raises Exhausted instead of repeating.
+    With `want`, items whose wrong answers expose more of those mistakes come first."""
     tasks = pool(family, rep, allowed)
     random.Random(seed).shuffle(tasks)
+    if want:
+        tasks.sort(key=lambda t: -len(reveals(t) & set(want)))
     for t in tasks:
         if key(t) not in used:
             return t

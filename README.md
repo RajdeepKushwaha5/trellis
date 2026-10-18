@@ -95,7 +95,7 @@ RETURN a.id, p.id, f.id, f.name, min(length(path)) AS steps
 ORDER BY steps
 ```
 
-The UI also includes the whole-curriculum constellation, a **Two learners** comparison with labelled synthetic starting profiles, and a `GRAPH.COPY` what-if preview. A preview modifies a temporary copy, recalculates the route and deletes that copy. It does not record a learning result.
+The UI also includes the whole-curriculum constellation, a **Two learners** page (two synthetic learners slip on the same fractions foundation in different ways, so Tinker teaches one directly and investigates the other first, both answerable live), and a `GRAPH.COPY` what-if preview. A preview modifies a temporary copy, recalculates the route and deletes that copy. It does not record a learning result.
 
 ![A selected prerequisite route across the curriculum](evidence/screens/constellation-cross-subject-route.png)
 
@@ -141,7 +141,7 @@ Each notebook is a graph copy of the versioned public curriculum plus private sy
 
 The fractions engine enumerates **787 distinct tasks across seven lessons**, covering equal parts, building fractions and number lines. Tasks have stable identities, are not repeated within a notebook, and use server-side answer keys with exact `fractions.Fraction` arithmetic. Worked examples are retired from checks. Exhaustion pauses the activity instead of recycling items.
 
-**Support rule v1:** two correct, unhinted checks on different items and in different representations since the last incorrect check, including at least one Lens transfer. This means `supported_for_objective`, not proven mastery. Hinted practice cannot satisfy the rule. A supported objective becomes eligible for a later check after a configurable delay.
+**Support rule v2:** since the last incorrect check, correct unhinted checks on different items in at least two representations, including a Lens transfer and at least one answer the learner built (shading or placing a point). Lessons that only offer three-option picture questions need three such checks, so guessing is unlikely to pass. This means `supported_for_objective`, not proven mastery. Hinted practice cannot satisfy the rule. A supported objective becomes eligible for a later check after a configurable delay.
 
 Parent reports, observed task responses and inferred hypotheses stay distinct. Reports can be revised without erasing history. Role conversations are separate; handoffs are structured records. The controller rejects stale, foreign and out-of-turn actions. Raw model explanations are unverified text and cannot establish support.
 
@@ -166,7 +166,7 @@ For live agents, install Ollama, make sure it is running, then:
 ollama pull qwen2.5:7b
 ```
 
-Choose the fractions expedition and **Start the expedition**. To try the same roles without a model, use **Run the same roles without a model**. This chooses the first permitted option and is labelled policy, not AI.
+Choose the fractions expedition and **Start the expedition**. To try the same roles without a model, use **Run the same roles without a model**. This uses the product's mistake-aware rule (`runner.rule_choice`) through the same role servers, and is labelled rule-based, not AI. With the model, options are shown in shuffled order and every choice records whether it matches the rule.
 
 | Setting | Default | Purpose |
 |---|---|---|
@@ -184,14 +184,16 @@ These checks evaluate software behaviour on synthetic profiles. They do not meas
 
 | Evidence | Result and scope |
 |---|---|
-| [Software evaluation](evidence/evaluation.json) | **32 tests passed**: 14 curriculum/investigation tests, 7 fraction-engine tests and 11 tutor-loop tests |
+| [Software evaluation](evidence/evaluation.json) | **39 tests passed**: curriculum and investigation, fraction engine, tutor loop, and the investigation tools (probe, strategies, rule) |
 | [Native reasoning tests](tests/test_native_reasoning.py) | All **1,590** prerequisite closures checked against an independent source-file traversal; selected coverage and shortest witnesses checked too |
 | [Query benchmark](evidence/native-query-benchmark.json) | All 1,590 closures in one query: about **27 ms median server time**, seven warm local runs; largest closure 120 concepts including the goal |
 | [Live tutor trace](evidence/tutor-live-loop.json) | Scout, Tinker and Lens acted through separate MCP servers using local Qwen; learner responses were scripted to exercise teaching |
 | [Browser agent loop](evidence/browser-agent-loop.json) | An actual browser response triggered a fresh investigation at the new evidence revision |
+| [Teaching-choice evaluation](evidence/teaching-choice-model.json) | 12 frozen synthetic cases, committed before the runs. Acceptable teaching choice: product rule **12/12**, local model **11/24** (two shuffled orders per case), always-first-option **0/12** |
+| [Graph ablation](evidence/teaching-choice-model-no-graph-links.json) | Same cases with the graph's mistake-to-strategy links deleted: rule **0/12**, model **0/24** |
 | [Screenshots](evidence/screens/) | Lessons, feedback, deciding queries, parent notes, comparison and mobile layout |
 
-The recorded live tutor run selected the first permitted option for every role. It verifies model/MCP execution but does **not** demonstrate better choices than policy mode. The separate [two-goal model comparison](evidence/model-comparison.json) is a tiny investigation check, not a general model benchmark. Query timing is not end-to-end agent latency. No token-reduction or learning-effectiveness claim is made.
+**What the teaching-choice evaluation shows.** The cases and their acceptable actions were committed to the repository before these runs (see the commit history for `tests/fixtures/teaching-choice-v1.json`). The graph is what makes good choices possible: with its links between a mistake, a possible explanation and a strategy removed, every chooser fails. The model genuinely chooses (its picks fall at many positions in the shuffled list, not just the first), but it does **not** beat the simple rule: its main error was asking a distinguishing check when the mistake was already specific. An earlier run by a different setup, before the cases were committed, scored 18/24, so model results vary between runs. That is why the product exposes both modes and labels which one acted. The separate [two-goal model comparison](evidence/model-comparison.json) is a tiny investigation check, not a general model benchmark. Query timing is not end-to-end agent latency. No token-reduction or learning-effectiveness claim is made.
 
 ### Reproduce the checks
 
@@ -211,6 +213,7 @@ node vendor/os-taxonomy/scripts/validate.mjs
 npm ci
 npm run check:ui
 npm run check:tutor
+node ui-investigation-check.mjs
 ```
 
 Browser checks need the backend running and Google Chrome at the Windows path used by the scripts. They cover desktop/mobile views, the policy-mode tutor loop, answer-payload checks, query visibility and parent notes. Outputs go to `artifacts/`.
@@ -219,6 +222,8 @@ For model-driven checks, also start Ollama with the selected model available:
 
 ```powershell
 .\.venv\Scripts\python.exe -m backend.tutor.live_check
+.\.venv\Scripts\python.exe -m backend.tutor.choice_eval            # rule baselines, no model
+.\.venv\Scripts\python.exe -m backend.tutor.choice_eval --model    # add --ablate to remove the graph links
 npm run check:agent
 ```
 
@@ -243,9 +248,9 @@ The general investigation trace also records model identity, actual token usage 
 
 ## Limits and next steps
 
-This is a local prototype with synthetic notebooks. Lessons need educator review. The 1,590-concept graph has source criteria on 1,555 concepts; 35 are explicit coverage gaps. Interactive teaching covers seven fractions lessons; five water activities remain diagnostics. Multiple-choice checks can be guessed, and the support rule is a product policy rather than a validated mastery threshold.
+This is a local prototype with synthetic notebooks. Lessons need educator review. The 1,590-concept graph has source criteria on 1,555 concepts; 35 are explicit coverage gaps. Interactive teaching covers seven fractions lessons; five water activities remain diagnostics. Rule v2 makes guessing unlikely but not impossible, and it is a product policy rather than a validated mastery threshold. The teaching strategies and possible explanations are authored prototype content, not educator-reviewed pedagogy.
 
-Next priorities are educator-reviewed content, broader activity coverage, accessible alternatives and a frozen model-versus-policy evaluation. Production accounts, consent flows, quotas, backups, multi-worker concurrency and robust rubric migration remain work to do. Keep this prototype on localhost. Current notebook isolation is not production child-data security.
+Next priorities are educator-reviewed content, broader activity coverage, accessible alternatives and a larger frozen evaluation. Production accounts, consent flows, quotas, backups, multi-worker concurrency and robust rubric migration remain work to do. Keep this prototype on localhost. Current notebook isolation is not production child-data security.
 
 ## Data, licenses and AI assistance
 

@@ -112,7 +112,7 @@ async function loadNotes(){const d=await api('notebook'),r=d.plan.route;
  $('parent-observations').innerHTML=(d.parent_observations||[]).map(o=>`<div class="observation"><span>↗</span><span>${esc(d.plan.nodes.find(n=>n.id===o.concept)?.name||o.concept)} / criterion ${o.criterion+1}</span><span>${esc(o.response)} / parent-reported</span></div>`).join('')||'<p class="small">No parent observations.</p>';
  $('trace').innerHTML=d.decisions.map(x=>`<div class="tool"><b>${esc(x.model)}</b> <small>${x.plan_fingerprint===d.plan.fingerprint?'current evidence revision':'historical decision / evidence revision changed'}</small><br>${esc(x.reason)}<pre>${esc(JSON.stringify(x.trace,null,2))}</pre>Runtime tokens: ${x.usage.input??'unknown'} input, ${x.usage.output??'unknown'} output. Digest ${esc(x.provenance?.model_digest?.slice(0,12)||'unknown')}.<details><summary>Unverified model rationale</summary>${esc(x.model_reason_unverified)}</details></div>`).join('')||'No investigation-agent decision recorded. Manual checks do not count as agent decisions.';
  if((d.role_decisions||[]).length&&!d.decisions.length)$('trace').innerHTML='';
- $('trace').insertAdjacentHTML('beforeend',(d.role_decisions||[]).map(x=>`<div class="tool"><b>${esc(ROLES[x.role]?.name||x.role)}</b> <small>${x.decisions.map(c=>`${c.chooser==='model'?'model '+esc(c.model):'policy fallback, no model'} chose option ${c.rank_in_options} of ${c.options.length}: ${esc(c.label)}`).join(' / ')}</small><br>Tools exposed to this role: ${x.tools.map(esc).join(', ')}<details><summary>Tool trace and unverified model words</summary><pre>${esc(JSON.stringify(x.trace,null,2))}</pre>${x.decisions.map(c=>`<p>${esc(c.model_reason_unverified)}</p>`).join('')}</details></div>`).join(''));return d;
+ $('trace').insertAdjacentHTML('beforeend',(d.role_decisions||[]).map(x=>`<div class="tool"><b>${esc(ROLES[x.role]?.name||x.role)}</b> <small>${x.decisions.map(c=>`${c.chooser==='model'?'model '+esc(c.model):'rule-based, no model'} chose from ${c.options.length} options: ${esc(c.label)}${c.chooser==='model'&&c.rule_label!==undefined?(c.agrees_with_rule?' (same as the rule)':` (the rule would choose: ${esc(c.rule_label)})`):''}`).join(' / ')}</small><br>Tools exposed to this role: ${x.tools.map(esc).join(', ')}<details><summary>Tool trace and unverified model words</summary><pre>${esc(JSON.stringify(x.trace,null,2))}</pre>${x.decisions.map(c=>`<p>${esc(c.model_reason_unverified)}</p>`).join('')}</details></div>`).join(''));return d;
 }
 async function loadCurriculum(){await ensureAtlas();const d=await api(`curriculum?subject=${encodeURIComponent(curriculum.subject)}&q=${encodeURIComponent(curriculum.q)}&offset=${curriculum.offset}`);
  $('subjects').innerHTML=[{name:'',count:1590},...d.subjects].map(s=>`<button class="subject ${s.name===curriculum.subject?'selected':''}" data-subject="${esc(s.name)}">${esc(s.name||'All subjects')} <small>${s.count}</small></button>`).join('');$('subjects').querySelectorAll('button').forEach(b=>b.onclick=()=>{curriculum.subject=b.dataset.subject;curriculum.offset=0;loadCurriculum().catch(e=>notice(e.message));});
@@ -124,12 +124,33 @@ async function changeGoal(id){if(busy)return;try{plan=await api('goal',{concept_
 let timer;$('curriculum-search').oninput=()=>{clearTimeout(timer);timer=setTimeout(()=>{curriculum.q=$('curriculum-search').value;curriculum.offset=0;loadCurriculum().catch(e=>notice(e.message));},250);};
  $('previous').onclick=()=>{curriculum.offset=Math.max(0,curriculum.offset-24);loadCurriculum().catch(e=>notice(e.message));};$('more').onclick=()=>{curriculum.offset+=24;loadCurriculum().catch(e=>notice(e.message));};
 let searchTimer;$('search').oninput=()=>{clearTimeout(searchTimer);searchTimer=setTimeout(async()=>{try{const d=await api('search?q='+encodeURIComponent($('search').value));$('search-results').innerHTML=d.concepts.map(c=>`<button class="search-result" data-goal="${esc(c.id)}"><span>${esc(c.name)}</span><small>${esc(c.subject)} / choose this goal ↗</small></button>`).join('');$('search-results').querySelectorAll('[data-goal]').forEach(b=>b.onclick=()=>changeGoal(b.dataset.goal));}catch(e){notice(e.message);}},250);};
+// Two learners on the fractions route: the seeded mistake, the possible explanation the graph links to it,
+// each role move so far, and the live task. Answers go to that learner's own notebook graph.
+function renderFractionLearner(side){
+ const p=comparison.profiles[side],el=$('compare-card-'+side),moves={scout:'Scout',tinker:'Tinker',lens:'Lens'};
+ el.innerHTML=`<p class="eyebrow">SYNTHETIC LEARNER ${p.side}</p><h3>${esc(p.title)}</h3>
+  <p><b>Their answer:</b> ${esc(p.seeded.prompt)} They gave ${esc(p.seeded.answer)}, which ${esc(p.seeded.meaning)}.</p>
+  <p><b>Possible explanation, from the graph:</b> ${esc(p.explanation||'none linked')}</p>
+  <div class="compare-moves">${p.decisions.map(d=>`<div class="trail-step choice"><span class="trail-tag">${esc(moves[d.role])} · RULE-BASED</span><b>${esc(d.label)}</b><small>${esc(d.why)}</small></div>`).join('')}</div>
+  <p class="small">${esc(p.note)}</p><div class="compare-task task" id="compare-task-${side}"></div>`;
+ const box=$('compare-task-'+side);
+ if(!p.task){box.innerHTML='<p>No open task. Review this notebook\u2019s route.</p>';return;}
+ renderFraction(box,p.task,{submit:async response=>{
+   try{const d=await api('comparison/fractions/answer',{comparison_id:comparison.id,side,task:p.task.task,response});
+    const r=d.result,next=d.moved;
+    box.querySelector('#feedback').innerHTML=`<div class="feedback"><b>${r.correct?'That works.':'Let\u2019s look a little closer.'}</b><br>${esc(r.explanation)}<p class="small">${esc(r.note)}</p></div>${next?`<button class="text-button" data-continue>${esc(moves[next.role])} chose: ${esc(next.label)} →</button>`:''}`;
+    const go=box.querySelector('[data-continue]');if(go)go.onclick=()=>{comparison.profiles[side]=d.profile;renderFractionLearner(side);};
+    else comparison.profiles[side]=d.profile;
+    return r;}catch(e){notice(e.message);return null;}},
+  hint:()=>api('comparison/fractions/hint',{comparison_id:comparison.id,side,task:p.task.task}).catch(e=>{notice(e.message);return null;})});
+}
 function renderComparison(){
+ if(comparison.kind==='fractions'){$('comparison').innerHTML=comparison.profiles.map((_,i)=>`<article class="comparison-card" id="compare-card-${i}"></article>`).join('');comparison.profiles.forEach((_,i)=>renderFractionLearner(i));return;}
  $('comparison').innerHTML=comparison.profiles.map((profile,side)=>`<article class="comparison-card"><p class="eyebrow">SYNTHETIC NOTEBOOK ${side===0?'A':'B'}</p><h3>${esc(profile.label)}</h3><p>Seeded software fixture, not a real child's performance.</p><p id="compare-next-${side}"><b>Next:</b> ${esc(profile.plan.selected?.title||'Review the route')}</p><div id="compare-graph-${side}"></div><div id="compare-task-${side}"><button class="text-button" data-compare="${side}">Try a live response in this notebook →</button></div></article>`).join('');
  comparison.profiles.forEach((p,i)=>drawGraph($('compare-graph-'+i),p.plan,null,{compact:true,soft:false}));document.querySelectorAll('[data-compare]').forEach(b=>b.onclick=()=>compareStep(Number(b.dataset.compare)));
 }
 async function compareStep(side,choice){const profile=comparison.profiles[side],old=$('compare-task-'+side);old.querySelectorAll('button').forEach(b=>b.disabled=true);try{const body={comparison_id:comparison.id,side};if(choice!==undefined){body.choice=choice;body.action=profile.action.action;}const d=await api('comparison/step',body);profile.plan=d.plan;profile.action=d.action;drawGraph($('compare-graph-'+side),d.plan,null,{compact:true,soft:false});$('compare-next-'+side).textContent='Next: '+(d.plan.selected?.title||'Review uncertainty');old.innerHTML=(d.result?`<div class="feedback">${esc(d.result.explanation)}</div>`:'')+(d.action?`<p class="source-label">${d.action.kind==='parent_check'?'PARENT REPORT':'GRADED PROTOTYPE TASK'}</p><h4>${esc(d.action.item.question)}</h4><div class="answers">${d.action.item.options.map((o,i)=>`<button class="answer" data-cchoice="${i}">${esc(o)}</button>`).join('')}</div>`:'<p>No further check. Review unresolved evidence.</p>');old.querySelectorAll('[data-cchoice]').forEach(b=>b.onclick=()=>compareStep(side,Number(b.dataset.cchoice)));notice('Comparison updated using a real response in its own synthetic learner graph.');}catch(e){notice(e.message);old.querySelectorAll('button').forEach(b=>b.disabled=false);}}
-async function openComparison(){if(busy)return;busy=true;$('compare-start').disabled=true;try{comparison=await api('comparison',{});renderComparison();notice('Two controlled profiles opened. Initial task support is seeded and labelled synthetic.');}catch(e){notice(e.message);}finally{busy=false;$('compare-start').disabled=false;}}
+async function openComparison(){if(busy)return;busy=true;$('compare-start').disabled=true;try{comparison=await api('comparison/fractions',{});comparison.kind='fractions';renderComparison();notice('Two synthetic learners opened. Each slipped on the same foundation in a different way.');}catch(e){notice(e.message);}finally{busy=false;$('compare-start').disabled=false;}}
  $('compare-start').onclick=openComparison;
  $('show-soft').onchange=()=>drawGraph($('map-view'),mapPlan(),inspectConcept,{soft:$('show-soft').checked});
  $('manual').onclick=()=>lessonRoute()?tutorStep(false):next(false);$('agent').onclick=()=>lessonRoute()?tutorStep(true):next(true);
@@ -173,7 +194,7 @@ async function tutorStep(useModel){
    if(job.status==='completed'){result=job.result;break;}if(job.status!=='running')throw Error(job.error||'Stopped');
    await new Promise(r=>setTimeout(r,450));}
   const last=result.decisions?.at(-1);
-  $('agent-status').textContent=last?`${ROLES[result.role].name} chose option ${last.rank_in_options} of ${last.options.length}${last.chooser==='policy'?' by policy, no model':' with the local model'}: ${last.label}.`:result.note||'';
+  $('agent-status').textContent=last?`${ROLES[result.role].name} chose: ${last.label} (${last.chooser==='policy'?'rule-based, no model':last.agrees_with_rule?'local model, same as the rule':'local model, different from the rule'}).`:result.note||'';
   notice('');
  }catch(e){notice(e.message);$('agent-status').textContent='Stopped. Only answered tasks change the notebook.';}
  finally{activeJob=null;busy=false;await refreshTutor().catch(()=>{});render();if(result?.task)showFraction(result.task);}

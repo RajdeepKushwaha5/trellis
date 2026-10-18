@@ -1,7 +1,7 @@
 """Owned synthetic browser-check fixtures. Never used by the application."""
 import json,sys
 from ..core import graph_for
-from .choice_eval import seed
+from .fixtures import seed
 from . import session as t
 
 if sys.argv[1]=='create':

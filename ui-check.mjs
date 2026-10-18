@@ -21,12 +21,15 @@ try{
  await p.click('nav [data-tab="map"]');await p.waitForNetworkIdle({idleTime:600});
  await p.screenshot({path:'artifacts/prerequisite-graph.png',fullPage:true});
  await p.click('nav [data-tab="compare"]');await p.click('#compare-start');await p.waitForSelector('.comparison-card');
- const nexts=await p.$$eval('[id^="compare-next-"]',els=>els.map(e=>e.textContent));assert(nexts.length===2&&nexts[0]!==nexts[1],'Profiles did not diverge');
- await p.click('[data-compare="0"]');await p.waitForSelector('#compare-task-0 [data-cchoice]');await p.click('#compare-task-0 [data-cchoice="0"]');await p.waitForSelector('#compare-task-0 .feedback');
+ await p.waitForFunction(()=>document.querySelectorAll('.comparison-card .compare-moves .trail-step').length>=2,{timeout:60000});
+ const moves=await p.$$eval('.comparison-card .compare-moves b',els=>els.map(e=>e.textContent));assert(moves.length===2&&moves[0]!==moves[1],'Different mistakes did not lead to different moves');
+ const box='#compare-task-0';
+ if(await p.$(box+' [data-choice]'))await p.click(box+' [data-choice="0"]');else if(await p.$(box+' .tick'))await (await p.$$(box+' .tick'))[1].click();else await (await p.$$(box+' .part'))[0].click();
+ await p.click(box+' #check-answer');await p.waitForSelector(box+' .feedback');
  await p.screenshot({path:'artifacts/two-learners.png',fullPage:true});
  await p.click('nav [data-tab="notes"]');await p.waitForSelector('#learning-route h3');assert(await p.$eval('#parent-observations',e=>e.textContent.includes('parent-reported')),'Parent evidence absent');
  await p.setViewport({width:390,height:844,isMobile:true});
  for(const name of ['curriculum','map','compare','notes','lab']){await p.click(`nav [data-tab="${name}"]`);assert(!await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth),'Mobile overflow: '+name);}
  await p.screenshot({path:'artifacts/expanded-mobile.png',fullPage:true});
- assert(!errors.length,errors.join('; '));console.log('PASS: curriculum selection, parent reporting, SVG graph, preview, divergent profiles with live answer, route notes, all five mobile views, no browser errors.');
+ assert(!errors.length,errors.join('; '));console.log('PASS: curriculum selection, parent reporting, SVG graph, preview, two learners with different mistakes and a live answer, route notes, all five mobile views, no browser errors.');
 }finally{await browser.close();}

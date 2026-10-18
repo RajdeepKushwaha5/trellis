@@ -1,0 +1,666 @@
+{
+  "fixture_sha256": "04606831f6ab29a146d3a54006e06767919c55d92dc788bd0d5a7c8b5fcceacc",
+  "scope": "Author-written synthetic action-selection rubric, frozen before running comparisons. Not educator-reviewed or a learning-outcomes study. Generic lessons are valid but do not satisfy this targeted-strategy rubric.",
+  "model": "qwen2.5:7b",
+  "options": {
+    "temperature": 0,
+    "num_ctx": 4096,
+    "num_predict": 160
+  },
+  "cases": [
+    {
+      "id": "area-strip",
+      "difficulty": "unequal_parts",
+      "acceptable": [
+        "compare-area"
+      ],
+      "first_permitted": "tinker_teach",
+      "mistake_aware": "tinker_teach",
+      "model_orders": [
+        {
+          "choice": "tinker_teach",
+          "valid": true,
+          "acceptable": false,
+          "offered_order": [
+            "circle+try_first",
+            "bar+try_first",
+            "grid+try_first",
+            "bar+example_first",
+            "grid+example_first",
+            "circle+example_first"
+          ],
+          "choice_position": 2,
+          "seconds": 6.049,
+          "usage": {
+            "input": 759,
+            "output": 42,
+            "ms": 6045
+          },
+          "reason_unverified": "The previous lesson used fraction strips and resulted in unequal parts, so we need to use a different representation to avoid reinforcing the same mistake."
+        },
+        {
+          "choice": "tinker_teach",
+          "valid": true,
+          "acceptable": false,
+          "offered_order": [
+            "grid+example_first",
+            "bar+try_first",
+            "grid+try_first",
+            "bar+example_first",
+            "circle+try_first",
+            "circle+example_first"
+          ],
+          "choice_position": 3,
+          "seconds": 4.923,
+          "usage": {
+            "input": 759,
+            "output": 39,
+            "ms": 4919
+          },
+          "reason_unverified": "Using grid shares can help distinguish equal parts visually, and starting with an open attempt allows for immediate feedback on the mistake."
+        }
+      ]
+    },
+    {
+      "id": "area-pie",
+      "difficulty": "unequal_parts",
+      "acceptable": [
+        "compare-area"
+      ],
+      "first_permitted": "tinker_teach",
+      "mistake_aware": "tinker_teach",
+      "model_orders": [
+        {
+          "choice": "tinker_teach",
+          "valid": true,
+          "acceptable": false,
+          "offered_order": [
+            "bar+try_first",
+            "grid+example_first",
+            "circle+try_first",
+            "bar+example_first",
+            "circle+example_first",
+            "grid+try_first"
+          ],
+          "choice_position": 1,
+          "seconds": 5.224,
+          "usage": {
+            "input": 759,
+            "output": 42,
+            "ms": 5220
+          },
+          "reason_unverified": "Using fraction strips allows for a clear visual of equal parts, which can help address the issue of unequal parts observed in the previous lesson."
+        },
+        {
+          "choice": "tinker_teach",
+          "valid": true,
+          "acceptable": false,
+          "offered_order": [
+            "bar+try_first",
+            "grid+example_first",
+            "bar+example_first",
+            "grid+try_first",
+            "circle+try_first",
+            "circle+example_first"
+          ],
+          "choice_position": 1,
+          "seconds": 4.266,
+          "usage": {
+            "input": 759,
+            "output": 36,
+            "ms": 4263
+          },
+          "reason_unverified": "Using fraction strips can provide a clear visual of equal parts, helping to correct the observed unequal parts issue."
+        }
+      ]
+    },
+    {
+      "id": "count-strip",
+      "difficulty": "wrong_count",
+      "acceptable": [
+        "count-shares"
+      ],
+      "first_permitted": "tinker_teach",
+      "mistake_aware": "tinker_teach",
+      "model_orders": [
+        {
+          "choice": "tinker_teach",
+          "valid": true,
+          "acceptable": false,
+          "offered_order": [
+            "circle+try_first",
+            "circle+example_first",
+            "bar+try_first",
+            "grid+example_first",
+            "bar+example_first",
+            "grid+try_first"
+          ],
+          "choice_position": 3,
+          "seconds": 5.374,
+          "usage": {
+            "input": 757,
+            "output": 44,
+            "ms": 5370
+          },
+          "reason_unverified": "The student previously had difficulty with fraction strips and picked equal parts but the wrong number of them, so starting with an attempt allows for immediate feedback."
+        },
+        {
+          "choice": "tinker_teach",
+          "valid": true,
+          "acceptable": false,
+          "offered_order": [
+            "circle+example_first",
+            "bar+try_first",
+            "grid+try_first",
+            "grid+example_first",
+            "circle+try_first",
+            "bar+example_first"
+          ],
+          "choice_position": 2,
+          "seconds": 4.194,
+          "usage": {
+            "input": 757,
+            "output": 34,
+            "ms": 4191
+          },
+          "reason_unverified": "The student incorrectly counted equal parts, so starting with an attempt allows for immediate feedback and correction."
+        }
+      ]
+    },
+    {
+      "id": "count-grid",
+      "difficulty": "wrong_count",
+      "acceptable": [
+        "count-shares"
+      ],
+      "first_permitted": "tinker_teach",
+      "mistake_aware": "tinker_teach",
+      "model_orders": [
+        {
+          "choice": "tinker_teach",
+          "valid": true,
+          "acceptable": false,
+          "offered_order": [
+            "bar+example_first",
+            "circle+try_first",
+            "circle+example_first",
+            "bar+try_first",
+            "grid+example_first",
+            "grid+try_first"
+          ],
+          "choice_position": 5,
+          "seconds": 4.189,
+          "usage": {
+            "input": 747,
+            "output": 33,
+            "ms": 4185
+          },
+          "reason_unverified": "The learner had difficulty with the grid representation and needs to see a correct example before practicing."
+        },
+        {
+          "choice": "tinker_teach",
+          "valid": true,
+          "acceptable": false,
+          "offered_order": [
+            "grid+try_first",
+            "circle+try_first",
+            "circle+example_first",
+            "bar+try_first",
+            "grid+example_first",
+            "bar+example_first"
+          ],
+          "choice_position": 1,
+          "seconds": 3.754,
+          "usage": {
+            "input": 747,
+            "output": 29,
+            "ms": 3751
+          },
+          "reason_unverified": "The learner needs to practice identifying equal parts visually before seeing an explanation."
+        }
+      ]
+    },
+    {
+      "id": "shade-bar",
+      "difficulty": "shade_count",
+      "acceptable": [
+        "group-whole"
+      ],
+      "first_permitted": "tinker_teach",
+      "mistake_aware": "tinker_teach",
+      "model_orders": [
+        {
+          "choice": "tinker_teach",
+          "valid": true,
+          "acceptable": false,
+          "offered_order": [
+            "set+try_first",
+            "bar+example_first",
+            "circle+try_first",
+            "bar+try_first",
+            "set+example_first",
+            "circle+example_first"
+          ],
+          "choice_position": 4,
+          "seconds": 5.196,
+          "usage": {
+            "input": 752,
+            "output": 42,
+            "ms": 5193
+          },
+          "reason_unverified": "The student previously shaded the wrong number of equal parts on a fraction strip, so starting with an attempt allows for immediate feedback and correction."
+        },
+        {
+          "choice": "tinker_teach",
+          "valid": true,
+          "acceptable": false,
+          "offered_order": [
+            "bar+example_first",
+            "bar+try_first",
+            "circle+example_first",
+            "circle+try_first",
+            "set+example_first",
+            "set+try_first"
+          ],
+          "choice_position": 1,
+          "seconds": 5.031,
+          "usage": {
+            "input": 752,
+            "output": 43,
+            "ms": 5028
+          },
+          "reason_unverified": "The student previously shaded the wrong number of equal parts in a fraction strip, so showing a correct example will help clarify the concept before practice."
+        }
+      ]
+    },
+    {
+      "id": "shade-set",
+      "difficulty": "shade_count",
+      "acceptable": [
+        "group-whole"
+      ],
+      "first_permitted": "tinker_teach",
+      "mistake_aware": "tinker_teach",
+      "model_orders": [
+        {
+          "choice": "tinker_teach",
+          "valid": true,
+          "acceptable": false,
+          "offered_order": [
+            "circle+try_first",
+            "set+example_first",
+            "bar+try_first",
+            "circle+example_first",
+            "set+try_first",
+            "bar+example_first"
+          ],
+          "choice_position": 5,
+          "seconds": 6.351,
+          "usage": {
+            "input": 748,
+            "output": 53,
+            "ms": 6348
+          },
+          "reason_unverified": "The learner had difficulty shading the correct number of equal parts in a set, so starting with an activity where they can try first might help them develop the necessary skills before seeing a worked example."
+        },
+        {
+          "choice": "tinker_teach",
+          "valid": true,
+          "acceptable": false,
+          "offered_order": [
+            "set+try_first",
+            "circle+try_first",
+            "set+example_first",
+            "bar+try_first",
+            "bar+example_first",
+            "circle+example_first"
+          ],
+          "choice_position": 1,
+          "seconds": 6.079,
+          "usage": {
+            "input": 748,
+            "output": 52,
+            "ms": 6076
+          },
+          "reason_unverified": "The learner had difficulty shading the correct number of equal parts in a set, so starting with an activity that involves physical counters might help them better understand the concept before seeing a worked example."
+        }
+      ]
+    },
+    {
+      "id": "marks-read",
+      "difficulty": "counted_marks",
+      "acceptable": [
+        "walk-gaps",
+        "read-intervals"
+      ],
+      "first_permitted": "tinker_teach",
+      "mistake_aware": "tinker_teach",
+      "model_orders": [
+        {
+          "choice": "tinker_teach",
+          "valid": true,
+          "acceptable": false,
+          "offered_order": [
+            "fine+try_first",
+            "fine+example_first",
+            "read+example_first",
+            "ticks+try_first",
+            "ticks+example_first",
+            "read+try_first"
+          ],
+          "choice_position": 2,
+          "seconds": 4.942,
+          "usage": {
+            "input": 784,
+            "output": 34,
+            "ms": 4939
+          },
+          "reason_unverified": "Using a finer number line can help distinguish between marks and gaps, addressing the counted_marks difficulty."
+        },
+        {
+          "choice": "tinker_teach",
+          "valid": true,
+          "acceptable": false,
+          "offered_order": [
+            "ticks+try_first",
+            "read+example_first",
+            "fine+example_first",
+            "fine+try_first",
+            "read+try_first",
+            "ticks+example_first"
+          ],
+          "choice_position": 1,
+          "seconds": 5.22,
+          "usage": {
+            "input": 784,
+            "output": 45,
+            "ms": 5217
+          },
+          "reason_unverified": "The student counted marks instead of gaps, so using a number line marked in the same parts (ticks) will help them focus on the correct intervals."
+        }
+      ]
+    },
+    {
+      "id": "marks-advanced",
+      "difficulty": "counted_marks",
+      "acceptable": [
+        "walk-gaps",
+        "read-intervals"
+      ],
+      "first_permitted": "tinker_teach",
+      "mistake_aware": "tinker_teach",
+      "model_orders": [
+        {
+          "choice": "tinker_teach",
+          "valid": true,
+          "acceptable": false,
+          "offered_order": [
+            "fine+example_first",
+            "read+example_first",
+            "read+try_first",
+            "ticks+try_first",
+            "ticks+example_first",
+            "fine+try_first"
+          ],
+          "choice_position": 2,
+          "seconds": 5.3,
+          "usage": {
+            "input": 783,
+            "output": 43,
+            "ms": 5295
+          },
+          "reason_unverified": "The student counted the marks instead of understanding the gaps, so we need to focus on the concept of reading points correctly on a number line."
+        },
+        {
+          "choice": "tinker_teach",
+          "valid": true,
+          "acceptable": false,
+          "offered_order": [
+            "read+example_first",
+            "ticks+example_first",
+            "read+try_first",
+            "fine+example_first",
+            "fine+try_first",
+            "ticks+try_first"
+          ],
+          "choice_position": 1,
+          "seconds": 4.507,
+          "usage": {
+            "input": 783,
+            "output": 37,
+            "ms": 4504
+          },
+          "reason_unverified": "The student counted marks instead of gaps, so showing a correct placement on a number line is needed before practice."
+        }
+      ]
+    },
+    {
+      "id": "off-by-one-read",
+      "difficulty": "off_by_one",
+      "acceptable": [
+        "walk-gaps"
+      ],
+      "first_permitted": "tinker_teach",
+      "mistake_aware": "tinker_teach",
+      "model_orders": [
+        {
+          "choice": "tinker_teach",
+          "valid": true,
+          "acceptable": false,
+          "offered_order": [
+            "ticks+try_first",
+            "ticks+example_first",
+            "fine+example_first",
+            "read+example_first",
+            "fine+try_first",
+            "read+try_first"
+          ],
+          "choice_position": 1,
+          "seconds": 7.241,
+          "usage": {
+            "input": 782,
+            "output": 60,
+            "ms": 7238
+          },
+          "reason_unverified": "The previous mistake was off by one gap on the number line when reading a fraction, so starting with a basic representation of a number line marked in the same parts will help clarify the correct placement before moving to more complex representations."
+        },
+        {
+          "choice": "tinker_teach",
+          "valid": true,
+          "acceptable": false,
+          "offered_order": [
+            "ticks+try_first",
+            "ticks+example_first",
+            "fine+try_first",
+            "read+try_first",
+            "read+example_first",
+            "fine+example_first"
+          ],
+          "choice_position": 1,
+          "seconds": 6.108,
+          "usage": {
+            "input": 782,
+            "output": 53,
+            "ms": 6105
+          },
+          "reason_unverified": "The previous mistake was off by one gap on the number line when reading a marked point. A representation using ticks to mark parts of the number line can help clarify where fractions should be placed."
+        }
+      ]
+    },
+    {
+      "id": "off-by-one-advanced",
+      "difficulty": "off_by_one",
+      "acceptable": [
+        "walk-gaps"
+      ],
+      "first_permitted": "tinker_teach",
+      "mistake_aware": "tinker_teach",
+      "model_orders": [
+        {
+          "choice": "tinker_teach",
+          "valid": true,
+          "acceptable": false,
+          "offered_order": [
+            "ticks+example_first",
+            "fine+try_first",
+            "fine+example_first",
+            "ticks+try_first",
+            "read+try_first",
+            "read+example_first"
+          ],
+          "choice_position": 4,
+          "seconds": 5.19,
+          "usage": {
+            "input": 778,
+            "output": 41,
+            "ms": 5186
+          },
+          "reason_unverified": "The previous mistake was off by one gap, suggesting a need for clearer guidance on segmenting the number line before allowing independent practice."
+        },
+        {
+          "choice": "tinker_teach",
+          "valid": true,
+          "acceptable": false,
+          "offered_order": [
+            "ticks+try_first",
+            "read+try_first",
+            "ticks+example_first",
+            "fine+try_first",
+            "fine+example_first",
+            "read+example_first"
+          ],
+          "choice_position": 1,
+          "seconds": 5.614,
+          "usage": {
+            "input": 778,
+            "output": 48,
+            "ms": 5610
+          },
+          "reason_unverified": "The previous mistake was off by one gap on the number line, so using a number line marked in the same parts (ticks) can help visually distinguish between segments."
+        }
+      ]
+    },
+    {
+      "id": "ambiguous-placement",
+      "difficulty": "placement",
+      "acceptable": [
+        "probe:read-unit"
+      ],
+      "first_permitted": "tinker_teach",
+      "mistake_aware": "tinker_teach",
+      "model_orders": [
+        {
+          "choice": "tinker_teach",
+          "valid": true,
+          "acceptable": false,
+          "offered_order": [
+            "ticks+example_first",
+            "read+try_first",
+            "ticks+try_first",
+            "fine+example_first",
+            "fine+try_first",
+            "read+example_first"
+          ],
+          "choice_position": 3,
+          "seconds": 5.749,
+          "usage": {
+            "input": 763,
+            "output": 46,
+            "ms": 5746
+          },
+          "reason_unverified": "The student placed the point at the wrong mark on a number line marked in the same parts, so starting with an attempt allows for immediate feedback and correction."
+        },
+        {
+          "choice": "tinker_teach",
+          "valid": true,
+          "acceptable": false,
+          "offered_order": [
+            "fine+example_first",
+            "ticks+example_first",
+            "ticks+try_first",
+            "fine+try_first",
+            "read+example_first",
+            "read+try_first"
+          ],
+          "choice_position": 2,
+          "seconds": 5.754,
+          "usage": {
+            "input": 763,
+            "output": 46,
+            "ms": 5750
+          },
+          "reason_unverified": "The student placed the point at the wrong mark on a number line marked in the same parts, so showing a correct placement first will help clarify the concept."
+        }
+      ]
+    },
+    {
+      "id": "ambiguous-fine",
+      "difficulty": "placement",
+      "acceptable": [
+        "probe:read-unit"
+      ],
+      "first_permitted": "tinker_teach",
+      "mistake_aware": "tinker_teach",
+      "model_orders": [
+        {
+          "choice": "tinker_teach",
+          "valid": true,
+          "acceptable": false,
+          "offered_order": [
+            "read+try_first",
+            "fine+try_first",
+            "ticks+example_first",
+            "ticks+try_first",
+            "fine+example_first",
+            "read+example_first"
+          ],
+          "choice_position": 2,
+          "seconds": 6.888,
+          "usage": {
+            "input": 777,
+            "output": 56,
+            "ms": 6885
+          },
+          "reason_unverified": "The learner had difficulty placing the point at the correct mark on a finer number line, so starting with a simpler representation (number line marked in the same parts) might help before moving to more complex tasks."
+        },
+        {
+          "choice": "tinker_teach",
+          "valid": true,
+          "acceptable": false,
+          "offered_order": [
+            "ticks+try_first",
+            "read+example_first",
+            "fine+example_first",
+            "fine+try_first",
+            "read+try_first",
+            "ticks+example_first"
+          ],
+          "choice_position": 4,
+          "seconds": 4.925,
+          "usage": {
+            "input": 777,
+            "output": 42,
+            "ms": 4923
+          },
+          "reason_unverified": "The learner placed the point at the wrong mark on a finer number line, suggesting they need more guidance and practice to understand the placement."
+        }
+      ]
+    }
+  ],
+  "graph_links": "removed (ablation)",
+  "baselines": {
+    "first_permitted": "the first option in the offered list",
+    "mistake_aware": "the product rule, runner.rule_choice"
+  },
+  "model_protocol": "terminal action choice after a shared controller history inspection; two shuffled orders per case. Full role MCP execution is covered separately by integration tests",
+  "fixture_revision_note": "v2 replaces two unconstructable direction-error cases with generated off-by-one cases before the completed comparison. No valid result was reported for the initial fixture.",
+  "model_digest": "845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e",
+  "summary": {
+    "cases": 12,
+    "first_permitted_acceptable": 0,
+    "mistake_aware_acceptable": 0,
+    "model_trials": 24,
+    "model_acceptable": 0,
+    "order_stable_cases": 12
+  }
+}

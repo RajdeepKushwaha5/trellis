@@ -1,4 +1,4 @@
-"""One real model-driven loop: Scout, then Tinker after a wrong check, then Lens. Writes evidence/tutor-live-loop.json.
+"""One real model-driven loop: Scout, then Tinker after a wrong check (which may investigate first), then Lens. Writes evidence/tutor-live-loop.json.
 
 The learner's responses are scripted (wrong check, correct practice) so the run exercises the teaching branch; the
 roles' choices come from the local model. Run: python -m backend.tutor.live_check
@@ -28,22 +28,27 @@ def respond(token, tid, correct):
 async def main():
     token = create_session()['token']
     set_goal(token, GOAL)
-    record = {'goal': GOAL, 'synthetic': True, 'scripted_responses': ['wrong check', 'correct practice', 'transfer as answered'],
+    record = {'goal': GOAL, 'synthetic': True,
+              'scripted_responses': 'wrong on the first Scout check, then correct; stops after the first Lens transfer',
               'steps': []}
     try:
-        for role, correct in [('scout', False), ('tinker', True), ('lens', True)]:
+        for n in range(6):
             events, start = [], time.perf_counter()
             result = await step(token, events.append, use_model=True)
-            assert result['role'] == role, (role, result.get('role'), result.get('note'))
+            if not result.get('task'):
+                break
+            role = result['role']
             decision = result['decisions'][-1]
-            outcome = respond(token, result['task']['task'], correct)
+            outcome = respond(token, result['task']['task'], n > 0)
             record['steps'].append({'role': role, 'seconds': round(time.perf_counter() - start, 1),
                                     'tools': next(e['tools'] for e in events if e['type'] == 'tools_listed'),
                                     'decisions': result['decisions'], 'task_purpose': result['task']['purpose'],
                                     'representation': result['task']['representation'],
                                     'response_correct': outcome['correct'], 'next_state': outcome['next_state']})
-            print(f"{role}: chose option {decision['rank_in_options']} of {len(decision['options'])} "
-                  f"({decision['label']}) in {record['steps'][-1]['seconds']} s -> {outcome['next_state']}")
+            print(f"{role}: chose {decision['label'][:70]} | same as the rule: {decision['agrees_with_rule']} | "
+                  f"{record['steps'][-1]['seconds']} s -> {outcome['next_state']}")
+            if role == 'lens':
+                break
         record['final'] = tutor.status(token)['history']
         (ROOT / 'evidence/tutor-live-loop.json').write_text(json.dumps(record, indent=2), encoding='utf-8')
     finally:

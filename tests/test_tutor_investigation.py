@@ -51,4 +51,21 @@ class InvestigationTools(unittest.TestCase):
   self.assertTrue(before['teaching_strategies']);self.assertEqual(after['teaching_strategies'],[])
   self.assertTrue(after['probe_options'])
 
+class RuleAndProbe(unittest.TestCase):
+ def test_rule_probes_an_ambiguous_mistake_and_teaches_a_specific_one(self):
+  from backend.tutor.choice_eval import seed
+  from backend.tutor.runner import rule_choice
+  tok,ctx=seed({'id':'r1','activity':'line-first','rep':'ticks','difficulty':'placement'})
+  try:
+   choice,why=rule_choice('tinker',ctx,options_for('tinker',ctx,{}))
+   self.assertEqual(choice[2],'tinker_probe');self.assertIn('tell the explanations apart',why)
+   probe=t.tinker_probe(tok,choice[3]['diagnostic_id'],ctx['version'])
+   self.assertGreaterEqual(len(probe['separates']),2)  # its wrong answers split at least two explanations
+  finally:graph_for(tok).delete()
+  tok,ctx=seed({'id':'r2','activity':'line-first','rep':'read','difficulty':'counted_marks'})
+  try:
+   choice,_=rule_choice('tinker',ctx,options_for('tinker',ctx,{}))
+   self.assertIn(choice[3].get('strategy'),('walk-gaps','read-intervals'))
+  finally:graph_for(tok).delete()
+
 if __name__=='__main__':unittest.main()

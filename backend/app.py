@@ -251,6 +251,27 @@ def compare_step(body:CompareAction,request:Request):
     action=launch_check(child,p['selected']['id'],p['revision']) if p['selected'] else None
     return {'result':result,'plan':p,'action':action}
 
+# ---------- two learners, same fractions goal, different mistakes ----------
+from .tutor import compare as fraction_compare
+
+@app.post('/api/comparison/fractions')
+def compare_fractions(request:Request):return fraction_compare.open_comparison(token(request))
+
+class CompareAnswer(BaseModel):
+    comparison_id:str=Field(pattern='^[a-f0-9]{32}$')
+    side:int=Field(ge=0,le=1)
+    task:str=Field(pattern='^[a-f0-9]{32}$')
+    response:dict|None=None
+
+@app.post('/api/comparison/fractions/answer')
+def compare_fractions_answer(body:CompareAnswer,request:Request):
+    if body.response is None:raise ValueError('A response is required')
+    return fraction_compare.answer(token(request),body.comparison_id,body.side,body.task,body.response)
+
+@app.post('/api/comparison/fractions/hint')
+def compare_fractions_hint(body:CompareAnswer,request:Request):
+    return fraction_compare.hint(token(request),body.comparison_id,body.side,body.task)
+
 # ---------- adaptive tutor: Scout, Tinker and Lens around one fraction foundation at a time ----------
 from .tutor import session as tutor
 from .tutor.runner import step as tutor_step

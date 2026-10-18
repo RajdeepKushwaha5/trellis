@@ -130,9 +130,10 @@ export function renderReport(el,r){
 // The parent/judge drawer: real tool steps, the offered options and who chose.
 export function tutorTrail(events){
  return events.map(e=>{
-  if(e.type==='role_started')return `<div class="trail-step guided"><span class="trail-tag">${esc(ROLES[e.role].name.toUpperCase())} · OWN MCP SERVER · ${e.chooser==='model'?'LOCAL MODEL':'POLICY FALLBACK, NO MODEL'}</span></div>`;
+  if(e.type==='role_started')return `<div class="trail-step guided"><span class="trail-tag">${esc(ROLES[e.role].name.toUpperCase())} · OWN MCP SERVER · ${e.chooser==='model'?'LOCAL MODEL':'RULE-BASED, NO MODEL'}</span></div>`;
   if(e.type==='tools_listed')return `<div class="trail-step guided"><span class="trail-tag">PERMITTED TOOLS</span><small>${e.tools.map(esc).join(', ')}</small></div>`;
-  if(e.type==='model_decision')return `<div class="trail-step choice"><span class="trail-tag">${e.chooser==='model'?'MODEL CHOICE':'POLICY CHOICE'} · ${e.rank_in_options} of ${e.options.length} permitted options</span><b>${esc(e.label)}</b><details><summary>All options and the ${e.chooser==='model'?'model’s own words (unverified)':'policy note'}</summary><ol>${e.options.map(o=>`<li>${esc(o.label)}</li>`).join('')}</ol><p>${esc(e.model_reason_unverified)}</p></details></div>`;
+  if(e.type==='model_decision'){const model=e.chooser==='model',same=e.agrees_with_rule;
+   return `<div class="trail-step choice"><span class="trail-tag">${model?`MODEL CHOICE · ${same?'SAME AS THE RULE':'DIFFERS FROM THE RULE'}`:'RULE CHOICE · NO MODEL'} · ${e.options.length} permitted options${model?' · shown shuffled':''}</span><b>${esc(e.label)}</b>${model&&!same?`<small>The rule would have chosen: ${esc(e.rule_label)}</small>`:''}<details><summary>All options and the ${model?'model’s own words (unverified)':'rule'}</summary><ol>${e.options.map(o=>`<li>${esc(o.label)}</li>`).join('')}</ol><p>${esc(model?e.model_reason_unverified:e.rule_why)}</p></details></div>`;}
   if(e.type==='tool_finished')return `<div class="trail-step guided"><span class="trail-tag">TOOL · ${esc(e.tool)}</span><small>result ${esc(e.result_hash?.slice(0,10))}</small></div>`;
   return '';}).join('');
 }
@@ -141,9 +142,9 @@ export function renderInvestigation(el, investigation){
  if(!investigation?.observation){el.innerHTML='';return;}
  const i=investigation,o=i.observation;
  el.innerHTML=`<details class="investigation-card"><summary>For a grown-up: why this next?</summary>
- <p><b>What we noticed:</b> ${esc(o.correct?'The latest check was correct for this task.':o.difficulty?.replaceAll('_',' ')||'A response still needs checking')} (${esc(o.representation)}).</p>
- <p><b>What remains uncertain:</b> ${i.hypotheses.length?i.hypotheses.map(esc).join('; '):'One response does not establish lasting understanding.'}</p>
+ <p><b>What we noticed:</b> ${esc(o.was_correct?'The latest check was correct for this task.':o.difficulty?.replaceAll('_',' ')||'A response still needs checking')} (${esc(o.representation)}).</p>
+ <p><b>Possible explanations:</b> ${i.hypotheses.length?i.hypotheses.map(esc).join('; '):'One response does not establish lasting understanding.'}</p>
  <p><b>Connected teaching alternatives:</b> ${i.strategies.map(s=>esc(s.title)).join('; ')||'Review the evidence before selecting another lesson.'}</p>
- <p class="small">Hypotheses guide investigation; they are not diagnoses. <a href="#notes">Inspect observation ${esc(o.id.slice(0,8))} in Field notes</a>.</p></details>`;
+ <p class="small">These are possible explanations to check, not diagnoses. <a href="#notes">Inspect observation ${esc(o.id.slice(0,8))} in Field notes</a>.</p></details>`;
  el.querySelector('a').onclick=e=>{e.preventDefault();document.querySelector('nav [data-tab="notes"]').click();};
 }

@@ -1,0 +1,149 @@
+{
+  "fixture_sha256": "04606831f6ab29a146d3a54006e06767919c55d92dc788bd0d5a7c8b5fcceacc",
+  "scope": "Author-written synthetic action-selection rubric, frozen before running comparisons. Not educator-reviewed or a learning-outcomes study. Generic lessons are valid but do not satisfy this targeted-strategy rubric.",
+  "model": null,
+  "options": {
+    "temperature": 0,
+    "num_ctx": 4096,
+    "num_predict": 160
+  },
+  "cases": [
+    {
+      "id": "area-strip",
+      "difficulty": "unequal_parts",
+      "acceptable": [
+        "compare-area"
+      ],
+      "first_permitted": "tinker_teach",
+      "mistake_aware": "tinker_teach",
+      "model_orders": []
+    },
+    {
+      "id": "area-pie",
+      "difficulty": "unequal_parts",
+      "acceptable": [
+        "compare-area"
+      ],
+      "first_permitted": "tinker_teach",
+      "mistake_aware": "tinker_teach",
+      "model_orders": []
+    },
+    {
+      "id": "count-strip",
+      "difficulty": "wrong_count",
+      "acceptable": [
+        "count-shares"
+      ],
+      "first_permitted": "tinker_teach",
+      "mistake_aware": "tinker_teach",
+      "model_orders": []
+    },
+    {
+      "id": "count-grid",
+      "difficulty": "wrong_count",
+      "acceptable": [
+        "count-shares"
+      ],
+      "first_permitted": "tinker_teach",
+      "mistake_aware": "tinker_teach",
+      "model_orders": []
+    },
+    {
+      "id": "shade-bar",
+      "difficulty": "shade_count",
+      "acceptable": [
+        "group-whole"
+      ],
+      "first_permitted": "tinker_teach",
+      "mistake_aware": "tinker_teach",
+      "model_orders": []
+    },
+    {
+      "id": "shade-set",
+      "difficulty": "shade_count",
+      "acceptable": [
+        "group-whole"
+      ],
+      "first_permitted": "tinker_teach",
+      "mistake_aware": "tinker_teach",
+      "model_orders": []
+    },
+    {
+      "id": "marks-read",
+      "difficulty": "counted_marks",
+      "acceptable": [
+        "walk-gaps",
+        "read-intervals"
+      ],
+      "first_permitted": "tinker_teach",
+      "mistake_aware": "tinker_teach",
+      "model_orders": []
+    },
+    {
+      "id": "marks-advanced",
+      "difficulty": "counted_marks",
+      "acceptable": [
+        "walk-gaps",
+        "read-intervals"
+      ],
+      "first_permitted": "tinker_teach",
+      "mistake_aware": "tinker_teach",
+      "model_orders": []
+    },
+    {
+      "id": "off-by-one-read",
+      "difficulty": "off_by_one",
+      "acceptable": [
+        "walk-gaps"
+      ],
+      "first_permitted": "tinker_teach",
+      "mistake_aware": "tinker_teach",
+      "model_orders": []
+    },
+    {
+      "id": "off-by-one-advanced",
+      "difficulty": "off_by_one",
+      "acceptable": [
+        "walk-gaps"
+      ],
+      "first_permitted": "tinker_teach",
+      "mistake_aware": "tinker_teach",
+      "model_orders": []
+    },
+    {
+      "id": "ambiguous-placement",
+      "difficulty": "placement",
+      "acceptable": [
+        "probe:read-unit"
+      ],
+      "first_permitted": "tinker_teach",
+      "mistake_aware": "tinker_teach",
+      "model_orders": []
+    },
+    {
+      "id": "ambiguous-fine",
+      "difficulty": "placement",
+      "acceptable": [
+        "probe:read-unit"
+      ],
+      "first_permitted": "tinker_teach",
+      "mistake_aware": "tinker_teach",
+      "model_orders": []
+    }
+  ],
+  "graph_links": "removed (ablation)",
+  "baselines": {
+    "first_permitted": "the first option in the offered list",
+    "mistake_aware": "the product rule, runner.rule_choice"
+  },
+  "model_protocol": "terminal action choice after a shared controller history inspection; two shuffled orders per case. Full role MCP execution is covered separately by integration tests",
+  "fixture_revision_note": "v2 replaces two unconstructable direction-error cases with generated off-by-one cases before the completed comparison. No valid result was reported for the initial fixture.",
+  "summary": {
+    "cases": 12,
+    "first_permitted_acceptable": 0,
+    "mistake_aware_acceptable": 0,
+    "model_trials": 0,
+    "model_acceptable": 0,
+    "order_stable_cases": 0
+  }
+}

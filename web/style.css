@@ -145,3 +145,7 @@ footer.night .night-line,footer.night .brand-name{text-shadow:0 0 14px #1f2e26,0
 @media(max-width:900px){.agent-row{grid-template-columns:1fr}}
 
 .strategy-card{border-left:3px solid var(--orange);padding:14px 18px;background:#eef0e5;margin:18px 0}.strategy-card h3{margin:6px 0}.investigation-card{margin:14px 0;border:1px solid var(--line);padding:12px 16px;background:#fffdf6}.investigation-card summary{cursor:pointer;font-size:12px}.investigation-card p{font-size:12px;line-height:1.7}
+
+.compare-moves{margin:12px 0}.compare-moves .trail-step small{display:block;color:var(--muted);font-size:9px;margin-top:3px}
+.compare-task{border:1px solid var(--line);margin-top:12px;padding:18px}
+.compare-task .shape.line{width:100%}.compare-task .shape.bar{width:100%}

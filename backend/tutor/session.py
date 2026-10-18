@@ -24,9 +24,17 @@ OPENINGS = {'example_first': 'Show a worked example first, then let the learner 
             'try_first': 'Let the learner try first, then explain with the worked example'}
 LESSON_BUDGET, TRANSFER_BUDGET, SCOUT_INSPECTS = 2, 4, 2
 CHECKS = ('diagnostic', 'transfer', 'recheck')
-SUPPORT_RULE = ('Supported for this objective (rule v1): two correct checks without hints, on different items and in '
-                'different representations, since the last incorrect check, and at least one of them a transfer task '
-                'chosen by Lens. A product policy for this prototype, not a validated mastery threshold.')
+SUPPORT_RULE = ('Supported for this objective (rule v2): since the last incorrect check, correct checks without hints '
+                'on different items in at least two representations, at least one a transfer task chosen by Lens, and at '
+                'least one answer the learner built (shading or placing a point). Lessons that only have picture choices '
+                'need three such checks instead, so a guess is unlikely to pass. A product policy for this prototype, '
+                'not a validated mastery threshold.')
+# Answers the learner constructs, rather than picks from three options.
+CONSTRUCTED = {('build', 'bar'), ('build', 'circle'), ('build', 'set'), ('number_line', 'ticks'), ('number_line', 'fine')}
+
+
+def choice_only(act):
+    return not any((family_of(act), r) in CONSTRUCTED for r in act['representations'])
 RECHECK_SECONDS = int(os.getenv('TRELLIS_RECHECK_SECONDS', str(24 * 3600)))
 SUPPORTED_STATES = ('supported_for_objective', 'supported_for_task')
 # Plain meanings of the difficulty codes Assay records. Tinker and Lens see these; they describe one response only.
@@ -100,10 +108,10 @@ def _revision(g, token):
     return g.ro_query('MATCH (l:Learner {id:$id}) RETURN l.revision', {'id': token}).result_set[0][0]
 
 
-def _issue(g, token, act, rep, purpose, used=False, extra=None):
+def _issue(g, token, act, rep, purpose, used=False, extra=None, want=None):
     """Draws a fresh, never-used task from the pool. The answer stays in the graph, server side."""
     current_activities(g)
-    params = engine.pick(family_of(act), rep, act['params'], _used(g), seed=token + act['id'] + rep)
+    params = engine.pick(family_of(act), rep, act['params'], _used(g), seed=token + act['id'] + rep, want=want)
     tid = uuid4().hex
     made = g.query('MATCH (c:Concept {id:$concept}), (r:Representation {id:$representation}) '
             'CREATE (x:TaskIssue {id:$id,concept:$concept,activity:$activity,'
@@ -144,7 +152,8 @@ def task_payload(g, tid):
            'render': engine.public(row['params']), 'revision': row['revision'], 'answered': bool(row['used']),
            'hints_available': len(ladder), 'hints': ladder[:row['hints']], 'rubric': engine.RUBRIC,
            'hints_allowed': lesson, 'opening': row['extra'].get('opening'),
-           'teaching_strategy': row['extra'].get('strategy'), 'investigation': row['extra'].get('investigation')}
+           'teaching_strategy': row['extra'].get('strategy'), 'investigation': row['extra'].get('investigation'),
+           'separates': row['extra'].get('separates_text', [])}
     if lesson and row['extra'].get('example'):
         ex = _task_row(g, row['extra']['example'])
         out['example'] = engine.example(ex['params'])
@@ -410,7 +419,14 @@ def tinker_probe(token, diagnostic_id, version):
         if not probe:
             raise ValueError('Diagnostic is not eligible or its one-probe budget is used')
         act = activities()[t['activity']]
-        tid, _ = _issue(g, token, act, probe['rep'], 'probe', extra={'investigation': ctx['investigation']})
+        # Prefer an item whose wrong answers separate the explanations this probe is meant to tell apart.
+        open_codes = sorted(set(probe['distinguishes']) - {'placement'})
+        tid, params = _issue(g, token, act, probe['rep'], 'probe', want=open_codes,
+                             extra={'investigation': ctx['investigation'], 'open': open_codes})
+        separates = sorted(engine.reveals(params) & set(open_codes))
+        g.query('MATCH (x:TaskIssue {id:$id}) SET x.extra=$extra', {'id': tid, 'extra': json.dumps(
+            {'investigation': ctx['investigation'], 'open': open_codes, 'separates': separates,
+             'separates_text': [pedagogy.HYPOTHESES[c] for c in separates]})})
         g.query('MATCH (x:TaskIssue {id:$task}), (d:Diagnostic {id:$diagnostic}) CREATE (x)-[:USES_DIAGNOSTIC]->(d)',
                 {'task': tid, 'diagnostic': diagnostic_id})
         t['probes'].append(tid)
@@ -461,6 +477,7 @@ def _transfer_reps(g, t, log):
     last = graphq.last_check(g, t['concept'], log)
     taught = t['lessons'][-1]['rep'] if t['lessons'] else None
     used = _used(g)
+    varied = sum(1 for r in rows if r['clean_correct']) >= 2
     out = []
     for r in rows:
         reason = None
@@ -468,7 +485,7 @@ def _transfer_reps(g, t, log):
             reason = 'same representation as the lesson just taught'
         elif not t['lessons'] and r['rep'] == last.get('rep'):
             reason = 'same representation as the check just answered'
-        elif r['clean_correct']:
+        elif r['clean_correct'] and not varied:
             reason = 'already used by a correct check in this run'
         left = engine.remaining(fam, r['rep'], act['params'], used)
         if not reason and not left:
@@ -589,10 +606,14 @@ def answer(token, tid, response):
                 transfers = before['transfers'] + (purpose == 'transfer')
             else:
                 keys, reps, transfers = set(), set(), 0
-            supported = bool(graded['correct'] and not hinted and len(keys) >= 2 and len(reps) >= 2 and transfers >= 1)
+            act_now = activities()[row['activity']]
+            built = any((family_of(act_now), r) in CONSTRUCTED for r in reps)
+            enough = len(keys) >= 3 if choice_only(act_now) else (len(keys) >= 2 and built)
+            supported = bool(graded['correct'] and not hinted and enough and len(reps) >= 2 and transfers >= 1)
             if purpose == 'recheck' and graded['correct'] and old_status == 'supported_for_objective':
                 supported = True
-            evidence = {'clean_correct_items': len(keys), 'representations': sorted(reps), 'transfer_checks': transfers}
+            evidence = {'clean_correct_items': len(keys), 'representations': sorted(reps), 'transfer_checks': transfers,
+                        'built_answer': built, 'items_needed': 3 if choice_only(act_now) else 2}
             status = 'supported_for_objective' if supported else 'needs_check'
             if graded['correct'] and not hinted:
                 items = sorted(set((items or []) + [row['key']]))

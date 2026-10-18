@@ -119,7 +119,7 @@ def summary(g, log):
 
 # Evidence-grounded teaching choices. No task parameters or answers are returned.
 TEACHING = '''MATCH (x:TaskIssue)-[:PRODUCED]->(o:Observation)-[:ABOUT]->(:Concept {id:$concept})
-WHERE o.purpose IN ['diagnostic','transfer','recheck','probe']
+WHERE o.purpose IN ['diagnostic','transfer','recheck','probe'] AND o.difficulty IS NOT NULL
 WITH x,o ORDER BY o.time DESC LIMIT 1
 OPTIONAL MATCH (o)-[:SUGGESTS]->(h:DifficultyHypothesis)<-[:ADDRESSES]-(s:TeachingStrategy)<-[:USES_STRATEGY]-(a:Activity {id:$activity})
 RETURN o.id,o.difficulty,o.correct,x.rep,h.text,s.id,s.title,s.instruction,s.reps'''
@@ -127,7 +127,8 @@ PROBES = '''MATCH (x:TaskIssue)-[:PRODUCED]->(o:Observation)-[:ABOUT]->(:Concept
 WHERE o.purpose IN ['diagnostic','transfer','recheck','probe']
 WITH o ORDER BY o.time DESC LIMIT 1
 MATCH (o)-[:SUGGESTS]->(h:DifficultyHypothesis)<-[:DISTINGUISHES]-(d:Diagnostic)
-RETURN d.id,d.title,d.rep,d.why,h.text ORDER BY d.id'''
+MATCH (d)-[:DISTINGUISHES]->(other:DifficultyHypothesis)
+RETURN d.id,d.title,d.rep,d.why,h.text,collect(DISTINCT other.id) AS separates ORDER BY d.id'''
 HISTORY = '''MATCH (x:TaskIssue)-[:PRODUCED]->(o:Observation)-[:ABOUT]->(:Concept {id:$concept})
 RETURN o.id,o.purpose,o.correct,o.hinted,o.difficulty,x.rep,o.time ORDER BY o.time DESC LIMIT 6'''
 
@@ -137,13 +138,13 @@ def teaching(g, concept, activity, log):
     if not rows:return {'observation':None,'hypotheses':[],'strategies':[]}
     first=rows[0]
     strategies=[dict(zip(['id','title','instruction','reps'],r[5:9])) for r in rows if r[5]]
-    return {'observation':{'id':first[0],'difficulty':first[1],'correct':first[2],'representation':first[3]},
+    return {'observation':{'id':first[0],'difficulty':first[1],'was_correct':first[2],'representation':first[3]},
             'hypotheses':list(dict.fromkeys(r[4] for r in rows if r[4])), 'strategies':strategies}
 
 
 def probes(g, concept, log):
     rows=query(g,'diagnostics that distinguish the observed difficulty',PROBES,{'concept':concept},log)
-    return [dict(zip(['id','title','rep','why','hypothesis'],r)) for r in rows]
+    return [dict(zip(['id','title','rep','why','hypothesis','distinguishes'],r)) for r in rows]
 
 
 def history(g, concept, log):

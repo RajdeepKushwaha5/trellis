@@ -83,8 +83,13 @@ class Loop(unittest.TestCase):
         ctx, second = self.transfer()
         self.assertNotIn(second['representation'], {first['representation'], lesson['representation']})
         two = self.right(second['task'])
-        self.assertEqual(two['status'], 'supported_for_objective')
-        self.assertEqual(two['next_role'], 'scout')
+        # Halves has only picture choices, so rule v2 needs a third clean check before support.
+        self.assertEqual(two['status'], 'needs_check')
+        self.assertEqual(two['evidence']['items_needed'], 3)
+        ctx, third = self.transfer()
+        three = self.right(third['task'])
+        self.assertEqual(three['status'], 'supported_for_objective')
+        self.assertEqual(three['next_role'], 'scout')
         self.assertNotIn(option['id'], [c['id'] for c in plan(self.token)['candidates']])
         keys = [r[0] for r in graph_for(self.token).ro_query('MATCH (x:TaskIssue) RETURN x.key').result_set]
         self.assertEqual(len(keys), len(set(keys)))
@@ -112,7 +117,19 @@ class Loop(unittest.TestCase):
         self.assertEqual(self.right(diag['task'])['next_role'], 'lens')
         _, check = self.transfer()
         self.assertNotEqual(check['representation'], diag['representation'])
-        self.assertEqual(self.right(check['task'])['status'], 'supported_for_objective')
+        self.assertEqual(self.right(check['task'])['status'], 'needs_check')  # picture-only: two are not enough
+        _, third = self.transfer()
+        self.assertEqual(self.right(third['task'])['status'], 'supported_for_objective')
+
+    def test_a_built_answer_lets_two_checks_count_on_the_number_line(self):
+        route = tutor.scout_route(self.token)
+        diag = tutor.scout_choose(self.token, 'line-first', route['version'])  # first representation: placing a point
+        self.assertEqual(diag['render']['type'], 'place')
+        self.right(diag['task'])
+        _, check = self.transfer()
+        result = self.right(check['task'])
+        self.assertTrue(result['evidence']['built_answer'])
+        self.assertEqual(result['status'], 'supported_for_objective')
 
     def test_duplicate_stale_foreign_and_hint_abuse_are_refused(self):
         route = tutor.scout_route(self.token)

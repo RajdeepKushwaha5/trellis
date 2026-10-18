@@ -6,6 +6,7 @@ handoff is the structured record the controller stored.
 """
 import json
 import os
+import random
 import sys
 
 import httpx
@@ -34,8 +35,7 @@ OPTIONS = {'temperature': 0, 'num_ctx': 4096, 'num_predict': 160}
 def options_for(role, ctx, inspected):
     """(option id, label, tool, arguments) for every permitted move. Built by code, not by the model."""
     if role == 'scout':
-        out = [(o['id'], f'Check {o["title"]} ({o["concept_name"]}); FalkorDB rank {o["graph_rank"] or "later check"}'
-                + (f'; {o["reasons"][0]}' if o.get('suspect') or o.get('inferred') else ''),
+        out = [(o['id'], f'Check {o["title"]} ({o["concept_name"]})' + (f'; {o["reasons"][0]}' if o.get('reasons') else ''),
                 'scout_choose', {'activity_id': o['id'], 'version': ctx['version']}) for o in ctx['options']]
         if len(inspected) < 2:
             out += [('inspect:' + o['concept'], f'Inspect {o["concept_name"]} first', 'scout_inspect',
@@ -56,6 +56,28 @@ def options_for(role, ctx, inspected):
         return out
     return [(s['id'], f'Transfer task using {s["label"]} ({s["remaining"]} unused)', 'lens_transfer',
              {'representation': s['id'], 'version': ctx['version']}) for s in ctx['strategies']]
+
+
+RULE_WHY = {'scout': "Take FalkorDB's top-ranked foundation.",
+            'tinker': 'No strategy is connected to this mistake; teach with the first permitted representation.',
+            'lens': 'Take the first permitted transfer representation.'}
+
+
+def rule_choice(role, ctx, opts):
+    """The deterministic mistake-aware rule: the no-model mode, and the baseline the model is compared against.
+    Scout takes FalkorDB's ranking. Tinker asks a distinguishing check when the mistake is ambiguous, otherwise uses
+    the strategy the graph connects to the recorded mistake. Returns (option, why)."""
+    acting = [o for o in opts if o[2] not in ('scout_inspect', 'tinker_inspect')] or opts
+    if role == 'tinker':
+        if ctx.get('observed_difficulty') == 'placement':
+            probe = next((o for o in acting if o[2] == 'tinker_probe' and o[3]['diagnostic_id'] == 'read-unit'), None) \
+                or next((o for o in acting if o[2] == 'tinker_probe'), None)
+            if probe:
+                return probe, 'The mistake does not say why; ask a check whose wrong answers tell the explanations apart.'
+        strategy = next((o for o in acting if o[3].get('strategy')), None)
+        if strategy:
+            return strategy, 'Use the teaching strategy the graph connects to the recorded mistake.'
+    return acting[0], RULE_WHY[role]
 
 
 def visible(role, ctx):
@@ -138,14 +160,20 @@ async def step(token, emit=None, use_model=True, model=None):
                         return {'task': None, 'role': role, 'note': note, 'trace': trace}
                     event('model_started', role=role, options=[{'id': o[0], 'label': o[1]} for o in opts],
                           chooser='model' if use_model else 'policy')
+                    rule, rule_why = rule_choice(role, ctx | {'inspected': inspected}, opts)
+                    offered = list(opts)
                     if use_model:
-                        decision, usage = await decide(http, role, model, ctx | {'inspected': inspected}, opts)
+                        # Shuffled so a model that always takes the first option cannot look like judgement.
+                        random.Random(f'{token}:{role}:{len(decisions)}').shuffle(offered)
+                        decision, usage = await decide(http, role, model, ctx | {'inspected': inspected}, offered)
                     else:
-                        decision, usage = {'option': opts[0][0], 'reason': 'Policy fallback: first permitted option. No model decision.'}, None
+                        decision, usage = {'option': rule[0], 'reason': 'Rule-based, no model: ' + rule_why}, None
                     chosen = next(o for o in opts if o[0] == decision['option'])
                     record = {'role': role, 'chooser': 'model' if use_model else 'policy', 'model': model if use_model else None,
-                              'options': [{'id': o[0], 'label': o[1]} for o in opts], 'option': chosen[0], 'label': chosen[1],
-                              'rank_in_options': [o[0] for o in opts].index(chosen[0]) + 1,
+                              'options': [{'id': o[0], 'label': o[1]} for o in offered], 'option': chosen[0], 'label': chosen[1],
+                              'position_offered': [o[0] for o in offered].index(chosen[0]) + 1,
+                              'rule_option': rule[0], 'rule_label': rule[1], 'rule_why': rule_why,
+                              'agrees_with_rule': chosen[0] == rule[0],
                               'model_reason_unverified': decision['reason'], 'usage': usage}
                     decisions.append(record)
                     event('model_decision', **record)
