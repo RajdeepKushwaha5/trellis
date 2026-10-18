@@ -141,30 +141,6 @@ def preview(token, concept):
     finally:graph.delete()
 
 
-def comparison(token):
-    """Explicitly seeded synthetic profiles, owned through this notebook's graph."""
-    children=[]
-    try:
-        for label,concepts in [('A: familiar with state vocabulary',['mt_1JFUNQDwAJ','mt_htAYR-iCFF']),
-                               ('B: familiar with change vocabulary',['mt_ahSqW_kK1b'])]:
-            child=create_session()['token'];children.append(child);g=graph_for(child)
-            g.query('MATCH (l:Learner) SET l.synthetic_label=$label,l.goal=$goal',{'label':label,'goal':GOAL})
-            p=learning_plan(child)
-            for n in p['nodes']:
-                if n['id'] not in concepts:continue
-                # Seed source-labelled observed task support for a controlled software fixture, not a real child's results.
-                g.query('MATCH (l:Learner), (c:Concept {id:$concept}) '
-                        'CREATE (s:LearningState {id:$concept,status:"supported_for_task",correct_items:[],wrong:0,synthetic:true}) '
-                        'CREATE (l)-[:HAS_STATE]->(s) CREATE (s)-[:ABOUT]->(c)',{'concept':n['id']})
-        cid=uuid4().hex
-        graph_for(token).query('CREATE (:Comparison {id:$id,left:$left,right:$right})',{'id':cid,'left':children[0],'right':children[1]})
-        return {'id':cid,'synthetic':True,'profiles':[{'label':label,'plan':learning_plan(child)} for label,child in zip(
-                ['A: state vocabulary seeded as supported','B: change vocabulary seeded as supported'],children)]}
-    except Exception:
-        for child in children:graph_for(child).delete()
-        raise
-
-
 def comparison_child(token, cid, side):
     if side not in (0,1):raise ValueError('Invalid profile')
     rows=graph_for(token).ro_query('MATCH (c:Comparison {id:$id}) RETURN c.left,c.right',{'id':cid}).result_set

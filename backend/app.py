@@ -10,7 +10,7 @@ from pydantic import BaseModel, Field
 from redis.exceptions import RedisError
 from .core import ROOT, import_data, create_session, graph_for, plan, launch, submit, registry, all_activities, LOCK
 from .agent import choose
-from .investigation import learning_plan, set_goal, launch_check, submit_check, launch_parent_criterion, preview, comparison, comparison_child
+from .investigation import learning_plan, set_goal, launch_check, submit_check, launch_parent_criterion, preview
 
 @asynccontextmanager
 async def lifespan(app):
@@ -68,18 +68,6 @@ class Answer(BaseModel):
 
 @app.post('/api/answer')
 def answer(body:Answer,request:Request): return submit_check(token(request),body.action,body.choice)
-
-@app.post('/api/agent')
-async def agent(request:Request):
-    try: result=await choose(token(request))
-    except HTTPException: raise
-    except Exception as e:
-        raise HTTPException(503,'The local agent could not finish. Graph-guided manual diagnostics remain available. '+str(e)[:140]) from e
-    if 'action' in result:
-        g=graph_for(token(request))
-        g.query('CREATE (:Decision {id:$id,payload:$payload,revision:$revision})',
-                {'id':result['action'].get('action') or result['action'].get('task'),'payload':json.dumps(result),'revision':result['action']['revision']})
-    return result
 
 @app.post('/api/agent/start')
 async def start_agent(request:Request):
@@ -250,26 +238,6 @@ def constellation():
 
 @app.post('/api/preview')
 def hypothetical(body:Goal,request:Request):return preview(token(request),body.concept_id)
-
-@app.post('/api/comparison')
-def compare(request:Request):return comparison(token(request))
-
-class CompareAction(BaseModel):
-    comparison_id:str=Field(pattern='^[a-f0-9]{32}$')
-    side:int=Field(ge=0,le=1)
-    action:str|None=None
-    choice:int|None=Field(default=None,ge=0,le=20)
-
-@app.post('/api/comparison/step')
-def compare_step(body:CompareAction,request:Request):
-    child=comparison_child(token(request),body.comparison_id,body.side)
-    result=None
-    if body.action:
-        if body.choice is None:raise ValueError('A response is required')
-        result=submit_check(child,body.action,body.choice)
-    p=learning_plan(child)
-    action=launch_check(child,p['selected']['id'],p['revision']) if p['selected'] else None
-    return {'result':result,'plan':p,'action':action}
 
 # ---------- two learners, same fractions goal, different mistakes ----------
 from .tutor import compare as fraction_compare

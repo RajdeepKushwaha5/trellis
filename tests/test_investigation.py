@@ -1,6 +1,6 @@
 import unittest
 from backend.core import create_session,graph_for,db,BASE,GOAL
-from backend.investigation import learning_plan,set_goal,launch_check,submit_check,launch_parent_criterion,preview,comparison,comparison_child
+from backend.investigation import learning_plan,set_goal,launch_check,submit_check,launch_parent_criterion,preview
 
 class Investigation(unittest.TestCase):
     def setUp(self):self.token=create_session()['token'];self.children=[]
@@ -37,16 +37,6 @@ class Investigation(unittest.TestCase):
         result=preview(self.token,p['selected']['concept'])
         self.assertTrue(result['hypothetical']);self.assertEqual(set(db().list_graphs()),before)
         self.assertEqual(learning_plan(self.token)['fingerprint'],p['fingerprint'])
-
-    def test_same_goal_different_seeded_foundation(self):
-        result=comparison(self.token)
-        self.children=[comparison_child(self.token,result['id'],i) for i in (0,1)]
-        a,b=result['profiles']
-        self.assertEqual(a['plan']['goal']['id'],GOAL);self.assertEqual(b['plan']['goal']['id'],GOAL)
-        self.assertNotEqual(a['plan']['selected']['id'],b['plan']['selected']['id'])
-        self.assertTrue(a['plan']['selected']['witness']);self.assertTrue(b['plan']['selected']['witness'])
-        foreign=create_session()['token'];self.children.append(foreign)
-        with self.assertRaisesRegex(ValueError,'does not belong'):comparison_child(foreign,result['id'],0)
 
     def test_long_hard_closure_not_truncated(self):
         # Derive the deepest hard path from pinned source data independently of the planner.

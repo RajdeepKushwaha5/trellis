@@ -229,7 +229,7 @@ These checks evaluate software behaviour on synthetic profiles. They do not meas
 
 | Evidence | Result and scope |
 |---|---|
-| [Software evaluation](evidence/evaluation.json) | **47 tests passed**: curriculum and investigation, fraction engine, tutor loop, investigation tools, the recovery workflow (required investigation, inconclusive and unavailable checks, no repeated strategy), and FalkorDB features (constraints, full-text search, EXPLAIN) |
+| [Software evaluation](evidence/evaluation.json) | **46 tests passed**: curriculum and investigation, fraction engine, tutor loop, investigation tools, the recovery workflow (required investigation, inconclusive and unavailable checks, no repeated strategy), and FalkorDB features (constraints, full-text search, EXPLAIN) |
 | [Native reasoning tests](tests/test_native_reasoning.py) | All **1,590** prerequisite closures checked against an independent source-file traversal; selected coverage and shortest witnesses checked too |
 | [Query benchmark](evidence/native-query-benchmark.json) | All 1,590 closures in one query: about **27 ms median server time**, seven warm local runs; largest closure 120 concepts including the goal |
 | [Live tutor trace](evidence/tutor-live-loop.json) | Scout, Tinker and Lens acted through separate MCP servers using local Qwen; learner responses were scripted to exercise teaching |
