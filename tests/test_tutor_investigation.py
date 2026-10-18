@@ -14,8 +14,16 @@ class InvestigationTools(unittest.TestCase):
   x=t.scout_choose(self.token,aid,route['version']);p=t._task_row(graph_for(self.token),x['task'])['params']
   bad={'tick':(e.solution(p)['tick']+1)%(p['t']*p['span']+1)} if p['family']=='number_line' else {'choice':(e.solution(p)['choice']+1)%3}
   t.answer(self.token,x['task'],bad);return t.tinker_handoff(self.token)
+ def specific(self):
+  from backend.tutor.fixtures import seed
+  graph_for(self.token).delete()
+  self.token,ctx=seed({'id':'specific','activity':'line-first','rep':'read','difficulty':'counted_marks'})
+  return ctx
  def test_graph_links_evidence_to_strategies_and_diagnostics(self):
-  ctx=self.start();self.assertTrue(ctx['teaching_strategies']);self.assertTrue(ctx['probe_options'])
+  ctx=self.start()
+  # An ambiguous placement: the controller requires a distinguishing check, so no teaching option is offered yet.
+  self.assertTrue(ctx['investigation_status']['required']);self.assertTrue(ctx['probe_options'])
+  self.assertEqual(ctx['teaching_strategies'],[]);self.assertEqual(ctx['representations'],[])
   g=graph_for(self.token)
   n=g.ro_query('MATCH (:Observation)-[:SUGGESTS]->(:DifficultyHypothesis)<-[:ADDRESSES]-(:TeachingStrategy) RETURN count(*)').result_set[0][0]
   self.assertGreater(n,0)
@@ -31,7 +39,7 @@ class InvestigationTools(unittest.TestCase):
   ctx=t.tinker_handoff(self.token);self.assertEqual(ctx['probe_options'],[])
   with self.assertRaises(ValueError):t.tinker_probe(self.token,d['id'],ctx['version'])
  def test_strategy_is_validated_and_rendered_without_answer_key(self):
-  ctx=self.start();s=ctx['teaching_strategies'][0];rep=next(r['id'] for r in ctx['representations'] if r['id'] in s['reps'])
+  ctx=self.specific();s=ctx['teaching_strategies'][0];rep=next(r['id'] for r in ctx['representations'] if r['id'] in s['reps'])
   with self.assertRaises(ValueError):t.tinker_teach(self.token,rep,'example_first',ctx['version'],'invented')
   x=t.tinker_teach(self.token,rep,'example_first',ctx['version'],s['id'])
   self.assertEqual(x['teaching_strategy']['id'],s['id']);self.assertIn('instruction',x['teaching_strategy'])
@@ -44,12 +52,11 @@ class InvestigationTools(unittest.TestCase):
   with self.assertRaises(ValueError):t.tinker_probe(self.token,ctx['probe_options'][0]['id'],v)
   with self.assertRaises(PermissionError):t.call('lens',self.token,'tinker_inspect',{})
  def test_graph_ablation_removes_connected_choices(self):
-  self.start();g=graph_for(self.token)
+  self.specific();g=graph_for(self.token)
   before=t.tinker_handoff(self.token)
   g.query('MATCH (:TeachingStrategy)-[r:ADDRESSES]->(:DifficultyHypothesis) DELETE r')
   after=t.tinker_handoff(self.token)
   self.assertTrue(before['teaching_strategies']);self.assertEqual(after['teaching_strategies'],[])
-  self.assertTrue(after['probe_options'])
 
 class RuleAndProbe(unittest.TestCase):
  def test_rule_probes_an_ambiguous_mistake_and_teaches_a_specific_one(self):

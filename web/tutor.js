@@ -138,13 +138,27 @@ export function tutorTrail(events){
   return '';}).join('');
 }
 
-export function renderInvestigation(el, investigation){
- if(!investigation?.observation){el.innerHTML='';return;}
- const i=investigation,o=i.observation;
- el.innerHTML=`<details class="investigation-card"><summary>For a grown-up: why this next?</summary>
- <p><b>What we noticed:</b> ${esc(o.was_correct?'The latest check was correct for this task.':o.difficulty?.replaceAll('_',' ')||'A response still needs checking')} (${esc(o.representation)}).</p>
- <p><b>Possible explanations:</b> ${i.hypotheses.length?i.hypotheses.map(esc).join('; '):'One response does not establish lasting understanding.'}</p>
- <p><b>Connected teaching alternatives:</b> ${i.strategies.map(s=>esc(s.title)).join('; ')||'Review the evidence before selecting another lesson.'}</p>
- <p class="small">These are possible explanations to check, not diagnoses. <a href="#notes">Inspect observation ${esc(o.id.slice(0,8))} in Field notes</a>.</p></details>`;
+const STEP={diagnostic:'Scout’s check',probe:'Distinguishing check',lesson:'Lesson practice',transfer:'Lens’s transfer check',recheck:'Later check'};
+
+// The current foundation's episode, as FalkorDB records it: each answer, what it suggested, what was tried.
+export function episodeHtml(episode){
+ if(!episode?.steps?.length)return '';
+ const st=episode.status;
+ const banner=st?[st.required?`<p class="episode-flag required"><b>Investigation required by the controller.</b> ${esc(st.note)}</p>`:'',
+  !st.required&&st.note?`<p class="episode-flag">${esc(st.note)}</p>`:'',
+  st.probe_outcome?`<p class="episode-flag ${st.probe_outcome.kind}"><b>${st.probe_outcome.kind==='pointed'?'The check narrowed it down.':'The check was inconclusive.'}</b> ${esc(st.probe_outcome.text)}</p>`:'',
+  st.tried_strategies.length?`<p class="episode-flag excluded"><b>Not repeated:</b> ${st.tried_strategies.map(x=>`${esc(x.title)} (${esc(x.why)})`).join('; ')}.</p>`:''].join(''):'';
+ return `${banner}<ol class="episode">${episode.steps.map(s=>`<li class="${s.correct?'ok':'miss'}"><b>${esc(STEP[s.purpose]||s.purpose)}</b>${s.strategy?` · strategy: ${esc(s.strategy)}`:''} · ${esc(s.representation)}<br><span>${s.correct?'Correct for this task':'Not yet right'}${s.hinted?', with hints':''}.</span>${!s.correct&&s.explanation?` <span class="maybe">Possible explanation: ${esc(s.explanation)}${s.ambiguous?' (ambiguous on its own)':''}</span>`:''}</li>`).join('')}</ol>`;
+}
+
+export function renderInvestigation(el, investigation, episode){
+ const body=episodeHtml(episode);
+ if(!body&&!investigation?.observation){el.innerHTML='';return;}
+ const st=episode?.status,open=st&&(st.required||st.tried_strategies.length||st.probe_outcome);
+ const strategies=investigation?.strategies||[];
+ el.innerHTML=`<details class="investigation-card"${open?' open':''}><summary>For a grown-up: why this next?</summary>
+ ${body}
+ ${strategies.length&&!st?.required?`<p><b>Teaching strategies connected to the latest mistake:</b> ${strategies.map(s=>esc(s.title)).join('; ')}</p>`:''}
+ <p class="small">These are possible explanations to check, not diagnoses. Every line above is read from this notebook's graph. <a href="#notes">See the full field notes</a>.</p></details>`;
  el.querySelector('a').onclick=e=>{e.preventDefault();document.querySelector('nav [data-tab="notes"]').click();};
 }

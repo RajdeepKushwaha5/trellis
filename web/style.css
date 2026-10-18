@@ -152,3 +152,12 @@ footer.night .night-line,footer.night .brand-name{text-shadow:0 0 14px #1f2e26,0
 
 .explain-button{font-size:10px;padding:6px 0;color:var(--orange)}
 .native-query pre.plan{background:#25382e;color:#e9e1cf;font-size:10px;line-height:1.6}
+
+.episode{margin:10px 0;padding-left:20px;font-size:12px;line-height:1.6}
+.episode li{margin:6px 0}.episode li.miss b{color:var(--orange)}.episode li.ok b{color:#407454}
+.episode .maybe{display:block;color:var(--muted);font-size:11px}
+.episode-flag{font-size:12px;line-height:1.6;padding:8px 12px;margin:8px 0;background:#f3f5ee;border-left:3px solid #8fa883}
+.episode-flag.required{background:#f6e6c5;border-left-color:#d7b86d}
+.episode-flag.excluded{background:#f8ecd9;border-left-color:var(--orange)}
+.episode-flag.inconclusive{background:#eef0f5;border-left-color:#9aa6c4}
+.episode-notes{margin:18px 0}

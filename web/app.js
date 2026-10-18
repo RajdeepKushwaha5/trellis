@@ -2,7 +2,7 @@ import {createAtlas} from './atlas.js';
 import {drawGraph,focusGraph} from './graph.js';
 import {initWater} from './water.js';
 import {startNightSky} from './footer.js';
-import {ROLES,renderRoles,renderFraction,renderStations,renderTutorQueries,renderReport,tutorTrail,renderInvestigation} from './tutor.js';
+import {ROLES,renderRoles,renderFraction,renderStations,renderTutorQueries,renderReport,tutorTrail,renderInvestigation,episodeHtml} from './tutor.js';
 startNightSky(document.getElementById('night-sky'),document.querySelector('footer.night'));
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -106,7 +106,9 @@ async function answer(choice){
  }catch(e){notice(e.message);}finally{busy=false;render();}
 }
 async function loadNotes(){const d=await api('notebook'),r=d.plan.route;
- if(d.plan.lesson_count>0)api('tutor/report').then(x=>renderReport($('tutor-report'),x)).catch(()=>{});else $('tutor-report').hidden=true;
+ if(d.plan.lesson_count>0){api('tutor/report').then(x=>renderReport($('tutor-report'),x)).catch(()=>{});
+  api('tutor/state').then(s=>{const h=episodeHtml(s.episode);$('episode-notes').hidden=!h;$('episode-notes').innerHTML=h?`<p class="eyebrow">THIS FOUNDATION, STEP BY STEP</p>${h}<p class="small">Read from this notebook's graph: each task's observation, the explanation it suggested and the strategy each lesson used.</p>`:'';}).catch(()=>{});}
+ else{$('tutor-report').hidden=true;$('episode-notes').hidden=true;}
  $('learning-route').innerHTML=`<p class="eyebrow">YOUR EVIDENCE-BACKED LEARNING ROUTE</p><h3>${esc(r.goal)}</h3><div class="route-columns">${[['Observed task support',r.observed_support],['Parent-reported support',r.reported_support],['Still uncertain',r.uncertain]].map(([label,items])=>`<div><b>${label}${items.length>12?` (${items.length})`:''}</b><p>${items.slice(0,12).map(esc).join(', ')||'None recorded'}${items.length>12?`</p><details><summary>and ${items.length-12} more</summary><p>${items.slice(12).map(esc).join(', ')}</p></details><p>`:''}</p></div>`).join('')}</div><p>Next: ${lessonRoute()&&tutor?esc(tutor.task?`answer the open ${tutor.task.activity.title} task`:tutor.due_role?`${ROLES[tutor.due_role].name}: ${ROLES[tutor.due_role].does.toLowerCase()}`:'review the route'):esc(r.next?.title||'Review uncertainty and coverage.')}</p>${r.gaps.map(g=>`<p>${esc(g.name)}: ${esc(g.reason)}</p>`).join('')}<p class="small">${esc(r.scope)}</p>`;
  $('observations').innerHTML=d.observations.map((o,i)=>`<div class="observation"><span>${i+1}</span><span>${esc(o.label||o.item)}<br><small>${o.purpose?`${esc({diagnostic:'Scout check',lesson:'Tinker lesson practice',transfer:'Lens transfer check',recheck:'later check',probe:'Tinker distinguishing check'}[o.purpose]||o.purpose)} / ${esc(o.representation)}${o.hinted?' / with hints, not counted as a check':''} / rubric ${esc(o.rubric)}`:'Structured response / rubric v1'}</small></span><span>${o.correct?'Correct for this task':'Needs another look'}</span></div>`).join('')||'<p class="small">No structured task responses.</p>';
  $('parent-observations').innerHTML=(d.parent_observations||[]).map(o=>`<div class="observation"><span>↗</span><span>${esc(d.plan.nodes.find(n=>n.id===o.concept)?.name||o.concept)} / criterion ${o.criterion+1}</span><span>${esc(o.response)} / parent-reported</span></div>`).join('')||'<p class="small">No parent observations.</p>';
@@ -175,7 +177,7 @@ function renderLessonRoom(){
  $('guide-note').textContent='Start uses the local model for each role. The second button runs the same role servers with a fixed rule and no model.';
  if(!$('live-trail').querySelector('.trail-step'))$('live-trail').innerHTML='<p class="small">Each role\u2019s tool calls appear here: the tools its MCP server exposed, the options it was offered and the one it chose.</p>';
  if(!tutor)return;
- renderInvestigation($('investigation-panel'),tutor.investigation);renderRoles($('role-strip'),roleView);renderStations($('stations'),tutor.stations,tutor.concept);renderTutorQueries($('tutor-queries'),tutor);
+ renderInvestigation($('investigation-panel'),tutor.investigation,tutor.episode);renderRoles($('role-strip'),roleView);renderStations($('stations'),tutor.stations,tutor.concept);renderTutorQueries($('tutor-queries'),tutor);
  const due=tutor.due_role&&ROLES[tutor.due_role];
  $('next').innerHTML=`<span class="label">${tutor.task?'WAITING FOR YOUR ANSWER':'WHO IS UP NEXT'}</span><h3>${tutor.task?esc(tutor.task.activity.title):due?`${due.name}, ${due.job}`:'Review the route'}</h3><p class="small">${due&&!tutor.task?esc(due.does):''}</p>`;
  $('tutor-note').innerHTML=tutor.history.length?`<b>Latest step.</b> ${esc(tutor.history.at(-1).note)}`:'Scout reads the FalkorDB route first. Nothing is recorded until you answer.';

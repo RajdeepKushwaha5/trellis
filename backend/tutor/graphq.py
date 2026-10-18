@@ -150,3 +150,37 @@ def probes(g, concept, log):
 def history(g, concept, log):
     return [dict(zip(['id','purpose','correct','hinted','difficulty','representation','time'],r))
             for r in query(g,'recent evidence for this foundation',HISTORY,{'concept':concept},log)]
+
+
+# ---------- one foundation episode: ambiguity, strategies already tried, and the timeline ----------
+LATEST_MISTAKE = '''MATCH (o:Observation)-[:ABOUT]->(:Concept {id:$concept})
+WHERE o.purpose IN ['diagnostic','transfer','recheck','probe'] AND o.difficulty IS NOT NULL AND o.time >= $since
+WITH o ORDER BY o.time DESC LIMIT 1
+MATCH (o)-[:SUGGESTS]->(h:DifficultyHypothesis)
+RETURN o.id, h.id, h.text, h.ambiguous'''
+TRIED = '''MATCH (x:TaskIssue)-[:USES_STRATEGY]->(s:TeachingStrategy)
+WHERE x.id IN $lessons
+RETURN DISTINCT s.id, s.title'''
+EPISODE = '''MATCH (x:TaskIssue)-[:PRODUCED]->(o:Observation)-[:ABOUT]->(:Concept {id:$concept})
+WHERE o.time >= $since
+OPTIONAL MATCH (o)-[:SUGGESTS]->(h:DifficultyHypothesis)
+OPTIONAL MATCH (x)-[:USES_STRATEGY]->(s:TeachingStrategy)
+RETURN o.id, o.purpose, o.correct, o.hinted, o.difficulty, x.rep, o.label, h.text, h.ambiguous, s.title, o.time
+ORDER BY o.time'''
+
+
+def latest_mistake(g, concept, since, log):
+    rows = query(g, 'latest mistake in this episode', LATEST_MISTAKE, {'concept': concept, 'since': since}, log)
+    return dict(zip(['observation', 'hypothesis', 'text', 'ambiguous'], rows[0])) if rows else {}
+
+
+def tried_strategies(g, lessons, log):
+    return [{'id': r[0], 'title': r[1]} for r in query(g, 'strategies already tried in this episode', TRIED,
+                                                         {'lessons': lessons}, log)] if lessons else []
+
+
+def episode(g, concept, since, log):
+    keys = ['id', 'purpose', 'correct', 'hinted', 'difficulty', 'representation', 'label', 'explanation',
+            'ambiguous', 'strategy', 'time']
+    return [dict(zip(keys, r)) for r in query(g, 'this episode, step by step', EPISODE,
+                                              {'concept': concept, 'since': since}, log)]

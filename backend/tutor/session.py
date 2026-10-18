@@ -193,7 +193,8 @@ def status(token):
             'budgets': {'lessons': LESSON_BUDGET, 'transfers': TRANSFER_BUDGET}, 'rule': SUPPORT_RULE,
             'paused': t['paused'], 'decision_queries': t.get('queries', []), 'view_queries': _public_log(log),
             'scout': t['scout'],
-            'investigation': graphq.teaching(g, t['concept'], t['activity'], log) if t['concept'] else None}
+            'investigation': graphq.teaching(g, t['concept'], t['activity'], log) if t['concept'] else None,
+            'episode': episode_view(token)}
 
 
 def report(token):
@@ -339,7 +340,7 @@ def scout_choose(token, option_id, version, source='scout'):
         if not tid:
             raise engine.Exhausted('No unused check remains for this foundation in this notebook.')
         t.update(state='diagnostic', activity=act['id'], concept=act['concept'], task=tid, lessons=[], transfers=0,
-                 tinker=None, probes=[], inspections=0)
+                 tinker=None, probes=[], inspections=0, episode_started=time.time())
         t['scout'] = {'goal_id': route['goal_id'], 'foundation_id': act['concept'], 'activity_id': act['id'],
                       'plan_fingerprint': route['fingerprint'], 'evidence_revision': route['revision'],
                       'witness_concepts': option['witness'], 'graph_rank': option['graph_rank'],
@@ -373,6 +374,12 @@ def tinker_handoff(token):
     # A lesson needs two unused items: one retired as the worked example and one to practise.
     open_reps = [r for r in act['representations']
                  if r not in taught and engine.remaining(family_of(act), r, act['params'], used) >= 2]
+    status = _investigation_status(g, t, probe_options, log)
+    tried = {x['id'] for x in status['tried_strategies']}
+    strategies = [s for s in investigation['strategies'] if s['id'] not in tried and any(r in open_reps for r in s['reps'])]
+    if status['required']:
+        # The controller requires a distinguishing check first; Tinker still chooses which one.
+        open_reps, strategies = [], []
     return {'handoff': t['scout'], 'version': t['version'], 'objective': act['objective'],
             'objective_text': next(o['text'] for o in catalog()['objectives'] if o['id'] == act['objective']),
             'representations': [{'id': r, 'label': engine.label(family_of(act), r), 'taught_before': r in taught}
@@ -380,11 +387,70 @@ def tinker_handoff(token):
             'openings': [{'id': k, 'label': v} for k, v in OPENINGS.items()],
             'previous_lessons': t['lessons'], 'lesson_budget': LESSON_BUDGET,
             'investigation': investigation,
-            'teaching_strategies': [s for s in investigation['strategies'] if any(r in open_reps for r in s['reps'])],
+            'teaching_strategies': strategies, 'investigation_status': status,
             'probe_options': probe_options, 'probe_budget_remaining': max(0,1-len(t['probes'])),
             'inspection_available': t['inspections'] < 1,
             **_difficulty(g, t['concept'], log), 'queries': _public_log(log),
             'boundary': 'Tinker teaches. It cannot see transfer tasks, grade, or mark anything learned.'}
+
+
+def _investigation_status(g, t, probe_options, log):
+    """What the evidence in this episode allows. Investigation is required when the latest mistake is linked to an
+    ambiguous explanation, no distinguishing check has been asked yet, and one is available."""
+    since = t.get('episode_started', 0)
+    latest = graphq.latest_mistake(g, t['concept'], since, log)
+    tried = graphq.tried_strategies(g, [l['task'] for l in t['lessons']], log)
+    probe_done = len(t['probes']) >= 1
+    outcome = None
+    if probe_done:
+        row = g.ro_query('MATCH (x:TaskIssue {id:$id})-[:PRODUCED]->(o:Observation) RETURN o.correct,o.difficulty',
+                         {'id': t['probes'][-1]}).result_set
+        if row:
+            correct, code = row[0]
+            if correct or not code:
+                outcome = {'kind': 'inconclusive', 'text': 'The distinguishing check was answered correctly, so it did '
+                           'not single out one explanation. Tinker teaches for the original mistake.'}
+            elif code in pedagogy.AMBIGUOUS:
+                outcome = {'kind': 'inconclusive', 'text': 'The distinguishing check was still ambiguous. Tinker '
+                           'teaches for the original mistake.'}
+            else:
+                outcome = {'kind': 'pointed', 'text': 'The distinguishing check pointed to: '
+                           + pedagogy.HYPOTHESES.get(code, code) + '.'}
+    ambiguous = bool(latest.get('ambiguous'))
+    required = ambiguous and not probe_done and bool(probe_options)
+    note = None
+    if required:
+        note = ('The latest mistake does not say why, so the controller requires one distinguishing check before '
+                'teaching. Tinker chooses which check.')
+    elif ambiguous and not probe_done:
+        note = ('A distinguishing check would help, but none is available here, so Tinker teaches using '
+                'strategies for the original mistake.')
+    return {'required': required, 'ambiguous': ambiguous, 'probe_done': probe_done, 'probe_outcome': outcome,
+            'latest_explanation': latest.get('text'), 'note': note,
+            'tried_strategies': [x | {'why': 'already tried in this episode, and the next check was not yet right'}
+                                 for x in tried]}
+
+
+def episode_view(token):
+    """The current foundation's episode as the graph records it: each answer, what it suggested, what was tried."""
+    g = graph_for(token)
+    t = _tutor(g)
+    if not t['concept']:
+        return None
+    log = []
+    steps = graphq.episode(g, t['concept'], t.get('episode_started', 0), log)
+    # The episode's status is shown in every state; probes only count as available while Tinker is due.
+    probes = []
+    if t['state'] == 'teach_due' and len(t['probes']) < 1:
+        act = activities()[t['activity']]
+        used = _used(g)
+        probes = [d for d in graphq.probes(g, t['concept'], log)
+                  if d['rep'] in act['representations'] and engine.remaining(family_of(act), d['rep'], act['params'], used)]
+    status = _investigation_status(g, t, probes, log)
+    if t['state'] != 'teach_due':
+        status['required'], status['note'] = False, None
+    return {'concept': t['concept'], 'activity': t['activity'], 'state': t['state'], 'steps': steps, 'status': status,
+            'queries': _public_log(log)}
 
 
 def _difficulty(g, concept, log):
@@ -448,6 +514,11 @@ def tinker_teach(token, representation, opening, version, strategy=None):
         if len(t['lessons']) >= LESSON_BUDGET:
             raise ValueError('Lesson budget used')
         ctx = tinker_handoff(token)
+        if ctx['investigation_status']['required']:
+            raise ValueError('Investigation is required first: the latest mistake is ambiguous and no distinguishing '
+                             'check has been asked in this episode.')
+        if strategy and strategy in {x['id'] for x in ctx['investigation_status']['tried_strategies']}:
+            raise ValueError('That strategy was already tried in this episode. Choose a different approach.')
         selected_strategy = next((s for s in ctx['teaching_strategies'] if s['id'] == strategy and representation in s['reps']), None)
         if strategy and not selected_strategy:
             raise ValueError('Strategy is not connected to the current evidence or representation')
@@ -644,7 +715,13 @@ def answer(token, tid, response):
         act = activities()[row['activity']]
         name = act['title']
         if purpose == 'probe':
-            t['state'], note = 'teach_due', 'Distinguishing check recorded. Tinker will reconsider the evidence. This probe does not count towards support.'
+            if graded['correct'] or not graded['difficulty']:
+                finding = 'It was answered correctly, so it did not single out one explanation; Tinker will teach for the original mistake.'
+            elif graded['difficulty'] in pedagogy.AMBIGUOUS:
+                finding = 'It was still ambiguous; Tinker will teach for the original mistake.'
+            else:
+                finding = 'It pointed to: ' + pedagogy.HYPOTHESES.get(graded['difficulty'], graded['difficulty']) + '.'
+            t['state'], note = 'teach_due', 'Distinguishing check recorded. ' + finding + ' It does not count towards support.'
         elif purpose == 'lesson':
             t['tinker'] = {'concept_id': concept, 'lesson_attempt_id': tid, 'objective_id': row['objective'],
                            'used_item_ids': [l['task'] for l in t['lessons']], 'hinted': hinted,
