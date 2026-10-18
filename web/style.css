@@ -143,3 +143,5 @@ footer.night .night-line,footer.night .brand-name{text-shadow:0 0 14px #1f2e26,0
 .track-chip{border:1px solid #bcc4ae;background:none;border-radius:30px;padding:7px 13px;font-size:11px;color:var(--ink)}
 .track-chip:hover{background:var(--sage)}
 @media(max-width:900px){.agent-row{grid-template-columns:1fr}}
+
+.strategy-card{border-left:3px solid var(--orange);padding:14px 18px;background:#eef0e5;margin:18px 0}.strategy-card h3{margin:6px 0}.investigation-card{margin:14px 0;border:1px solid var(--line);padding:12px 16px;background:#fffdf6}.investigation-card summary{cursor:pointer;font-size:12px}.investigation-card p{font-size:12px;line-height:1.7}

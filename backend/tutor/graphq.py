@@ -116,3 +116,36 @@ def rank(g, options, log):
 def summary(g, log):
     keys = ['concept', 'name', 'activity', 'answers', 'correct', 'hinted', 'lesson_answers', 'difficulties', 'latest']
     return [dict(zip(keys, r)) | {'difficulties': [d for d in r[7] if d]} for r in query(g, 'parent summary', SUMMARY, {}, log)]
+
+# Evidence-grounded teaching choices. No task parameters or answers are returned.
+TEACHING = '''MATCH (x:TaskIssue)-[:PRODUCED]->(o:Observation)-[:ABOUT]->(:Concept {id:$concept})
+WHERE o.purpose IN ['diagnostic','transfer','recheck','probe']
+WITH x,o ORDER BY o.time DESC LIMIT 1
+OPTIONAL MATCH (o)-[:SUGGESTS]->(h:DifficultyHypothesis)<-[:ADDRESSES]-(s:TeachingStrategy)<-[:USES_STRATEGY]-(a:Activity {id:$activity})
+RETURN o.id,o.difficulty,o.correct,x.rep,h.text,s.id,s.title,s.instruction,s.reps'''
+PROBES = '''MATCH (x:TaskIssue)-[:PRODUCED]->(o:Observation)-[:ABOUT]->(:Concept {id:$concept})
+WHERE o.purpose IN ['diagnostic','transfer','recheck','probe']
+WITH o ORDER BY o.time DESC LIMIT 1
+MATCH (o)-[:SUGGESTS]->(h:DifficultyHypothesis)<-[:DISTINGUISHES]-(d:Diagnostic)
+RETURN d.id,d.title,d.rep,d.why,h.text ORDER BY d.id'''
+HISTORY = '''MATCH (x:TaskIssue)-[:PRODUCED]->(o:Observation)-[:ABOUT]->(:Concept {id:$concept})
+RETURN o.id,o.purpose,o.correct,o.hinted,o.difficulty,x.rep,o.time ORDER BY o.time DESC LIMIT 6'''
+
+
+def teaching(g, concept, activity, log):
+    rows=query(g,'teaching strategies connected to latest evidence',TEACHING,{'concept':concept,'activity':activity},log)
+    if not rows:return {'observation':None,'hypotheses':[],'strategies':[]}
+    first=rows[0]
+    strategies=[dict(zip(['id','title','instruction','reps'],r[5:9])) for r in rows if r[5]]
+    return {'observation':{'id':first[0],'difficulty':first[1],'correct':first[2],'representation':first[3]},
+            'hypotheses':list(dict.fromkeys(r[4] for r in rows if r[4])), 'strategies':strategies}
+
+
+def probes(g, concept, log):
+    rows=query(g,'diagnostics that distinguish the observed difficulty',PROBES,{'concept':concept},log)
+    return [dict(zip(['id','title','rep','why','hypothesis'],r)) for r in rows]
+
+
+def history(g, concept, log):
+    return [dict(zip(['id','purpose','correct','hinted','difficulty','representation','time'],r))
+            for r in query(g,'recent evidence for this foundation',HISTORY,{'concept':concept},log)]

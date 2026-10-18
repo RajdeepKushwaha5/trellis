@@ -21,7 +21,9 @@ PROMPTS = {
              'inspect a concept first if its criteria would change your choice. You cannot teach, grade or record learning.',
     'tinker': 'You are Tinker, the experiment guide. A foundation was not yet shown on a check. Choose one permitted '
               'representation and opening for a short lesson. If an earlier lesson did not work, a different '
-              'representation is required. You cannot see transfer tasks, grade, or declare the lesson successful.',
+              'representation is required. Use the recorded mistake to select a connected teaching strategy, not just a picture style. '
+              'For an ambiguous placement error, prefer a distinguishing probe before assuming a cause. You can inspect history once. '
+              'Hypotheses are uncertain. You cannot see transfer answers, grade, or declare success.',
     'lens': 'You are Lens, the challenger. Choose the kind of fresh transfer task that best tests whether the idea '
             'carries over to a different representation from the one taught. Consider the observed difficulty. You never '
             'see task parameters or answers and cannot grade.',
@@ -40,9 +42,18 @@ def options_for(role, ctx, inspected):
                      {'concept_id': o['concept']}) for o in ctx['options'] if o['concept'] not in inspected][:4]
         return out
     if role == 'tinker':
-        return [(f'{r["id"]}+{o["id"]}', f'Teach with {r["label"]}; {o["label"].lower()}', 'tinker_teach',
+        out = [(f'{r["id"]}+{o["id"]}', f'Teach with {r["label"]}; {o["label"].lower()}', 'tinker_teach',
                  {'representation': r['id'], 'opening': o['id'], 'version': ctx['version']})
                 for r in ctx['representations'] for o in ctx['openings']]
+        out += [(f'strategy:{s["id"]}:{r["id"]}:{o["id"]}', f'{s["title"]}; {r["label"]}; {o["label"]}', 'tinker_teach',
+                 {'representation': r['id'], 'opening': o['id'], 'strategy': s['id'], 'version': ctx['version']})
+                for s in ctx['teaching_strategies'] for r in ctx['representations'] if r['id'] in s['reps']
+                for o in ctx['openings']]
+        out += [('probe:' + d['id'], 'Investigate first: ' + d['title'] + '. ' + d['why'], 'tinker_probe',
+                 {'diagnostic_id':d['id'], 'version':ctx['version']}) for d in ctx['probe_options']]
+        if ctx['inspection_available']:
+            out.append(('inspect:history', 'Inspect recent responses before choosing', 'tinker_inspect', {}))
+        return out
     return [(s['id'], f'Transfer task using {s["label"]} ({s["remaining"]} unused)', 'lens_transfer',
              {'representation': s['id'], 'version': ctx['version']}) for s in ctx['strategies']]
 
@@ -56,9 +67,10 @@ def visible(role, ctx):
                                 for o in ctx['options']], 'inspected': ctx.get('inspected', {})}
     if role == 'tinker':
         return {k: ctx[k] for k in ('objective_text', 'representations', 'openings', 'previous_lessons',
-                                    'observed_difficulty', 'boundary')} | {'foundation': ctx['handoff']}
+                                    'observed_difficulty', 'difficulty_meaning', 'difficulty_representation', 'investigation',
+                                    'teaching_strategies', 'probe_options', 'probe_budget_remaining', 'boundary')} | {'foundation': ctx['handoff'], 'inspected':ctx.get('inspected', {})}
     return {k: ctx[k] for k in ('handoff', 'teaching_representation', 'teaching_opening', 'observed_difficulty',
-                                'strategies', 'excluded', 'rule', 'boundary')}
+                                'strategies', 'excluded', 'rule', 'difficulty_meaning', 'difficulty_representation', 'boundary')}
 
 
 async def decide(http, role, model, ctx, opts):
@@ -137,6 +149,11 @@ async def step(token, emit=None, use_model=True, model=None):
                               'model_reason_unverified': decision['reason'], 'usage': usage}
                     decisions.append(record)
                     event('model_decision', **record)
+                    if chosen[2] == 'tinker_inspect':
+                        details = await call('tinker_inspect', {})
+                        inspected['history'] = details['history']
+                        ctx = await call('tinker_handoff', {})
+                        continue
                     if chosen[2] == 'scout_inspect':
                         details = await call('scout_inspect', chosen[3])
                         inspected[details['id']] = {'criteria': details['criteria'][:4], 'status': details['status']}

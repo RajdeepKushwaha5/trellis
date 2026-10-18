@@ -43,8 +43,16 @@ def tinker_handoff() -> str:
     return run('tinker_handoff')
 
 
-def tinker_teach(representation: str, opening: str, version: int) -> str:
-    return run('tinker_teach', representation=representation, opening=opening, version=version)
+def tinker_inspect() -> str:
+    return run("tinker_inspect")
+
+
+def tinker_probe(diagnostic_id: str, version: int) -> str:
+    return run("tinker_probe", diagnostic_id=diagnostic_id, version=version)
+
+
+def tinker_teach(representation: str, opening: str, version: int, strategy: str = "") -> str:
+    return run('tinker_teach', representation=representation, opening=opening, version=version, strategy=strategy or None)
 
 
 def lens_handoff() -> str:
@@ -60,6 +68,8 @@ DESCRIPTIONS = {
     'scout_inspect': 'Read one concept on this route: source criteria, evidence status and its lesson.',
     'scout_choose': 'Issue a fresh check for one listed foundation. Needs the current tutor version.',
     'tinker_handoff': "Read Scout's handoff, the permitted representations and lesson openings.",
+    'tinker_inspect': 'Inspect recent responses once before teaching. No task parameters or answer keys.',
+    'tinker_probe': 'Request one distinguishing check from graph-linked diagnostics. Never counts towards support.',
     'tinker_teach': 'Start a lesson with one permitted representation and opening. Needs the current tutor version.',
     'lens_handoff': "Read Tinker's handoff and the permitted transfer strategies. No task parameters or answers.",
     'lens_transfer': 'Request a fresh transfer task in one permitted representation. The controller picks the item.',

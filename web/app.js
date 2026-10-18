@@ -2,7 +2,7 @@ import {createAtlas} from './atlas.js';
 import {drawGraph,focusGraph} from './graph.js';
 import {initWater} from './water.js';
 import {startNightSky} from './footer.js';
-import {ROLES,renderRoles,renderFraction,renderStations,renderTutorQueries,renderReport,tutorTrail} from './tutor.js';
+import {ROLES,renderRoles,renderFraction,renderStations,renderTutorQueries,renderReport,tutorTrail,renderInvestigation} from './tutor.js';
 startNightSky(document.getElementById('night-sky'),document.querySelector('footer.night'));
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -108,7 +108,7 @@ async function answer(choice){
 async function loadNotes(){const d=await api('notebook'),r=d.plan.route;
  if(d.plan.lesson_count>0)api('tutor/report').then(x=>renderReport($('tutor-report'),x)).catch(()=>{});else $('tutor-report').hidden=true;
  $('learning-route').innerHTML=`<p class="eyebrow">YOUR EVIDENCE-BACKED LEARNING ROUTE</p><h3>${esc(r.goal)}</h3><div class="route-columns">${[['Observed task support',r.observed_support],['Parent-reported support',r.reported_support],['Still uncertain',r.uncertain]].map(([label,items])=>`<div><b>${label}${items.length>12?` (${items.length})`:''}</b><p>${items.slice(0,12).map(esc).join(', ')||'None recorded'}${items.length>12?`</p><details><summary>and ${items.length-12} more</summary><p>${items.slice(12).map(esc).join(', ')}</p></details><p>`:''}</p></div>`).join('')}</div><p>Next: ${lessonRoute()&&tutor?esc(tutor.task?`answer the open ${tutor.task.activity.title} task`:tutor.due_role?`${ROLES[tutor.due_role].name}: ${ROLES[tutor.due_role].does.toLowerCase()}`:'review the route'):esc(r.next?.title||'Review uncertainty and coverage.')}</p>${r.gaps.map(g=>`<p>${esc(g.name)}: ${esc(g.reason)}</p>`).join('')}<p class="small">${esc(r.scope)}</p>`;
- $('observations').innerHTML=d.observations.map((o,i)=>`<div class="observation"><span>${i+1}</span><span>${esc(o.label||o.item)}<br><small>${o.purpose?`${esc({diagnostic:'Scout check',lesson:'Tinker lesson practice',transfer:'Lens transfer check',recheck:'later check'}[o.purpose]||o.purpose)} / ${esc(o.representation)}${o.hinted?' / with hints, not counted as a check':''} / rubric ${esc(o.rubric)}`:'Structured response / rubric v1'}</small></span><span>${o.correct?'Correct for this task':'Needs another look'}</span></div>`).join('')||'<p class="small">No structured task responses.</p>';
+ $('observations').innerHTML=d.observations.map((o,i)=>`<div class="observation"><span>${i+1}</span><span>${esc(o.label||o.item)}<br><small>${o.purpose?`${esc({diagnostic:'Scout check',lesson:'Tinker lesson practice',transfer:'Lens transfer check',recheck:'later check',probe:'Tinker distinguishing check'}[o.purpose]||o.purpose)} / ${esc(o.representation)}${o.hinted?' / with hints, not counted as a check':''} / rubric ${esc(o.rubric)}`:'Structured response / rubric v1'}</small></span><span>${o.correct?'Correct for this task':'Needs another look'}</span></div>`).join('')||'<p class="small">No structured task responses.</p>';
  $('parent-observations').innerHTML=(d.parent_observations||[]).map(o=>`<div class="observation"><span>↗</span><span>${esc(d.plan.nodes.find(n=>n.id===o.concept)?.name||o.concept)} / criterion ${o.criterion+1}</span><span>${esc(o.response)} / parent-reported</span></div>`).join('')||'<p class="small">No parent observations.</p>';
  $('trace').innerHTML=d.decisions.map(x=>`<div class="tool"><b>${esc(x.model)}</b> <small>${x.plan_fingerprint===d.plan.fingerprint?'current evidence revision':'historical decision / evidence revision changed'}</small><br>${esc(x.reason)}<pre>${esc(JSON.stringify(x.trace,null,2))}</pre>Runtime tokens: ${x.usage.input??'unknown'} input, ${x.usage.output??'unknown'} output. Digest ${esc(x.provenance?.model_digest?.slice(0,12)||'unknown')}.<details><summary>Unverified model rationale</summary>${esc(x.model_reason_unverified)}</details></div>`).join('')||'No investigation-agent decision recorded. Manual checks do not count as agent decisions.';
  if((d.role_decisions||[]).length&&!d.decisions.length)$('trace').innerHTML='';
@@ -138,7 +138,7 @@ async function openComparison(){if(busy)return;busy=true;$('compare-start').disa
  $('export').onclick=async()=>{try{const d=await loadNotes();const u=URL.createObjectURL(new Blob([JSON.stringify(d,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=u;a.download='trellis-learning-route.json';a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);}catch(e){notice(e.message);}};
 initWater($);
 // ---------- the tutor loop: Scout checks, Tinker teaches, Lens tries a fresh transfer task ----------
-const WAITS={diagnostic:'scout',recheck:'scout',lesson:'tinker',transfer:'lens'};
+const WAITS={diagnostic:'scout',recheck:'scout',lesson:'tinker',transfer:'lens',probe:'tinker'};
 async function refreshTutor(){if(!lessonRoute()){tutor=null;return;}tutor=await api('tutor/state');roleView={due:tutor.task?null:tutor.due_role,waiting:tutor.task?WAITS[tutor.task.purpose]:null};}
 function renderLessonRoom(){
  $('water-demo').hidden=true;$('general-context').hidden=true;$('tutor-studio').hidden=false;
@@ -148,7 +148,7 @@ function renderLessonRoom(){
  $('guide-note').textContent='Start uses the local model for each role. The second button runs the same role servers with a fixed rule and no model.';
  if(!$('live-trail').querySelector('.trail-step'))$('live-trail').innerHTML='<p class="small">Each role\u2019s tool calls appear here: the tools its MCP server exposed, the options it was offered and the one it chose.</p>';
  if(!tutor)return;
- renderRoles($('role-strip'),roleView);renderStations($('stations'),tutor.stations,tutor.concept);renderTutorQueries($('tutor-queries'),tutor);
+ renderInvestigation($('investigation-panel'),tutor.investigation);renderRoles($('role-strip'),roleView);renderStations($('stations'),tutor.stations,tutor.concept);renderTutorQueries($('tutor-queries'),tutor);
  const due=tutor.due_role&&ROLES[tutor.due_role];
  $('next').innerHTML=`<span class="label">${tutor.task?'WAITING FOR YOUR ANSWER':'WHO IS UP NEXT'}</span><h3>${tutor.task?esc(tutor.task.activity.title):due?`${due.name}, ${due.job}`:'Review the route'}</h3><p class="small">${due&&!tutor.task?esc(due.does):''}</p>`;
  $('tutor-note').innerHTML=tutor.history.length?`<b>Latest step.</b> ${esc(tutor.history.at(-1).note)}`:'Scout reads the FalkorDB route first. Nothing is recorded until you answer.';
@@ -156,7 +156,7 @@ function renderLessonRoom(){
  if(!tutor.task&&!busy&&!$('task').querySelector('#feedback .feedback'))$('task').innerHTML=`<p class="eyebrow">${due?esc(due.name.toUpperCase())+' IS UP NEXT':'A PLACE TO PAUSE'}</p><h3>${due?esc(due.does):'No permitted step remains on this route right now.'}</h3><p>Each role runs in its own MCP server with only its own tools. Grading and recording are code, not agents. A correct answer here is evidence for one task, not proof of mastery.</p>`;
 }
 function showFraction(task){action=null;prepared=null;
- $('phase').textContent={diagnostic:'02 / SCOUT’S CHECK',recheck:'02 / A LATER CHECK',lesson:'03 / TINKER’S LESSON',transfer:'04 / LENS’S TRANSFER'}[task.purpose]||'02 / TASK';
+ $('phase').textContent={diagnostic:'02 / SCOUT’S CHECK',recheck:'02 / A LATER CHECK',lesson:'03 / TINKER’S LESSON',probe:'03 / INVESTIGATE FIRST',transfer:'04 / LENS’S TRANSFER'}[task.purpose]||'02 / TASK';
  renderFraction($('task'),task,{submit:r=>fractionAnswer(task,r),hint:()=>api('tutor/hint',{task:task.task}).catch(e=>{notice(e.message);return null;})});}
 async function tutorStep(useModel){
  if(busy)return;busy=true;
@@ -182,7 +182,7 @@ async function fractionAnswer(task,response){
  try{const d=await api('tutor/answer',{task:task.task,response});
   roleView={flash:'assay'};renderRoles($('role-strip'),roleView);
   const next=d.next_role&&ROLES[d.next_role];
-  const counted=d.counts_as_check?'Counted as a check.':d.purpose==='lesson'?(d.hinted?'Lesson practice with hints. Not counted as a check.':'Lesson practice. Not counted as a check.'):'A hinted answer is not counted as a check.';
+  const counted=d.purpose==='probe'?'Investigation only. Not counted towards support.':d.counts_as_check?'Counted as a check.':d.purpose==='lesson'?(d.hinted?'Lesson practice with hints. Not counted as a check.':'Lesson practice. Not counted as a check.'):'A hinted answer is not counted as a check.';
   $('feedback').innerHTML=`<div class="feedback"><b>${d.correct?'That works.':'Let’s look a little closer.'}</b><br>${esc(d.explanation)}<br><small>${counted} Status: ${esc(d.status.replaceAll('_',' '))}.</small><p class="small">${esc(d.note)}</p>${d.rule?`<p class="small">${esc(d.rule)}</p>`:''}</div>${next?`<button id="continue" class="text-button">${esc(next.name)} is next: ${esc(next.does.toLowerCase())} →</button>`:''}`;
   if($('continue'))$('continue').onclick=()=>tutorStep(agentMode);
   await refresh();await refreshTutor();roleView.flash='notebook';render();

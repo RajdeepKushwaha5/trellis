@@ -10,16 +10,16 @@ from uuid import uuid4
 
 from ..core import ROOT, LOCK, graph_for, digest, current_activities
 from . import fractions as engine
-from . import graphq
+from . import graphq, pedagogy
 
 CATALOG = ROOT / 'activities/fractions.json'
 ROLE_TOOLS = {
     'scout': ('scout_route', 'scout_inspect', 'scout_choose'),
-    'tinker': ('tinker_handoff', 'tinker_teach'),
+    'tinker': ('tinker_handoff', 'tinker_inspect', 'tinker_probe', 'tinker_teach'),
     'lens': ('lens_handoff', 'lens_transfer'),
 }
 DUE = {'idle': 'scout', 'advance': 'scout', 'paused': 'scout', 'teach_due': 'tinker', 'transfer_due': 'lens'}
-WAITING = {'diagnostic': 'checking', 'teaching': 'teaching', 'transfer': 'transfer check'}
+WAITING = {'diagnostic': 'checking', 'teaching': 'teaching', 'transfer': 'transfer check', 'investigating': 'distinguishing check'}
 OPENINGS = {'example_first': 'Show a worked example first, then let the learner practise',
             'try_first': 'Let the learner try first, then explain with the worked example'}
 LESSON_BUDGET, TRANSFER_BUDGET, SCOUT_INSPECTS = 2, 4, 2
@@ -63,7 +63,7 @@ def by_concept(concept):
 
 def _blank():
     return {'state': 'idle', 'version': 0, 'activity': None, 'concept': None, 'task': None, 'scout': None,
-            'tinker': None, 'lessons': [], 'transfers': 0, 'paused': {}, 'history': [], 'queries': []}
+            'tinker': None, 'lessons': [], 'probes': [], 'inspections': 0, 'transfers': 0, 'paused': {}, 'history': [], 'queries': []}
 
 
 def _tutor(g):
@@ -72,6 +72,8 @@ def _tutor(g):
         return _blank()
     data = json.loads(rows[0][0])
     data['version'] = rows[0][1]
+    data.setdefault('probes', [])
+    data.setdefault('inspections', 0)
     return data
 
 
@@ -141,7 +143,8 @@ def task_payload(g, tid):
            'activity': {'id': act['id'], 'title': act['title'], 'objective': act['objective']},
            'render': engine.public(row['params']), 'revision': row['revision'], 'answered': bool(row['used']),
            'hints_available': len(ladder), 'hints': ladder[:row['hints']], 'rubric': engine.RUBRIC,
-           'hints_allowed': lesson, 'opening': row['extra'].get('opening')}
+           'hints_allowed': lesson, 'opening': row['extra'].get('opening'),
+           'teaching_strategy': row['extra'].get('strategy'), 'investigation': row['extra'].get('investigation')}
     if lesson and row['extra'].get('example'):
         ex = _task_row(g, row['extra']['example'])
         out['example'] = engine.example(ex['params'])
@@ -180,7 +183,8 @@ def status(token):
             'lessons': t['lessons'], 'history': t['history'][-8:], 'stations': route, 'available': bool(route),
             'budgets': {'lessons': LESSON_BUDGET, 'transfers': TRANSFER_BUDGET}, 'rule': SUPPORT_RULE,
             'paused': t['paused'], 'decision_queries': t.get('queries', []), 'view_queries': _public_log(log),
-            'scout': t['scout']}
+            'scout': t['scout'],
+            'investigation': graphq.teaching(g, t['concept'], t['activity'], log) if t['concept'] else None}
 
 
 def report(token):
@@ -326,7 +330,7 @@ def scout_choose(token, option_id, version, source='scout'):
         if not tid:
             raise engine.Exhausted('No unused check remains for this foundation in this notebook.')
         t.update(state='diagnostic', activity=act['id'], concept=act['concept'], task=tid, lessons=[], transfers=0,
-                 tinker=None)
+                 tinker=None, probes=[], inspections=0)
         t['scout'] = {'goal_id': route['goal_id'], 'foundation_id': act['concept'], 'activity_id': act['id'],
                       'plan_fingerprint': route['fingerprint'], 'evidence_revision': route['revision'],
                       'witness_concepts': option['witness'], 'graph_rank': option['graph_rank'],
@@ -352,6 +356,11 @@ def tinker_handoff(token):
     act = activities()[t['activity']]
     taught = {l['rep'] for l in t['lessons']}
     used = _used(g)
+    pedagogy.ensure(g)
+    g.query('MATCH (o:Observation)-[:ABOUT]->(:Concept {id:$c}), (h:DifficultyHypothesis) WHERE h.id=o.difficulty MERGE (o)-[:SUGGESTS]->(h)', {'c':t['concept']})
+    investigation = graphq.teaching(g, t['concept'], act['id'], log)
+    probe_options = graphq.probes(g, t['concept'], log) if len(t['probes']) < 1 else []
+    probe_options = [d for d in probe_options if d['rep'] in act['representations'] and engine.remaining(family_of(act), d['rep'], act['params'], used)]
     # A lesson needs two unused items: one retired as the worked example and one to practise.
     open_reps = [r for r in act['representations']
                  if r not in taught and engine.remaining(family_of(act), r, act['params'], used) >= 2]
@@ -361,17 +370,56 @@ def tinker_handoff(token):
                                 for r in open_reps],
             'openings': [{'id': k, 'label': v} for k, v in OPENINGS.items()],
             'previous_lessons': t['lessons'], 'lesson_budget': LESSON_BUDGET,
+            'investigation': investigation,
+            'teaching_strategies': [s for s in investigation['strategies'] if any(r in open_reps for r in s['reps'])],
+            'probe_options': probe_options, 'probe_budget_remaining': max(0,1-len(t['probes'])),
+            'inspection_available': t['inspections'] < 1,
             **_difficulty(g, t['concept'], log), 'queries': _public_log(log),
             'boundary': 'Tinker teaches. It cannot see transfer tasks, grade, or mark anything learned.'}
 
 
 def _difficulty(g, concept, log):
-    last = graphq.last_check(g, concept, log)
+    rows = graphq.history(g, concept, log)
+    last = next((r for r in rows if r['purpose'] in (*CHECKS, 'probe')), {})
     return {'observed_difficulty': last.get('difficulty'), 'difficulty_meaning': DIFFICULTY.get(last.get('difficulty')),
-            'difficulty_representation': last.get('rep')}
+            'difficulty_representation': last.get('representation')}
 
 
-def tinker_teach(token, representation, opening, version):
+def tinker_inspect(token):
+    """One bounded history read, with no answer keys or task parameters."""
+    with LOCK:
+        g = graph_for(token)
+        t = _tutor(g)
+        if t['state'] != 'teach_due' or t['inspections'] >= 1:
+            raise ValueError('History inspection is unavailable or its budget is used')
+        log = []
+        rows = graphq.history(g, t['concept'], log)
+        t['inspections'] += 1
+        _save(g, t, 'Tinker inspected recent responses before deciding.')
+        return {'history': rows, 'version': t['version'], 'queries': _public_log(log)}
+
+
+def tinker_probe(token, diagnostic_id, version):
+    """At most one fresh distinguishing probe per foundation episode, never support evidence."""
+    with LOCK:
+        g = graph_for(token)
+        t = _tutor(g)
+        _require(t, 'tinker', version)
+        ctx = tinker_handoff(token)
+        probe = next((p for p in ctx['probe_options'] if p['id'] == diagnostic_id), None)
+        if not probe:
+            raise ValueError('Diagnostic is not eligible or its one-probe budget is used')
+        act = activities()[t['activity']]
+        tid, _ = _issue(g, token, act, probe['rep'], 'probe', extra={'investigation': ctx['investigation']})
+        g.query('MATCH (x:TaskIssue {id:$task}), (d:Diagnostic {id:$diagnostic}) CREATE (x)-[:USES_DIAGNOSTIC]->(d)',
+                {'task': tid, 'diagnostic': diagnostic_id})
+        t['probes'].append(tid)
+        t.update(state='investigating', task=tid, queries=ctx['queries'])
+        _save(g, t, 'Tinker requested a distinguishing check: ' + probe['title'] + '. Not counted towards support.')
+        return task_payload(g, tid)
+
+
+def tinker_teach(token, representation, opening, version, strategy=None):
     with LOCK:
         g = graph_for(token)
         t = _tutor(g)
@@ -383,13 +431,19 @@ def tinker_teach(token, representation, opening, version):
             raise ValueError('Unknown lesson opening')
         if len(t['lessons']) >= LESSON_BUDGET:
             raise ValueError('Lesson budget used')
-        # The worked example is a real pool item, retired so it can never come back as a check.
-        log = []
+        ctx = tinker_handoff(token)
+        selected_strategy = next((s for s in ctx['teaching_strategies'] if s['id'] == strategy and representation in s['reps']), None)
+        if strategy and not selected_strategy:
+            raise ValueError('Strategy is not connected to the current evidence or representation')
+        # The worked example is retired from future checks.
+        log = list(ctx['queries'])
         _difficulty(g, t['concept'], log)
         t['queries'] = _public_log(log)
         ex, _ = _issue(g, token, act, representation, 'example', used=True)
-        tid, _ = _issue(g, token, act, representation, 'lesson', extra={'opening': opening, 'example': ex})
-        t['lessons'].append({'rep': representation, 'opening': opening, 'task': tid})
+        tid, _ = _issue(g, token, act, representation, 'lesson', extra={'opening': opening, 'example': ex, 'strategy': selected_strategy, 'investigation': ctx['investigation']})
+        t['lessons'].append({'rep': representation, 'opening': opening, 'task': tid, 'strategy': strategy})
+        if strategy:
+            g.query('MATCH (x:TaskIssue {id:$task}), (s:TeachingStrategy {id:$strategy}) CREATE (x)-[:USES_STRATEGY]->(s)', {'task':tid,'strategy':strategy})
         t.update(state='teaching', task=tid)
         _save(g, t, f'Tinker chose {engine.label(family_of(act), representation)}, {opening.replace("_", " ")}.')
         return task_payload(g, tid)
@@ -564,10 +618,13 @@ def answer(token, tid, response):
              'difficulty': graded['difficulty'], 'revision': revision + 1}).result_set
         if not updated:
             raise ValueError('Concurrent state change. Refresh the route.')
+        pedagogy.link_observation(g, tid)
         # The next role due, decided from the evidence just written.
         act = activities()[row['activity']]
         name = act['title']
-        if purpose == 'lesson':
+        if purpose == 'probe':
+            t['state'], note = 'teach_due', 'Distinguishing check recorded. Tinker will reconsider the evidence. This probe does not count towards support.'
+        elif purpose == 'lesson':
             t['tinker'] = {'concept_id': concept, 'lesson_attempt_id': tid, 'objective_id': row['objective'],
                            'used_item_ids': [l['task'] for l in t['lessons']], 'hinted': hinted,
                            'transfer_pool_id': row['objective'] + '-transfer', 'practice_correct': graded['correct']}
@@ -624,7 +681,9 @@ TOOLS = {
     'scout_inspect': lambda token, args: scout_inspect(token, args['concept_id']),
     'scout_choose': lambda token, args: scout_choose(token, args['activity_id'], args['version']),
     'tinker_handoff': lambda token, args: tinker_handoff(token),
-    'tinker_teach': lambda token, args: tinker_teach(token, args['representation'], args['opening'], args['version']),
+    'tinker_teach': lambda token, args: tinker_teach(token, args['representation'], args['opening'], args['version'], args.get('strategy')),
+    'tinker_inspect': lambda token, args: tinker_inspect(token),
+    'tinker_probe': lambda token, args: tinker_probe(token, args['diagnostic_id'], args['version']),
     'lens_handoff': lambda token, args: lens_handoff(token),
     'lens_transfer': lambda token, args: lens_transfer(token, args['representation'], args['version']),
 }

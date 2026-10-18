@@ -57,7 +57,7 @@ function exampleHtml(ex){const s=ex.render,sol=ex.solution;let art='';
  else art=line(s,{point:s.point})+`<p class="small">Answer: ${esc(s.options[sol.choice])}</p>`;
  return `<div class="worked"><span class="eyebrow">WORKED EXAMPLE · RETIRED FROM CHECKS</span><p>${esc(s.prompt)}</p>${art}<ol>${ex.steps.map(x=>`<li>${esc(x)}</li>`).join('')}</ol></div>`;}
 
-const PURPOSE={diagnostic:'SCOUT’S CHECK · NO HINTS',lesson:'TINKER’S LESSON · HINTS ALLOWED',transfer:'LENS’S TRANSFER CHECK · NO HINTS',recheck:'LATER CHECK · NO HINTS'};
+const PURPOSE={diagnostic:'SCOUT’S CHECK · NO HINTS',lesson:'TINKER’S LESSON · HINTS ALLOWED',transfer:'LENS’S TRANSFER CHECK · NO HINTS',probe:'TINKER’S DISTINGUISHING CHECK · NOT A SUPPORT CHECK',recheck:'LATER CHECK · NO HINTS'};
 
 export function renderFraction(el,task,{submit,hint}){
  const s=task.render;let chosen=null,shaded=[];
@@ -65,6 +65,8 @@ export function renderFraction(el,task,{submit,hint}){
  const speak='speechSynthesis' in window;
  el.innerHTML=`<p class="eyebrow">${PURPOSE[task.purpose]||'TASK'} / ${esc(task.activity.title)}</p>
   <p class="source-note">Shown with ${esc(task.representation_label)}. Graded on the server with exact fractions (${esc(task.rubric)}).</p>
+  ${task.teaching_strategy?`<section class="strategy-card"><span class="eyebrow">LET’S TRY THIS WAY</span><h3>${esc(task.teaching_strategy.title)}</h3><p>${esc(task.teaching_strategy.instruction)}</p></section>`:''}
+  ${task.purpose==='probe'?'<p class="source-note">A short check to help choose an explanation. It does not count towards support.</p>':''}
   ${showExample?exampleHtml(task.example):''}
   <div class="prompt-row"><h3>${esc(s.prompt)}</h3>${speak?'<button class="text-button" id="read-aloud" aria-label="Read the question aloud">Read aloud ♪</button>':''}</div>
   <div id="fraction-work" class="fraction-work"></div>
@@ -112,7 +114,7 @@ export function renderTutorQueries(el,status){
  const block=x=>`<div class="native-query"><b>${esc(x.name)}</b><small>${Number(x.server_ms).toFixed(3)} ms on the FalkorDB server / ${x.rows} rows</small><pre>${esc(x.cypher)}</pre></div>`;
  const total=q.reduce((s,x)=>s+(x.server_ms||0),0);
  el.hidden=false;
- el.innerHTML=`<p class="eyebrow">THE TUTOR'S LATEST DECISION, AS GRAPH QUERIES</p><p>${q.length} queries, ${total.toFixed(2)} ms on the server. Evidence is graph structure: each task points to its concept and representation, each answer is an observation about a concept.</p>${status.scout?.reasons?.length?`<p><b>Why Scout chose ${esc(status.scout.title||status.scout.activity_id)}:</b> ${status.scout.reasons.map(esc).join('; ')}.</p>`:''}<details open><summary>Decision queries</summary>${q.map(block).join('')}</details><details><summary>Station state queries (suspected and inferred foundations)</summary>${v.map(block).join('')}</details>`;
+ el.innerHTML=`<p class="eyebrow">THE TUTOR'S LATEST DECISION, AS GRAPH QUERIES</p><p>${q.length?`${q.length} decision queries, ${total.toFixed(2)} ms on the server.`:'No tutor decision yet. The state queries below inspect this notebook.'} Evidence is graph structure: each task points to its concept and representation, each answer is an observation about a concept.</p>${status.scout?.reasons?.length?`<p><b>Why Scout chose ${esc(status.scout.title||status.scout.activity_id)}:</b> ${status.scout.reasons.map(esc).join('; ')}.</p>`:''}<details open><summary>Decision queries</summary>${q.map(block).join('')}</details><details><summary>Station state queries (suspected and inferred foundations)</summary>${v.map(block).join('')}</details>`;
 }
 
 // The parent's summary, computed from the evidence edges.
@@ -133,4 +135,15 @@ export function tutorTrail(events){
   if(e.type==='model_decision')return `<div class="trail-step choice"><span class="trail-tag">${e.chooser==='model'?'MODEL CHOICE':'POLICY CHOICE'} · ${e.rank_in_options} of ${e.options.length} permitted options</span><b>${esc(e.label)}</b><details><summary>All options and the ${e.chooser==='model'?'model’s own words (unverified)':'policy note'}</summary><ol>${e.options.map(o=>`<li>${esc(o.label)}</li>`).join('')}</ol><p>${esc(e.model_reason_unverified)}</p></details></div>`;
   if(e.type==='tool_finished')return `<div class="trail-step guided"><span class="trail-tag">TOOL · ${esc(e.tool)}</span><small>result ${esc(e.result_hash?.slice(0,10))}</small></div>`;
   return '';}).join('');
+}
+
+export function renderInvestigation(el, investigation){
+ if(!investigation?.observation){el.innerHTML='';return;}
+ const i=investigation,o=i.observation;
+ el.innerHTML=`<details class="investigation-card"><summary>For a grown-up: why this next?</summary>
+ <p><b>What we noticed:</b> ${esc(o.correct?'The latest check was correct for this task.':o.difficulty?.replaceAll('_',' ')||'A response still needs checking')} (${esc(o.representation)}).</p>
+ <p><b>What remains uncertain:</b> ${i.hypotheses.length?i.hypotheses.map(esc).join('; '):'One response does not establish lasting understanding.'}</p>
+ <p><b>Connected teaching alternatives:</b> ${i.strategies.map(s=>esc(s.title)).join('; ')||'Review the evidence before selecting another lesson.'}</p>
+ <p class="small">Hypotheses guide investigation; they are not diagnoses. <a href="#notes">Inspect observation ${esc(o.id.slice(0,8))} in Field notes</a>.</p></details>`;
+ el.querySelector('a').onclick=e=>{e.preventDefault();document.querySelector('nav [data-tab="notes"]').click();};
 }

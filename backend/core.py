@@ -58,7 +58,8 @@ def lesson_structure():
 
 
 def activity_digest():
-    return digest({'activities': all_activities(), 'lessons': lesson_structure()})
+    from .tutor.pedagogy import VERSION
+    return digest({'activities': all_activities(), 'lessons': lesson_structure(), 'teaching_catalog': VERSION})
 
 
 def _sync_activities(graph):
@@ -76,6 +77,8 @@ def _sync_activities(graph):
     graph.query('UNWIND $rows AS row MATCH (a:Activity {id:row.id}) UNWIND row.reps AS rep '
                 'MERGE (r:Representation {id:rep.id}) SET r.rep=rep.rep,r.family=rep.family,r.label=rep.label '
                 'MERGE (a)-[e:OFFERS]->(r) SET e.order=rep.order', {'rows': lessons})
+    from .tutor.pedagogy import ensure
+    ensure(graph)
     graph.query('MATCH (d:Dataset {ready:true}) SET d.activity_hash=$hash', {'hash': activity_digest()})
 
 
