@@ -155,10 +155,11 @@ export function renderInvestigation(el, investigation, episode){
  const body=episodeHtml(episode);
  if(!body&&!investigation?.observation){el.innerHTML='';return;}
  const st=episode?.status,open=st&&(st.required||st.tried_strategies.length||st.probe_outcome);
- const strategies=investigation?.strategies||[];
+ const tried=new Set((st?.tried_strategies||[]).map(x=>x.id));
+ const eligible=(investigation?.strategies||[]).filter(s=>!tried.has(s.id));
  el.innerHTML=`<details class="investigation-card"${open?' open':''}><summary>For a grown-up: why this next?</summary>
  ${body}
- ${strategies.length&&!st?.required?`<p><b>Teaching strategies connected to the latest mistake:</b> ${strategies.map(s=>esc(s.title)).join('; ')}</p>`:''}
+ ${eligible.length&&!st?.required?`<p><b>Strategies still eligible for the latest mistake:</b> ${eligible.map(s=>esc(s.title)).join('; ')}</p>`:''}
  <p class="small">These are possible explanations to check, not diagnoses. Every line above is read from this notebook's graph. <a href="#notes">See the full field notes</a>.</p></details>`;
  el.querySelector('a').onclick=e=>{e.preventDefault();document.querySelector('nav [data-tab="notes"]').click();};
 }

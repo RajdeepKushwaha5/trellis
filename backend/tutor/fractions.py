@@ -283,7 +283,7 @@ def grade(p, response):
         same = f', which is the same point as {fs(want)}' if p['t'] != p['b'] else ''
         return {'correct': True, 'value': fs(got), 'difficulty': None,
                 'explanation': f'Yes. That point is {gaps(tick)} of 1/{p["t"]} from 0{same}.'}
-    return {'correct': False, 'value': f'{tick}/{p["t"]}', 'difficulty': 'placement',
+    return {'correct': False, 'value': f'{tick}/{p["t"]}' if tick else '0', 'difficulty': 'placement',
             'explanation': f'That point is {gaps(tick)} of 1/{p["t"]} from 0, which is {fs(got) if tick else "0"}. '
                            f'{fs(want)} is {gaps(p["a"] * p["t"] // p["b"])} along.'}
 

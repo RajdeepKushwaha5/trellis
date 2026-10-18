@@ -161,3 +161,5 @@ footer.night .night-line,footer.night .brand-name{text-shadow:0 0 14px #1f2e26,0
 .episode-flag.excluded{background:#f8ecd9;border-left-color:var(--orange)}
 .episode-flag.inconclusive{background:#eef0f5;border-left-color:#9aa6c4}
 .episode-notes{margin:18px 0}
+
+.inline-link{display:inline;padding:0;font-size:inherit;color:var(--orange)}

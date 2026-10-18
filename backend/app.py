@@ -143,7 +143,9 @@ def search(q:str=''):
     g=db().select_graph(BASE)
     try:
         rows=g.ro_query("CALL db.idx.fulltext.queryNodes('Concept',$q) YIELD node,score "
-                        'RETURN node.id,node.name,node.subject ORDER BY score DESC,node.name LIMIT 20',{'q':fulltext_terms(q)}).result_set
+                        'WITH node,score,size([w IN $words WHERE toLower(node.name) CONTAINS w]) AS in_name '
+                        'RETURN node.id,node.name,node.subject ORDER BY in_name DESC,score DESC,node.name LIMIT 20',
+                        {'q':fulltext_terms(q),'words':fulltext_terms(q).replace('*','').split()}).result_set
     except RedisError:
         raise
     except Exception:
@@ -174,11 +176,12 @@ def curriculum(subject:str='',offset:int=0,q:str=''):
     subjects=g.ro_query('MATCH (c:Concept) RETURN c.subject,count(c) ORDER BY c.subject').result_set
     from .core import fulltext_terms
     terms=fulltext_terms(q) if len(q.strip())>=2 else ''
-    params={'subject':subject[:80],'q':terms,'offset':max(0,min(offset,1590))}
+    params={'subject':subject[:80],'q':terms,'offset':max(0,min(offset,1590)),'words':terms.replace('*','').split()}
     if terms:
         # Ranked by FalkorDB's full-text score over names and descriptions, with stemming.
-        source="CALL db.idx.fulltext.queryNodes('Concept',$q) YIELD node,score WITH node AS c,score WHERE ($subject=\"\" OR c.subject=$subject) "
-        order='ORDER BY score DESC,c.name,c.id'
+        source=("CALL db.idx.fulltext.queryNodes('Concept',$q) YIELD node,score WITH node AS c,score WHERE ($subject=\"\" OR c.subject=$subject) "
+                "WITH c,score,size([w IN $words WHERE toLower(c.name) CONTAINS w]) AS in_name ")
+        order='ORDER BY in_name DESC,score DESC,c.name,c.id'
     else:
         source='MATCH (c:Concept) WHERE ($subject="" OR c.subject=$subject) '
         order='ORDER BY c.subject,c.name,c.id'
