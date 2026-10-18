@@ -6,7 +6,10 @@
     "check:ui": "node ui-check.mjs",
     "check:agent": "node ui-agent-check.mjs",
     "check:tutor": "node ui-tutor-check.mjs",
-    "screens": "node evidence-screens.mjs"
+    "screens": "node evidence-screens.mjs",
+    "verify": "node verify.mjs",
+    "check:recovery": "node ui-recovery-check.mjs",
+    "check:investigation": "node ui-investigation-check.mjs"
   },
   "devDependencies": {
     "puppeteer-core": "25.14.0"

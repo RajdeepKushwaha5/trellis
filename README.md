@@ -186,7 +186,7 @@ Each notebook is a graph copy of the versioned public curriculum plus private sy
 
 The fractions engine enumerates **787 distinct tasks across seven lessons**, covering equal parts, building fractions and number lines. Tasks have stable identities, are not repeated within a notebook, and use server-side answer keys with exact `fractions.Fraction` arithmetic. Worked examples are retired from checks. Exhaustion pauses the activity instead of recycling items.
 
-**Support rule v2:** since the last incorrect check, correct unhinted checks on different items in at least two representations, including a Lens transfer and at least one answer the learner built (shading or placing a point). Lessons that only offer three-option picture questions need three such checks, so guessing is unlikely to pass. This means `supported_for_objective`, not proven mastery. Hinted practice cannot satisfy the rule. A supported objective becomes eligible for a later check after a configurable delay.
+**Support rule v2:** since the last incorrect check, correct unhinted checks on different items in at least two representations, including a Lens transfer and at least one answer the learner built (shading or placing a point). Lessons that only offer three-option picture questions need three such checks, so guessing is unlikely to pass. This means `supported_for_objective`, not proven mastery. Hinted practice cannot satisfy the rule. When a foundation becomes supported, the app shows a **receipt** rebuilt from the graph: the exact checks since the last mistake, their representations, the transfer and the built answer that met the rule. Field notes opens with a short summary (checked, supported, still being checked, approaches that did not work, what happens next) above the full evidence. A supported objective becomes eligible for a later check after a configurable delay.
 
 Parent reports, observed task responses and inferred hypotheses stay distinct. Reports can be revised without erasing history. Role conversations are separate; handoffs are structured records. The controller rejects stale, foreign and out-of-turn actions. Raw model explanations are unverified text and cannot establish support.
 
@@ -244,7 +244,15 @@ These checks evaluate software behaviour on synthetic profiles. They do not meas
 
 ### Reproduce the checks
 
-Start FalkorDB first. The evaluation creates and deletes its own synthetic learner graphs; no model is required:
+**One command.** With FalkorDB and the backend running, `npm ci` once, then:
+
+```powershell
+npm run verify
+```
+
+It checks the backend and database are reachable, runs every test and browser check, and reports each as **PASS**, **FAIL** or **NOT RUN**. Live-model checks run only when Ollama is reachable; otherwise they are reported as not run, never as passed. It also reports saved evidence as **STALE** when the code it describes has changed since it was produced.
+
+The individual commands follow. Start FalkorDB first. The evaluation creates and deletes its own synthetic learner graphs; no model is required:
 
 ```powershell
 .\.venv\Scripts\python.exe -m backend.evaluate

@@ -211,7 +211,20 @@ def report(token):
              for s in st['stations'] if s['paused_until']] + \
             [{'title': s['title'], 'when': s['recheck_after'], 'why': 'a later check of support, not proof of lasting learning'}
              for s in st['stations'] if s['recheck_after'] and not s['recheck_due']]
-    return {'activity': rows, 'return_later': sorted(later, key=lambda x: x['when']), 'due_role': st['due_role'],
+    # Why each foundation is marked supported, rebuilt from the graph's records, never from model text.
+    receipts = []
+    for station in st['stations']:
+        if station['status'] != 'supported_for_objective':
+            continue
+        act = activities()[station['activity']]
+        checks = graphq.receipt(g, station['concept'], log)
+        built = [c for c in checks if (c['family'], c['rep']) in CONSTRUCTED]
+        receipts.append({'title': station['title'], 'concept': station['concept'], 'checks': checks,
+                         'items': len(checks), 'representations': sorted({c['representation'] for c in checks}),
+                         'transfers': sum(c['purpose'] == 'transfer' for c in checks), 'built': len(built),
+                         'items_needed': 3 if choice_only(act) else 2, 'rule': 'v2',
+                         'later_check': station['recheck_after']})
+    return {'activity': rows, 'receipts': receipts, 'return_later': sorted(later, key=lambda x: x['when']), 'due_role': st['due_role'],
             'stations': st['stations'], 'queries': _public_log(log),
             'scope': 'Synthetic notebook. Each line is observed task evidence, not a grade or a diagnosis.'}
 

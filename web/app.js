@@ -11,6 +11,7 @@ const curriculum={subject:'',q:'',offset:0};
 let atlas=null,atlasPromise=null,activeJob=null;
 let tutor=null,roleView={};
 const EXPEDITION='mt_NoB20kVa4w';
+const lowerFirst=t=>t.charAt(0).toLowerCase()+t.slice(1);
 const lessonRoute=()=>Boolean(plan&&plan.lesson_count>0);
 // On a lesson route the map highlights the foundation Scout actually chose, with FalkorDB's witness path to the goal.
 const mapPlan=()=>lessonRoute()&&tutor?.concept&&plan.graph_reasoning?.witnesses?.[tutor.concept]?{...plan,selected:{...(plan.selected||{}),concept:tutor.concept,witness:plan.graph_reasoning.witnesses[tutor.concept]}}:plan;
@@ -106,15 +107,30 @@ async function answer(choice){
  }catch(e){notice(e.message);}finally{busy=false;render();}
 }
 async function loadNotes(){const d=await api('notebook'),r=d.plan.route;
- if(d.plan.lesson_count>0){api('tutor/report').then(x=>renderReport($('tutor-report'),x)).catch(()=>{});
+ $('notes-summary').hidden=true;
+ if(d.plan.lesson_count>0){api('tutor/report').then(x=>{renderReport($('tutor-report'),x);renderNotesSummary(x);}).catch(()=>{});
   api('tutor/state').then(s=>{const h=episodeHtml(s.episode);$('episode-notes').hidden=!h;$('episode-notes').innerHTML=h?`<p class="eyebrow">THIS FOUNDATION, STEP BY STEP</p>${h}<p class="small">Read from this notebook's graph: each task's observation, the explanation it suggested and the strategy each lesson used.</p>`:'';}).catch(()=>{});}
  else{$('tutor-report').hidden=true;$('episode-notes').hidden=true;}
- $('learning-route').innerHTML=`<p class="eyebrow">YOUR EVIDENCE-BACKED LEARNING ROUTE</p><h3>${esc(r.goal)}</h3><div class="route-columns">${[['Observed task support',r.observed_support],['Parent-reported support',r.reported_support],['Still uncertain',r.uncertain]].map(([label,items])=>`<div><b>${label}${items.length>12?` (${items.length})`:''}</b><p>${items.slice(0,12).map(esc).join(', ')||'None recorded'}${items.length>12?`</p><details><summary>and ${items.length-12} more</summary><p>${items.slice(12).map(esc).join(', ')}</p></details><p>`:''}</p></div>`).join('')}</div><p>Next: ${lessonRoute()&&tutor?esc(tutor.task?`answer the open ${tutor.task.activity.title} task`:tutor.due_role?`${ROLES[tutor.due_role].name}: ${ROLES[tutor.due_role].does.toLowerCase()}`:'review the route'):esc(r.next?.title||'Review uncertainty and coverage.')}</p>${r.gaps.map(g=>`<p>${esc(g.name)}: ${esc(g.reason)}</p>`).join('')}<p class="small">${esc(r.scope)}</p>`;
+ $('learning-route').innerHTML=`<p class="eyebrow">YOUR EVIDENCE-BACKED LEARNING ROUTE</p><h3>${esc(r.goal)}</h3><div class="route-columns">${[['Observed task support',r.observed_support],['Parent-reported support',r.reported_support],['Still uncertain',r.uncertain]].map(([label,items])=>`<div><b>${label}${items.length>12?` (${items.length})`:''}</b><p>${items.slice(0,12).map(esc).join(', ')||'None recorded'}${items.length>12?`</p><details><summary>and ${items.length-12} more</summary><p>${items.slice(12).map(esc).join(', ')}</p></details><p>`:''}</p></div>`).join('')}</div><p>Next: ${lessonRoute()&&tutor?esc(tutor.task?`answer the open ${tutor.task.activity.title} task`:tutor.due_role?`${ROLES[tutor.due_role].name}: ${lowerFirst(ROLES[tutor.due_role].does)}`:'review the route'):esc(r.next?.title||'Review uncertainty and coverage.')}</p>${r.gaps.map(g=>`<p>${esc(g.name)}: ${esc(g.reason)}</p>`).join('')}<p class="small">${esc(r.scope)}</p>`;
  $('observations').innerHTML=d.observations.map((o,i)=>`<div class="observation"><span>${i+1}</span><span>${esc(o.label||o.item)}<br><small>${o.purpose?`${esc({diagnostic:'Scout check',lesson:'Tinker lesson practice',transfer:'Lens transfer check',recheck:'later check',probe:'Tinker distinguishing check'}[o.purpose]||o.purpose)} / ${esc(o.representation)}${o.hinted?' / with hints, not counted as a check':''} / rubric ${esc(o.rubric)}`:'Structured response / rubric v1'}</small></span><span>${o.correct?'Correct for this task':'Needs another look'}</span></div>`).join('')||'<p class="small">No structured task responses.</p>';
  $('parent-observations').innerHTML=(d.parent_observations||[]).map(o=>`<div class="observation"><span>↗</span><span>${esc(d.plan.nodes.find(n=>n.id===o.concept)?.name||o.concept)} / criterion ${o.criterion+1}</span><span>${esc(o.response)} / parent-reported</span></div>`).join('')||'<p class="small">No parent observations.</p>';
  $('trace').innerHTML=d.decisions.map(x=>`<div class="tool"><b>${esc(x.model)}</b> <small>${x.plan_fingerprint===d.plan.fingerprint?'current evidence revision':'historical decision / evidence revision changed'}</small><br>${esc(x.reason)}<pre>${esc(JSON.stringify(x.trace,null,2))}</pre>Runtime tokens: ${x.usage.input??'unknown'} input, ${x.usage.output??'unknown'} output. Digest ${esc(x.provenance?.model_digest?.slice(0,12)||'unknown')}.<details><summary>Unverified model rationale</summary>${esc(x.model_reason_unverified)}</details></div>`).join('')||'No investigation-agent decision recorded. Manual checks do not count as agent decisions.';
  if((d.role_decisions||[]).length&&!d.decisions.length)$('trace').innerHTML='';
  $('trace').insertAdjacentHTML('beforeend',(d.role_decisions||[]).map(x=>`<div class="tool"><b>${esc(ROLES[x.role]?.name||x.role)}</b> <small>${x.decisions.map(c=>`(${c.chooser==='model'?'local model '+esc(c.model):'rule-based, no model'}) chose from ${c.options.length} options: ${esc(c.label)}${c.chooser==='model'&&c.rule_label!==undefined?(c.agrees_with_rule?' (same as the rule)':` (the rule would choose: ${esc(c.rule_label)})`):''}`).join(' / ')}</small><br>Tools exposed to this role: ${x.tools.map(esc).join(', ')}<details><summary>${x.decisions.some(c=>c.chooser==='model')?'Tool trace and the model\u2019s own words (unverified)':'Tool trace and the rule\u2019s reason'}</summary><pre>${esc(JSON.stringify(x.trace,null,2))}</pre>${x.decisions.map(c=>`<p>${esc(c.model_reason_unverified)}</p>`).join('')}</details></div>`).join(''));return d;
+}
+function renderNotesSummary(r){
+ const supported=r.stations.filter(s=>s.status==='supported_for_objective'),checked=r.activity.length;
+ const uncertain=r.stations.filter(s=>s.status!=='supported_for_objective'&&r.activity.some(a=>a.concept===s.concept));
+ const tried=(tutor?.episode?.status?.tried_strategies||[]).map(x=>x.title);
+ const due=r.due_role&&ROLES[r.due_role];
+ if(!checked){$('notes-summary').hidden=true;return;}
+ $('notes-summary').hidden=false;
+ $('notes-summary').innerHTML=`<p class="eyebrow">AT A GLANCE</p><div class="glance">
+  <div><b>${checked}</b><span>foundation${checked===1?'':'s'} checked</span></div>
+  <div><b>${supported.length}</b><span>supported under rule v2${supported.length?`: ${supported.map(s=>esc(s.title)).join(', ')}`:''}</span></div>
+  <div><b>${uncertain.length}</b><span>still being checked${uncertain.length?`: ${uncertain.map(s=>esc(s.title)).join(', ')}`:''}</span></div>
+  <div><b>${tried.length}</b><span>${tried.length?`approach${tried.length===1?'':'es'} that did not work yet: ${tried.map(esc).join(', ')}`:'failed approaches in this episode'}</span></div></div>
+  <p class="small"><b>Next:</b> ${due?`${esc(due.name)}, ${esc(lowerFirst(due.does))}`:'answer the open task in the learning room'} The full evidence is below.</p>`;
 }
 async function loadCurriculum(){await ensureAtlas();const d=await api(`curriculum?subject=${encodeURIComponent(curriculum.subject)}&q=${encodeURIComponent(curriculum.q)}&offset=${curriculum.offset}`);
  $('subjects').innerHTML=[{name:'',count:1590},...d.subjects].map(s=>`<button class="subject ${s.name===curriculum.subject?'selected':''}" data-subject="${esc(s.name)}">${esc(s.name||'All subjects')} <small>${Number(s.count).toLocaleString()}</small></button>`).join('');$('subjects').querySelectorAll('button').forEach(b=>b.onclick=()=>{curriculum.subject=b.dataset.subject;curriculum.offset=0;loadCurriculum().catch(e=>notice(e.message));});
@@ -157,9 +173,10 @@ async function openComparison(){if(busy)return;busy=true;$('compare-start').disa
  $('show-soft').onchange=()=>drawGraph($('map-view'),mapPlan(),inspectConcept,{soft:$('show-soft').checked});
  $('manual').onclick=()=>lessonRoute()?tutorStep(false):next(false);$('agent').onclick=()=>lessonRoute()?tutorStep(true):next(true);
  document.querySelectorAll('[data-expedition]').forEach(b=>b.onclick=()=>changeGoal(EXPEDITION));
- $('reset').onclick=async()=>{if(busy)return;try{await api('session',{});agentMode=false;automatic=0;emptyTask();await refresh();await loadNotes();notice('A fresh synthetic notebook is ready. The previous notebook was not deleted.');}catch(e){notice(e.message);}};
+ $('reset').onclick=async()=>{if(busy)return;try{await freshNotebook();agentMode=false;automatic=0;emptyTask();await refresh();await refreshTutor();render();await loadNotes();notice('A fresh synthetic notebook is ready. The previous notebook was not deleted.');}catch(e){notice(e.message);}};
  $('export').onclick=async()=>{try{const d=await loadNotes();const u=URL.createObjectURL(new Blob([JSON.stringify(d,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=u;a.download='trellis-learning-route.json';a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);}catch(e){notice(e.message);}};
 initWater($);
+window.addEventListener('hashchange',()=>{const name=location.hash.slice(1)||'curriculum',shown=[...document.querySelectorAll('.tab')].find(t=>!t.hidden);if(!shown||shown.id!==name)tab(name);});
 // GRAPH.EXPLAIN for any deciding query shown on the page. The server accepts only the product's own query text.
 document.addEventListener('click',async e=>{const b=e.target.closest('[data-explain]');if(!b)return;
  const box=b.parentElement,cypher=box.querySelector('pre').textContent,out=box.querySelector('.plan');
@@ -192,7 +209,7 @@ async function tutorStep(useModel){
  if(busy)return;busy=true;
  try{await refreshTutor();}catch(e){notice(e.message);busy=false;return;}
  if(!tutor?.due_role){busy=false;render();return;}agentMode=useModel;render();
- notice(useModel?'The local model is choosing for this role. A cold start can take a minute.':'Policy mode: the same role servers and permissions, the first permitted option, and no model.');
+ notice(useModel?'The local model is choosing for this role. A cold start can take a minute.':'Rule-based mode: the same role servers and permissions, the mistake-aware rule, and no model.');
  let result=null;
  try{const start=await api('tutor/step',{use_model:useModel});activeJob=start.id;
   $('agent-status').innerHTML='A role is working <button id="stop-investigation" class="text-button">Pause</button>';
@@ -213,11 +230,12 @@ async function fractionAnswer(task,response){
   roleView={flash:'assay'};renderRoles($('role-strip'),roleView);
   const next=d.next_role&&ROLES[d.next_role];
   const counted=d.purpose==='probe'?'Investigation only. Not counted towards support.':d.counts_as_check?'Counted as a check.':d.purpose==='lesson'?(d.hinted?'Lesson practice with hints. Not counted as a check.':'Lesson practice. Not counted as a check.'):'A hinted answer is not counted as a check.';
-  $('feedback').innerHTML=`<div class="feedback"><b>${d.correct?'That works.':'Let’s look a little closer.'}</b><br>${esc(d.explanation)}<br><small>${counted} Status: ${esc(d.status.replaceAll('_',' '))}.</small><p class="small">${esc(d.note)}</p>${d.rule?`<p class="small">${esc(d.rule)}</p>`:''}</div>${next?`<button id="continue" class="text-button">${esc(next.name)} is next: ${esc(next.does.toLowerCase())} →</button>`:''}`;
+  $('feedback').innerHTML=`<div class="feedback"><b>${d.correct?'That works.':'Let’s look a little closer.'}</b><br>${esc(d.explanation)}<br><small>${counted} Status: ${esc(d.status.replaceAll('_',' '))}.</small><p class="small">${esc(d.note)}</p>${d.status==='supported_for_objective'&&d.evidence?`<div class="receipt"><b>Why this now counts as supported</b><span>${d.evidence.clean_correct_items} correct check${d.evidence.clean_correct_items===1?'':'s'} since the last mistake, in ${d.evidence.representations.length} picture styles · ${d.evidence.transfer_checks} transfer · ${d.evidence.built_answer?'includes an answer the learner built':'picture choices only, so three were needed'} · no hints · rule v2</span><small>Rebuilt from the graph's records in Field notes. Not proof of lasting learning.</small></div>`:d.rule?`<p class="small">${esc(d.rule)}</p>`:''}</div>${next?`<button id="continue" class="text-button">${esc(next.name)} is next: ${esc(lowerFirst(next.does))} →</button>`:''}`;
   if($('continue'))$('continue').onclick=()=>tutorStep(agentMode);
   await refresh();await refreshTutor();roleView.flash='notebook';render();
   return d;
  }catch(e){notice(e.message);return null;}
 }
-async function init(){try{try{const s=await api('session/state');if(!s.exists)await api('session',{});await refresh();}catch(e){if(!e.message.includes('Start a learning')&&!e.message.includes('Session not found'))throw e;await api('session',{});await refresh();}await refreshTutor();render();if(tutor?.task)showFraction(tutor.task);tab(location.hash.slice(1)||'curriculum');}catch(e){notice(e.message);$('next').innerHTML='<h3>The learning graph needs attention.</h3>';$('agent').disabled=true;$('manual').disabled=true;}}
+async function freshNotebook(){await api('session',{});await api('goal',{concept_id:EXPEDITION});}
+async function init(){try{try{const s=await api('session/state');if(!s.exists)await freshNotebook();await refresh();}catch(e){if(!e.message.includes('Start a learning')&&!e.message.includes('Session not found'))throw e;await freshNotebook();await refresh();}await refreshTutor();render();if(tutor?.task)showFraction(tutor.task);tab(location.hash.slice(1)||'curriculum');}catch(e){notice(e.message);$('next').innerHTML='<h3>The learning graph needs attention.</h3>';$('agent').disabled=true;$('manual').disabled=true;}}
 init();

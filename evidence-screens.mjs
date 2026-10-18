@@ -17,7 +17,9 @@ try{
  await p.click('nav [data-tab="compare"]');await p.waitForSelector('.comparison-card');await wait(1500);
  await (await p.$('#compare')).screenshot({path:'evidence/screens/two-learners.png'});
  await p.click('nav [data-tab="curriculum"]');await p.click('[data-feature]');await wait(2500);
- await p.goto('http://127.0.0.1:8020/#lab',{waitUntil:'networkidle0'});await p.waitForFunction(()=>!document.querySelector('#agent').disabled);
+ await p.goto('http://127.0.0.1:8020/#lab',{waitUntil:'networkidle0'});
+ await p.evaluate(()=>fetch('/api/goal',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({concept_id:'mt_Qkewo5M3_c'})}));await p.reload({waitUntil:'networkidle0'});
+ await p.waitForFunction(()=>!document.querySelector('#agent').disabled);
  await p.click('#agent');await p.waitForSelector('[data-choice]',{timeout:180000});await wait(800);
  await (await p.$('.room')).screenshot({path:'evidence/screens/guide-investigation-trail.png'});
  await p.setViewport({width:390,height:844,isMobile:true});await p.goto('http://127.0.0.1:8020/#curriculum',{waitUntil:'networkidle0'});await wait(1500);

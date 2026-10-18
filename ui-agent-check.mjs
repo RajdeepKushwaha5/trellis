@@ -5,6 +5,9 @@ const assert=(x,m)=>{if(!x)throw Error(m);};
 try{
  const p=await browser.newPage();const errors=[];p.on('pageerror',e=>errors.push(e.message));
  await p.goto('http://127.0.0.1:8020/#lab',{waitUntil:'networkidle0'});
+ // This check covers the original investigation guide, which runs on the water route.
+ await p.evaluate(()=>fetch('/api/goal',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({concept_id:'mt_Qkewo5M3_c'})}));
+ await p.reload({waitUntil:'networkidle0'});
  await p.waitForFunction(()=>!document.querySelector('#agent').disabled);
  await p.click('#agent');await p.waitForSelector('[data-choice]',{timeout:180000});
  await p.click('[data-choice="0"]');await p.waitForFunction(()=>document.querySelector('#continue')?.textContent.includes('Your next check is ready'),{timeout:180000});

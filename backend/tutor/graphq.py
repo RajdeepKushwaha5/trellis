@@ -184,3 +184,18 @@ def episode(g, concept, since, log):
             'ambiguous', 'strategy', 'time']
     return [dict(zip(keys, r)) for r in query(g, 'this episode, step by step', EPISODE,
                                               {'concept': concept, 'since': since}, log)]
+
+
+# ---------- the receipt behind "supported": the exact checks that satisfied the rule ----------
+RECEIPT = '''MATCH (o:Observation)-[:ABOUT]->(:Concept {id:$concept}) WHERE o.purpose IN $checks
+WITH max(CASE WHEN o.correct THEN -1.0 ELSE o.time END) AS last_wrong
+MATCH (x:TaskIssue)-[:PRODUCED]->(o:Observation)-[:ABOUT]->(:Concept {id:$concept})
+WHERE o.purpose IN $checks AND o.correct AND NOT o.hinted AND o.time > coalesce(last_wrong, -1.0)
+MATCH (x)-[:IN]->(r:Representation)
+RETURN o.id, o.label, o.purpose, r.rep, r.family, r.label, o.time ORDER BY o.time'''
+
+
+def receipt(g, concept, log):
+    keys = ['id', 'label', 'purpose', 'rep', 'family', 'representation', 'time']
+    return [dict(zip(keys, r)) for r in query(g, 'receipt: checks behind supported', RECEIPT,
+                                              {'concept': concept, 'checks': CHECKS}, log)]

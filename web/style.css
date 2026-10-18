@@ -163,3 +163,12 @@ footer.night .night-line,footer.night .brand-name{text-shadow:0 0 14px #1f2e26,0
 .episode-notes{margin:18px 0}
 
 .inline-link{display:inline;padding:0;font-size:inherit;color:var(--orange)}
+
+.receipt{border:1px solid #8fa883;background:#eef3ea;padding:10px 14px;margin:10px 0;font-size:12px;line-height:1.6}
+.receipt b,.receipt span,.receipt small{display:block}.receipt small{color:var(--muted);font-size:10px;margin-top:4px}
+.receipt ol{margin:6px 0 0;padding-left:18px}.receipt li small{display:inline;color:var(--muted)}
+.notes-summary{margin:0 0 18px}.glance{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:6px 0 10px}
+.glance b{display:block;font-family:'Libre Caslon Display',Georgia,serif;font-weight:400;font-size:34px;line-height:1}
+.glance span{display:block;font-size:11px;line-height:1.5;color:var(--muted);margin-top:4px}
+.scope-label{font-size:10px;letter-spacing:1px;border:1px dashed #bcc4ae;padding:8px 12px;color:var(--muted);margin:0 0 14px}
+@media(max-width:700px){.glance{grid-template-columns:1fr 1fr}}

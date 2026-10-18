@@ -130,6 +130,11 @@ class Loop(unittest.TestCase):
         result = self.right(check['task'])
         self.assertTrue(result['evidence']['built_answer'])
         self.assertEqual(result['status'], 'supported_for_objective')
+        # The receipt behind "supported" is rebuilt from the graph: exactly these two checks, nothing else.
+        receipt = next(r for r in tutor.report(self.token)['receipts'] if r['concept'] == diag['concept'])
+        self.assertEqual([c['purpose'] for c in receipt['checks']], ['diagnostic', 'transfer'])
+        self.assertEqual((receipt['items'], receipt['transfers'], receipt['items_needed']), (2, 1, 2))
+        self.assertGreaterEqual(receipt['built'], 1)
 
     def test_duplicate_stale_foreign_and_hint_abuse_are_refused(self):
         route = tutor.scout_route(self.token)
