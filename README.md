@@ -264,7 +264,6 @@ This runs tests, queries dataset counts and writes a source-hash-bound report to
 Optional checks, from the project directory:
 
 ```powershell
-node vendor/os-taxonomy/scripts/validate.mjs
 .\.venv\Scripts\python.exe -m backend.query_benchmark
 npm ci
 npm run check:ui
@@ -304,5 +303,3 @@ The general investigation trace also records model identity, actual token usage 
 | [web/](web/) | Notebook UI, activity rendering, role art and graph visualization |
 | [activities/](activities/) | Water diagnostics and fraction lesson mappings |
 | [tests/](tests/) · [evidence/](evidence/) | Executable checks and saved reports |
-
-Built during the hackathon with AI coding assistance. Project authors remain responsible for reviewing and understanding the implementation. The bundled curriculum data keeps its own licences and attribution: see [vendor/os-taxonomy/LICENSE](vendor/os-taxonomy/LICENSE) and [LICENSE-CONTENT](vendor/os-taxonomy/LICENSE-CONTENT).
