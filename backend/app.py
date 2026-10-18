@@ -137,10 +137,19 @@ def notebook(request:Request):
 @app.get('/api/search')
 def search(q:str=''):
     from .core import db,BASE
+    from .core import fulltext_terms
     q=q.strip()[:80]
     if len(q)<2:return {'concepts':[]}
-    rows=db().select_graph(BASE).ro_query('MATCH (c:Concept) WHERE toLower(c.name) CONTAINS $q '
-                'RETURN c.id,c.name,c.subject LIMIT 20',{'q':q.lower()}).result_set
+    g=db().select_graph(BASE)
+    try:
+        rows=g.ro_query("CALL db.idx.fulltext.queryNodes('Concept',$q) YIELD node,score "
+                        'RETURN node.id,node.name,node.subject ORDER BY score DESC,node.name LIMIT 20',{'q':fulltext_terms(q)}).result_set
+    except RedisError:
+        raise
+    except Exception:
+        rows=[]
+    if not rows:
+        rows=g.ro_query('MATCH (c:Concept) WHERE toLower(c.name) CONTAINS $q RETURN c.id,c.name,c.subject LIMIT 20',{'q':q.lower()}).result_set
     supported={a['concept'] for a in all_activities()}
     return {'concepts':[{'id':r[0],'name':r[1],'subject':r[2],'activity_available':r[0] in supported} for r in rows]}
 
@@ -163,11 +172,19 @@ def curriculum(subject:str='',offset:int=0,q:str=''):
     from .core import db,BASE
     g=db().select_graph(BASE)
     subjects=g.ro_query('MATCH (c:Concept) RETURN c.subject,count(c) ORDER BY c.subject').result_set
-    where=' WHERE ($subject="" OR c.subject=$subject) AND ($q="" OR toLower(c.name) CONTAINS $q) '
-    params={'subject':subject[:80],'q':q.lower().strip()[:80]}
-    total=g.ro_query('MATCH (c:Concept)'+where+'RETURN count(c)',params).result_set[0][0]
-    rows=g.ro_query('MATCH (c:Concept)'+where+'RETURN c.id,c.name,c.subject,c.age_start,c.age_end,size(c.criteria) '
-                    'ORDER BY c.subject,c.name,c.id SKIP $offset LIMIT 24',params|{'offset':max(0,min(offset,1590))}).result_set
+    from .core import fulltext_terms
+    terms=fulltext_terms(q) if len(q.strip())>=2 else ''
+    params={'subject':subject[:80],'q':terms,'offset':max(0,min(offset,1590))}
+    if terms:
+        # Ranked by FalkorDB's full-text score over names and descriptions, with stemming.
+        source="CALL db.idx.fulltext.queryNodes('Concept',$q) YIELD node,score WITH node AS c,score WHERE ($subject=\"\" OR c.subject=$subject) "
+        order='ORDER BY score DESC,c.name,c.id'
+    else:
+        source='MATCH (c:Concept) WHERE ($subject="" OR c.subject=$subject) '
+        order='ORDER BY c.subject,c.name,c.id'
+    total=g.ro_query(source+'RETURN count(c)',params).result_set[0][0]
+    rows=g.ro_query(source+'RETURN c.id,c.name,c.subject,c.age_start,c.age_end,size(c.criteria) '
+                    +order+' SKIP $offset LIMIT 24',params).result_set
     ids={a['concept'] for a in all_activities()}
     lessons={a['concept'] for a in all_activities() if a['kind']=='lesson'}
     return {'total':total,'subjects':[{'name':r[0],'count':r[1]} for r in subjects],
@@ -316,6 +333,20 @@ def tutor_answer(body:TutorAnswer,request:Request):
 
 class TutorHint(BaseModel):
     task:str=Field(pattern='^[a-f0-9]{32}$')
+
+class Explain(BaseModel):
+    cypher:str=Field(max_length=4000)
+
+@app.post('/api/explain')
+def explain(body:Explain,request:Request):
+    """FalkorDB's execution plan (GRAPH.EXPLAIN, which does not run the query) for one of the product's own
+    deciding queries. Arbitrary Cypher is refused: only query text defined in the code is accepted."""
+    from . import reasoning
+    from .tutor import graphq
+    known={v for m in (reasoning,graphq) for k,v in vars(m).items() if k.isupper() and isinstance(v,str) and 'RETURN' in v}
+    if body.cypher not in known:raise HTTPException(400,'Only the product\'s own deciding queries can be explained')
+    plan=graph_for(token(request)).explain(body.cypher,{})
+    return {'plan':str(plan),'note':'GRAPH.EXPLAIN builds the plan without running the query.'}
 
 @app.get('/api/tutor/report')
 def tutor_report(request:Request):return tutor.report(token(request))

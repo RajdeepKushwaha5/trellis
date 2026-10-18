@@ -55,7 +55,7 @@ function render(){
  drawGraph($('map-view'),mapPlan(),inspectConcept,{soft:$('show-soft').checked});
  const focus=plan.nodes.find(n=>n.id===selected?.concept);if(focus)inspectConcept(focus);
  const queries=plan.graph_reasoning?.queries||[];
- $('query-info').innerHTML=`${plan.nodes.length} concepts in the complete hard closure. Reachability, coverage, shortest witnesses and ranking run in FalkorDB.<details class="native-queries"><summary>See the deciding queries and actual timings</summary>${queries.map(q=>`<div class="native-query"><b>${esc(q.name)}</b><small>${Number(q.server_ms).toFixed(3)} ms server / ${q.wall_ms} ms client wall / ${q.rows} rows</small><pre>${esc(q.cypher)}</pre></div>`).join('')}</details>`;
+ $('query-info').innerHTML=`${plan.nodes.length} concepts in the complete hard closure. Reachability, coverage, shortest witnesses and ranking run in FalkorDB.<details class="native-queries"><summary>See the deciding queries and actual timings</summary>${queries.map(q=>`<div class="native-query"><b>${esc(q.name)}</b><small>${Number(q.server_ms).toFixed(3)} ms server / ${q.wall_ms} ms client wall / ${q.rows} rows</small><pre>${esc(q.cypher)}</pre><button class="text-button explain-button" data-explain>Show FalkorDB\u2019s execution plan</button><pre class="plan" hidden></pre></div>`).join('')}</details>`;
  $('evidence').textContent=JSON.stringify({graph:plan.graph,revision:plan.revision,fingerprint:plan.fingerprint,edges:plan.edges,soft_edges:plan.soft_edges,candidates:plan.candidates},null,2);
  $('manual').disabled=busy||!selected;$('agent').disabled=busy||!selected;atlas?.setRoute(plan);routeSummary();heroRoute();
  if(lessonRoute())renderLessonRoom();else{$('tutor-studio').hidden=true;$('tutor-queries').hidden=true;$('agent').innerHTML='Let the guide choose <span>↗</span>';$('manual').textContent='Try the graph\'s first diagnostic →';$('guide-note').textContent='Local AI guide through MCP. Manual mode uses the same graph evidence.';document.querySelectorAll('.autoguide,.autoguide+.small').forEach(x=>x.hidden=false);}
@@ -158,6 +158,12 @@ async function openComparison(){if(busy)return;busy=true;$('compare-start').disa
  $('reset').onclick=async()=>{if(busy)return;try{await api('session',{});agentMode=false;automatic=0;emptyTask();await refresh();await loadNotes();notice('A fresh synthetic notebook is ready. The previous notebook was not deleted.');}catch(e){notice(e.message);}};
  $('export').onclick=async()=>{try{const d=await loadNotes();const u=URL.createObjectURL(new Blob([JSON.stringify(d,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=u;a.download='trellis-learning-route.json';a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);}catch(e){notice(e.message);}};
 initWater($);
+// GRAPH.EXPLAIN for any deciding query shown on the page. The server accepts only the product's own query text.
+document.addEventListener('click',async e=>{const b=e.target.closest('[data-explain]');if(!b)return;
+ const box=b.parentElement,cypher=box.querySelector('pre').textContent,out=box.querySelector('.plan');
+ if(!out.hidden){out.hidden=true;b.textContent='Show FalkorDB\u2019s execution plan';return;}
+ b.disabled=true;try{const d=await api('explain',{cypher});out.textContent=d.plan+'\n\n'+d.note;out.hidden=false;b.textContent='Hide the execution plan';}
+ catch(err){notice(err.message);}finally{b.disabled=false;}});
 // ---------- the tutor loop: Scout checks, Tinker teaches, Lens tries a fresh transfer task ----------
 const WAITS={diagnostic:'scout',recheck:'scout',lesson:'tinker',transfer:'lens',probe:'tinker'};
 async function refreshTutor(){if(!lessonRoute()){tutor=null;return;}tutor=await api('tutor/state');roleView={due:tutor.task?null:tutor.due_role,waiting:tutor.task?WAITS[tutor.task.purpose]:null};}

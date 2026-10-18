@@ -111,7 +111,7 @@ export function renderStations(el,stations,current){
 export function renderTutorQueries(el,status){
  const q=status.decision_queries||[],v=status.view_queries||[];
  if(!q.length&&!v.length){el.hidden=true;return;}
- const block=x=>`<div class="native-query"><b>${esc(x.name)}</b><small>${Number(x.server_ms).toFixed(3)} ms on the FalkorDB server / ${x.rows} rows</small><pre>${esc(x.cypher)}</pre></div>`;
+ const block=x=>`<div class="native-query"><b>${esc(x.name)}</b><small>${Number(x.server_ms).toFixed(3)} ms on the FalkorDB server / ${x.rows} rows</small><pre>${esc(x.cypher)}</pre><button class="text-button explain-button" data-explain>Show FalkorDB’s execution plan</button><pre class="plan" hidden></pre></div>`;
  const total=q.reduce((s,x)=>s+(x.server_ms||0),0);
  el.hidden=false;
  el.innerHTML=`<p class="eyebrow">THE TUTOR'S LATEST DECISION, AS GRAPH QUERIES</p><p>${q.length?`${q.length} decision queries, ${total.toFixed(2)} ms on the server.`:'No tutor decision yet. The state queries below inspect this notebook.'} Evidence is graph structure: each task points to its concept and representation, each answer is an observation about a concept.</p>${status.scout?.reasons?.length?`<p><b>Why Scout chose ${esc(status.scout.title||status.scout.activity_id)}:</b> ${status.scout.reasons.map(esc).join('; ')}.</p>`:''}<details open><summary>Decision queries</summary>${q.map(block).join('')}</details><details><summary>Station state queries (suspected and inferred foundations)</summary>${v.map(block).join('')}</details>`;

@@ -63,7 +63,7 @@ collect(DISTINCT o.difficulty), max(o.time) AS latest ORDER BY latest DESC'''
 
 
 def streak(g, concept, log):
-    rows = query(g, 'support streak (rule v1)', STREAK, {'concept': concept, 'checks': CHECKS}, log)
+    rows = query(g, 'support streak', STREAK, {'concept': concept, 'checks': CHECKS}, log)
     if not rows or rows[0][0] is None:
         return {'keys': [], 'reps': [], 'transfers': 0}
     keys, reps, transfers = rows[0]
@@ -126,7 +126,7 @@ RETURN o.id,o.difficulty,o.correct,x.rep,h.text,s.id,s.title,s.instruction,s.rep
 PROBES = '''MATCH (x:TaskIssue)-[:PRODUCED]->(o:Observation)-[:ABOUT]->(:Concept {id:$concept})
 WHERE o.purpose IN ['diagnostic','transfer','recheck','probe']
 WITH o ORDER BY o.time DESC LIMIT 1
-MATCH (o)-[:SUGGESTS]->(h:DifficultyHypothesis)<-[:DISTINGUISHES]-(d:Diagnostic)
+MATCH (o)-[:SUGGESTS]->(h:DifficultyHypothesis {ambiguous:true})<-[:DISTINGUISHES]-(d:Diagnostic)
 MATCH (d)-[:DISTINGUISHES]->(other:DifficultyHypothesis)
 RETURN d.id,d.title,d.rep,d.why,h.text,collect(DISTINCT other.id) AS separates ORDER BY d.id'''
 HISTORY = '''MATCH (x:TaskIssue)-[:PRODUCED]->(o:Observation)-[:ABOUT]->(:Concept {id:$concept})

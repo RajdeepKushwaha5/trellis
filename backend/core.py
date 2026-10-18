@@ -2,6 +2,7 @@
 import hashlib
 import json
 import os
+import re
 import threading
 import time
 from jsonschema import Draft202012Validator
@@ -57,9 +58,40 @@ def lesson_structure():
     return rows
 
 
+SCHEMA_VERSION = 'schema-v1'
+# Every id the system writes is unique, enforced by FalkorDB itself rather than trusted to application code.
+UNIQUE_KEYS = [('Concept', 'id'), ('Activity', 'id'), ('Representation', 'id'), ('Objective', 'id'),
+               ('TaskIssue', 'id'), ('Observation', 'id'), ('LearningState', 'id'),
+               ('DifficultyHypothesis', 'id'), ('TeachingStrategy', 'id'), ('Diagnostic', 'id')]
+
+
+def ensure_schema(graph):
+    """Range indexes and unique constraints on every written id, plus a full-text index for curriculum search.
+    GRAPH.COPY carries all three into each learner graph. Safe to run repeatedly."""
+    rows = graph.ro_query('CALL db.indexes()').result_set
+    ranged = {(r[0], prop) for r in rows for prop, kinds in r[2].items() if 'RANGE' in kinds}
+    fulltext = {r[0] for r in rows if any('FULLTEXT' in kinds for kinds in r[2].values())}
+    for label, prop in UNIQUE_KEYS:
+        if (label, prop) not in ranged:
+            graph.create_node_range_index(label, prop)
+    constrained = {(c['label'], tuple(c['properties'])) for c in graph.list_constraints()}
+    for label, prop in UNIQUE_KEYS:
+        if (label, (prop,)) not in constrained:
+            graph.create_node_unique_constraint(label, prop)
+    if 'Concept' not in fulltext:
+        graph.create_node_fulltext_index('Concept', 'name', 'description')
+
+
+def fulltext_terms(text):
+    """User text to a safe RediSearch prefix query: letters and digits only, each word as a prefix."""
+    words = re.findall(r'[a-z0-9]+', text.lower())[:6]
+    return ' '.join(w + '*' if len(w) >= 2 else w for w in words if w)
+
+
 def activity_digest():
     from .tutor.pedagogy import VERSION
-    return digest({'activities': all_activities(), 'lessons': lesson_structure(), 'teaching_catalog': VERSION})
+    return digest({'activities': all_activities(), 'lessons': lesson_structure(), 'teaching_catalog': VERSION,
+                   'schema': SCHEMA_VERSION})
 
 
 def _sync_activities(graph):
@@ -79,6 +111,7 @@ def _sync_activities(graph):
                 'MERGE (a)-[e:OFFERS]->(r) SET e.order=rep.order', {'rows': lessons})
     from .tutor.pedagogy import ensure
     ensure(graph)
+    ensure_schema(graph)
     graph.query('MATCH (d:Dataset {ready:true}) SET d.activity_hash=$hash', {'hash': activity_digest()})
 
 

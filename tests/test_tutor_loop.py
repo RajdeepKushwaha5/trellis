@@ -200,7 +200,7 @@ class Loop(unittest.TestCase):
         path = g.ro_query('MATCH (r:Representation)<-[:IN]-(x:TaskIssue {id:$t})-[:PRODUCED]->(o:Observation)-[:ABOUT]->'
                           '(c:Concept)<-[:TEACHES]-(a:Activity)-[:OFFERS]->(r) RETURN count(*)', {'t': diag['task']}).result_set
         self.assertEqual(path[0][0], 1)
-        self.assertIn('support streak (rule v1)', [q['name'] for q in result['queries']])
+        self.assertIn('support streak', [q['name'] for q in result['queries']])
         self.assertEqual(result['evidence']['clean_correct_items'], 1)
 
     def test_changing_goal_closes_the_open_step_without_evidence(self):

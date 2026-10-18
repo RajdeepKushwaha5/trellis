@@ -149,3 +149,6 @@ footer.night .night-line,footer.night .brand-name{text-shadow:0 0 14px #1f2e26,0
 .compare-moves{margin:12px 0}.compare-moves .trail-step small{display:block;color:var(--muted);font-size:9px;margin-top:3px}
 .compare-task{border:1px solid var(--line);margin-top:12px;padding:18px}
 .compare-task .shape.line{width:100%}.compare-task .shape.bar{width:100%}
+
+.explain-button{font-size:10px;padding:6px 0;color:var(--orange)}
+.native-query pre.plan{background:#25382e;color:#e9e1cf;font-size:10px;line-height:1.6}

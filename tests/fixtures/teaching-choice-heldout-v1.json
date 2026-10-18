@@ -1,0 +1,14 @@
+{
+  "version": "teaching-choice-heldout-v1",
+  "scope": "Held-out synthetic action-selection cases, written and committed before any run, after the ambiguity design change. Same rubric as teaching-choice-v2: a specific mistake should get the strategy that addresses it; an ambiguous placement should get the reading probe. Not educator-reviewed; not a learning-outcomes study.",
+  "cases": [
+    {"id":"shares-grid-unequal","activity":"fair-shares","rep":"grid","difficulty":"unequal_parts","acceptable":["compare-area"]},
+    {"id":"shares-circle-count","activity":"fair-shares","rep":"circle","difficulty":"wrong_count","acceptable":["count-shares"]},
+    {"id":"quarters-bar-unequal","activity":"fair-quarters","rep":"bar","difficulty":"unequal_parts","acceptable":["compare-area"]},
+    {"id":"halves-pie-count","activity":"fair-halves","rep":"circle","difficulty":"wrong_count","acceptable":["count-shares"]},
+    {"id":"amounts-pie-shade","activity":"shade-amounts","rep":"circle","difficulty":"shade_count","acceptable":["group-whole"]},
+    {"id":"whole-pie-shade","activity":"parts-of-whole","rep":"circle","difficulty":"shade_count","acceptable":["group-whole"]},
+    {"id":"further-ticks-placement","activity":"line-further","rep":"ticks","difficulty":"placement","acceptable":["probe:read-unit"]},
+    {"id":"first-fine-placement","activity":"line-first","rep":"fine","difficulty":"placement","acceptable":["probe:read-unit"]}
+  ]
+}

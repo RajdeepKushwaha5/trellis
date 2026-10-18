@@ -22,9 +22,10 @@ def aware(ctx,opts):
     return rule_choice('tinker',ctx,opts)[0]
 
 
-async def run(use_model=False,limit=12,ablate=False):
-    fixture=json.loads(FIXTURE.read_text(encoding='utf-8-sig'))
-    result={'fixture_sha256':hashlib.sha256(FIXTURE.read_bytes()).hexdigest(),'scope':fixture['scope'],
+async def run(use_model=False,limit=12,ablate=False,fixture_path=None):
+    path=Path(fixture_path) if fixture_path else FIXTURE
+    fixture=json.loads(path.read_text(encoding='utf-8-sig'))
+    result={'fixture':path.name,'fixture_sha256':hashlib.sha256(path.read_bytes()).hexdigest(),'scope':fixture['scope'],
       'model':os.getenv('TRELLIS_MODEL','qwen2.5:7b') if use_model else None,'options':OPTIONS,'cases':[],
       'graph_links':'removed (ablation)' if ablate else 'present',
       'baselines':{'first_permitted':'the first option in the offered list','mistake_aware':'the product rule, runner.rule_choice'},
@@ -66,9 +67,10 @@ async def run(use_model=False,limit=12,ablate=False):
       'model_trials':sum(len(c['model_orders']) for c in result['cases']),
       'model_acceptable':sum(r['acceptable'] for c in result['cases'] for r in c['model_orders']),
       'order_stable_cases':sum(len(c['model_orders'])==2 and c['model_orders'][0]['choice']==c['model_orders'][1]['choice'] for c in result['cases'])}
-    output=ROOT/'evidence'/(('teaching-choice-model' if use_model else 'teaching-choice-policy')+('-no-graph-links' if ablate else '')+'.json')
+    stem='teaching-choice' if path==FIXTURE else path.stem
+    output=ROOT/'evidence'/((stem+('-model' if use_model else '-policy'))+('-no-graph-links' if ablate else '')+'.json')
     output.write_text(json.dumps(result,indent=2),encoding='utf-8');print(json.dumps(result['summary']))
 
 if __name__=='__main__':
- p=argparse.ArgumentParser();p.add_argument('--model',action='store_true');p.add_argument('--ablate',action='store_true');p.add_argument('--limit',type=int,default=12)
- a=p.parse_args();asyncio.run(run(a.model,a.limit,a.ablate))
+ p=argparse.ArgumentParser();p.add_argument('--model',action='store_true');p.add_argument('--ablate',action='store_true');p.add_argument('--limit',type=int,default=12);p.add_argument('--fixture')
+ a=p.parse_args();asyncio.run(run(a.model,a.limit,a.ablate,a.fixture))

@@ -27,6 +27,9 @@ HYPOTHESES = {
  'from_right':'May be counting from one rather than zero',
  'placement':'The response does not distinguish interval counting, unit size or direction',
 }
+# A mistake is ambiguous when the response alone cannot tell its possible explanations apart. Only then is a
+# distinguishing check offered: a specific mistake already points at its explanation, so a probe adds little.
+AMBIGUOUS = ['placement']
 PROBES = [
  {'id':'read-unit','family':'number_line','rep':'read','title':'Read a marked point','distinguishes':['counted_marks','from_right','off_by_one','placement'],
   'why':'A fresh reading task can reveal marks-versus-gaps or direction errors. One response still cannot establish a diagnosis.'},
@@ -35,14 +38,14 @@ PROBES = [
  {'id':'compare-shares','family':'equal_parts','rep':'grid','title':'Compare equal-area shares','distinguishes':['unequal_parts','wrong_count'],
   'why':'The alternatives separate unequal areas from the wrong number of shares.'},
 ]
-VERSION=hashlib.sha256(json.dumps([STRATEGIES,HYPOTHESES,PROBES],sort_keys=True).encode()).hexdigest()
+VERSION=hashlib.sha256(json.dumps([STRATEGIES,HYPOTHESES,PROBES,AMBIGUOUS],sort_keys=True).encode()).hexdigest()
 
 
 def ensure(g):
     rows=g.ro_query('MATCH (p:TeachingCatalog {id:"teaching-v1"}) RETURN p.version').result_set
     if rows and rows[0][0]==VERSION:return
-    g.query('UNWIND $rows AS h MERGE (x:DifficultyHypothesis {id:h.id}) SET x.text=h.text',
-            {'rows':[{'id':k,'text':v} for k,v in HYPOTHESES.items()]})
+    g.query('UNWIND $rows AS h MERGE (x:DifficultyHypothesis {id:h.id}) SET x.text=h.text,x.ambiguous=h.ambiguous',
+            {'rows':[{'id':k,'text':v,'ambiguous':k in AMBIGUOUS} for k,v in HYPOTHESES.items()]})
     g.query('UNWIND $rows AS s MERGE (x:TeachingStrategy {id:s.id}) SET x.title=s.title,x.family=s.family,'
             'x.instruction=s.instruction,x.reps=s.reps WITH x,s UNWIND s.addresses AS code '
             'MATCH (h:DifficultyHypothesis {id:code}) MERGE (x)-[:ADDRESSES]->(h)',{'rows':STRATEGIES})
