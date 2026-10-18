@@ -49,6 +49,11 @@ class Api(unittest.TestCase):
         refused = self.client.post('/api/explain', json={'cypher': 'MATCH (n) DETACH DELETE n'})
         self.assertEqual(refused.status_code, 400)
 
+    def test_symbol_only_search_matches_nothing(self):
+        for q in ['.*+?[](){}|^$', '%%%', '<>']:
+            self.assertEqual(self.client.get('/api/curriculum', params={'q': q}).json()['total'], 0, q)
+        self.assertEqual(self.client.get('/api/curriculum', params={'q': 'f'}).json()['total'], 1590)  # still typing
+
     def test_curriculum_search_uses_full_text(self):
         d = self.client.get('/api/curriculum', params={'subject': 'Mathematics', 'q': 'fractions'}).json()
         self.assertGreater(d['total'], 0)

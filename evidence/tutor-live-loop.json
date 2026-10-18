@@ -5,7 +5,7 @@
   "steps": [
     {
       "role": "scout",
-      "seconds": 16.4,
+      "seconds": 25.0,
       "tools": [
         "scout_choose",
         "scout_inspect",
@@ -18,48 +18,48 @@
           "model": "qwen2.5:7b",
           "options": [
             {
-              "id": "line-further",
-              "label": "Check Further along the line (Fractions on a number line (age 8+)); 1 concept on this route depends on it"
-            },
-            {
-              "id": "fair-quarters",
-              "label": "Check Four fair quarters (Finding halves and quarters (age 5+)); 8 concepts on this route depend on it"
-            },
-            {
               "id": "inspect:mt_cFltwUQi-d",
               "label": "Inspect Fractions of amounts first"
-            },
-            {
-              "id": "inspect:mt_g3W0mdADVu",
-              "label": "Inspect Finding halves and quarters (age 5+) first"
             },
             {
               "id": "inspect:mt_Xp-rj46S2w",
               "label": "Inspect Splitting shapes into equal parts (age 7+) first"
             },
             {
-              "id": "inspect:mt_-hTTat0mBR",
-              "label": "Inspect What Is a Half? first"
+              "id": "shade-amounts",
+              "label": "Check Shade a fraction (Fractions of amounts); 4 concepts on this route depend on it"
             },
             {
-              "id": "parts-of-whole",
-              "label": "Check Parts of a whole (Fractions of a whole); 2 concepts on this route depend on it"
+              "id": "inspect:mt_g3W0mdADVu",
+              "label": "Inspect Finding halves and quarters (age 5+) first"
+            },
+            {
+              "id": "fair-shares",
+              "label": "Check Fair shares that look different (Splitting shapes into equal parts (age 7+)); 3 concepts on this route depend on it"
             },
             {
               "id": "line-first",
               "label": "Check Fractions on the line (Fractions on a number line); 2 concepts on this route depend on it"
             },
             {
+              "id": "fair-quarters",
+              "label": "Check Four fair quarters (Finding halves and quarters (age 5+)); 8 concepts on this route depend on it"
+            },
+            {
+              "id": "parts-of-whole",
+              "label": "Check Parts of a whole (Fractions of a whole); 2 concepts on this route depend on it"
+            },
+            {
               "id": "fair-halves",
               "label": "Check Two fair halves (What Is a Half?); 9 concepts on this route depend on it"
             },
             {
-              "id": "shade-amounts",
-              "label": "Check Shade a fraction (Fractions of amounts); 4 concepts on this route depend on it"
+              "id": "inspect:mt_-hTTat0mBR",
+              "label": "Inspect What Is a Half? first"
             },
             {
-              "id": "fair-shares",
-              "label": "Check Fair shares that look different (Splitting shapes into equal parts (age 7+)); 3 concepts on this route depend on it"
+              "id": "line-further",
+              "label": "Check Further along the line (Fractions on a number line (age 8+)); 1 concept on this route depends on it"
             }
           ],
           "option": "fair-halves",
@@ -73,7 +73,7 @@
           "usage": {
             "input": 1399,
             "output": 35,
-            "ms": 14415
+            "ms": 20533
           }
         }
       ],
@@ -84,7 +84,7 @@
     },
     {
       "role": "tinker",
-      "seconds": 11.9,
+      "seconds": 14.2,
       "tools": [
         "tinker_handoff",
         "tinker_inspect",
@@ -102,77 +102,77 @@
               "label": "Teach with pie pieces; let the learner try first, then explain with the worked example"
             },
             {
-              "id": "inspect:history",
-              "label": "Inspect recent responses before choosing"
-            },
-            {
-              "id": "strategy:compare-area:bar:try_first",
-              "label": "Compare the areas, then count; fraction strips; Let the learner try first, then explain with the worked example"
-            },
-            {
-              "id": "strategy:compare-area:grid:example_first",
-              "label": "Compare the areas, then count; grid shares that can look different; Show a worked example first, then let the learner practise"
-            },
-            {
-              "id": "strategy:compare-area:circle:try_first",
-              "label": "Compare the areas, then count; pie pieces; Let the learner try first, then explain with the worked example"
-            },
-            {
-              "id": "strategy:compare-area:bar:example_first",
-              "label": "Compare the areas, then count; fraction strips; Show a worked example first, then let the learner practise"
-            },
-            {
-              "id": "strategy:compare-area:circle:example_first",
-              "label": "Compare the areas, then count; pie pieces; Show a worked example first, then let the learner practise"
-            },
-            {
-              "id": "grid+example_first",
-              "label": "Teach with grid shares that can look different; show a worked example first, then let the learner practise"
-            },
-            {
-              "id": "strategy:compare-area:grid:try_first",
-              "label": "Compare the areas, then count; grid shares that can look different; Let the learner try first, then explain with the worked example"
+              "id": "circle+example_first",
+              "label": "Teach with pie pieces; show a worked example first, then let the learner practise"
             },
             {
               "id": "bar+example_first",
               "label": "Teach with fraction strips; show a worked example first, then let the learner practise"
             },
             {
-              "id": "circle+example_first",
-              "label": "Teach with pie pieces; show a worked example first, then let the learner practise"
+              "id": "grid+example_first",
+              "label": "Teach with grid shares that can look different; show a worked example first, then let the learner practise"
+            },
+            {
+              "id": "strategy:count-shares:grid:try_first",
+              "label": "Count the equal shares; grid shares that can look different; Let the learner try first, then explain with the worked example"
+            },
+            {
+              "id": "strategy:count-shares:circle:try_first",
+              "label": "Count the equal shares; pie pieces; Let the learner try first, then explain with the worked example"
+            },
+            {
+              "id": "strategy:count-shares:circle:example_first",
+              "label": "Count the equal shares; pie pieces; Show a worked example first, then let the learner practise"
+            },
+            {
+              "id": "inspect:history",
+              "label": "Inspect recent responses before choosing"
+            },
+            {
+              "id": "bar+try_first",
+              "label": "Teach with fraction strips; let the learner try first, then explain with the worked example"
             },
             {
               "id": "grid+try_first",
               "label": "Teach with grid shares that can look different; let the learner try first, then explain with the worked example"
             },
             {
-              "id": "bar+try_first",
-              "label": "Teach with fraction strips; let the learner try first, then explain with the worked example"
+              "id": "strategy:count-shares:bar:example_first",
+              "label": "Count the equal shares; fraction strips; Show a worked example first, then let the learner practise"
+            },
+            {
+              "id": "strategy:count-shares:bar:try_first",
+              "label": "Count the equal shares; fraction strips; Let the learner try first, then explain with the worked example"
+            },
+            {
+              "id": "strategy:count-shares:grid:example_first",
+              "label": "Count the equal shares; grid shares that can look different; Show a worked example first, then let the learner practise"
             }
           ],
-          "option": "strategy:compare-area:bar:try_first",
-          "label": "Compare the areas, then count; fraction strips; Let the learner try first, then explain with the worked example",
-          "position_offered": 3,
-          "rule_option": "strategy:compare-area:bar:example_first",
-          "rule_label": "Compare the areas, then count; fraction strips; Show a worked example first, then let the learner practise",
+          "option": "strategy:count-shares:circle:try_first",
+          "label": "Count the equal shares; pie pieces; Let the learner try first, then explain with the worked example",
+          "position_offered": 6,
+          "rule_option": "strategy:count-shares:bar:example_first",
+          "rule_label": "Count the equal shares; fraction strips; Show a worked example first, then let the learner practise",
           "rule_why": "Use the teaching strategy the graph connects to the recorded mistake.",
           "agrees_with_rule": false,
-          "model_reason_unverified": "The previous lesson showed that the student had difficulty with unequal parts when using fraction strips, so we will use the compare areas strategy with fraction strips again but let the learner try first.",
+          "model_reason_unverified": "The learner needs to count equal shares and this representation (pie pieces) might help them visualize the parts better.",
           "usage": {
-            "input": 1680,
-            "output": 56,
-            "ms": 9950
+            "input": 1679,
+            "output": 43,
+            "ms": 9923
           }
         }
       ],
       "task_purpose": "lesson",
-      "representation": "bar",
+      "representation": "circle",
       "response_correct": true,
       "next_state": "transfer_due"
     },
     {
       "role": "lens",
-      "seconds": 8.2,
+      "seconds": 13.1,
       "tools": [
         "lens_handoff",
         "lens_transfer"
@@ -188,22 +188,22 @@
               "label": "Transfer task using grid shares that can look different (108 unused)"
             },
             {
-              "id": "circle",
-              "label": "Transfer task using pie pieces (18 unused)"
+              "id": "bar",
+              "label": "Transfer task using fraction strips (17 unused)"
             }
           ],
           "option": "grid",
           "label": "Transfer task using grid shares that can look different (108 unused)",
           "position_offered": 1,
-          "rule_option": "circle",
-          "rule_label": "Transfer task using pie pieces (18 unused)",
+          "rule_option": "bar",
+          "rule_label": "Transfer task using fraction strips (17 unused)",
           "rule_why": "Take the first permitted transfer representation.",
           "agrees_with_rule": false,
-          "model_reason_unverified": "The difficulty was with unequal parts, so a transfer task using a different representation like grids will test if the learner can apply the concept of equal parts correctly.",
+          "model_reason_unverified": "The learner made a counting error, so a transfer task with a different representation like grid shares will better test if the concept of equal parts has been understood independently of the initial circle representation.",
           "usage": {
-            "input": 539,
-            "output": 43,
-            "ms": 6487
+            "input": 537,
+            "output": 49,
+            "ms": 9051
           }
         }
       ],
@@ -215,32 +215,32 @@
   ],
   "final": [
     {
-      "time": 1792333877.0632994,
+      "time": 1792337657.7550533,
       "state": "diagnostic",
       "note": "Scout chose Two fair halves (FalkorDB rank 1)."
     },
     {
-      "time": 1792333877.3112931,
+      "time": 1792337658.1784341,
       "state": "teach_due",
       "note": "This check was not yet right. Scout hands the foundation to Tinker to teach."
     },
     {
-      "time": 1792333888.9368753,
+      "time": 1792337672.0031667,
       "state": "teaching",
-      "note": "Tinker chose fraction strips, try first."
+      "note": "Tinker chose pie pieces, try first."
     },
     {
-      "time": 1792333889.1800983,
+      "time": 1792337672.3912973,
       "state": "transfer_due",
       "note": "Practice correct. Lens will choose a fresh transfer task."
     },
     {
-      "time": 1792333897.1715262,
+      "time": 1792337685.066586,
       "state": "transfer",
       "note": "Lens chose a transfer task using grid shares that can look different."
     },
     {
-      "time": 1792333897.4155006,
+      "time": 1792337685.4868038,
       "state": "transfer_due",
       "note": "Correct. Rule v1 needs one more check in a different representation."
     }

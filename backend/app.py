@@ -164,6 +164,9 @@ def curriculum(subject:str='',offset:int=0,q:str=''):
     subjects=g.ro_query('MATCH (c:Concept) RETURN c.subject,count(c) ORDER BY c.subject').result_set
     from .core import fulltext_terms
     terms=fulltext_terms(q) if len(q.strip())>=2 else ''
+    if len(q.strip())>=2 and not terms:
+        # Text with no searchable words (only symbols) matches nothing, rather than silently listing everything.
+        return {'total':0,'subjects':[{'name':r[0],'count':r[1]} for r in subjects],'concepts':[]}
     params={'subject':subject[:80],'q':terms,'offset':max(0,min(offset,1590)),'words':terms.replace('*','').split()}
     if terms:
         # Ranked by FalkorDB's full-text score over names and descriptions, with stemming.

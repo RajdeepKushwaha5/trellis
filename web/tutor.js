@@ -95,7 +95,7 @@ export function renderFraction(el,task,{submit,hint}){
   const result=await submit(response);
   if(!result){check.disabled=false;el.querySelectorAll('#fraction-work button,.part,.tick').forEach(b=>{b.removeAttribute('aria-disabled');b.style.pointerEvents='';});return;}
   if(task.example&&task.opening==='try_first')el.querySelector('#feedback').insertAdjacentHTML('beforebegin',exampleHtml(task.example));};
- if(el.querySelector('#hint'))el.querySelector('#hint').onclick=async()=>{const d=await hint();if(!d)return;el.querySelector('#hint-list').insertAdjacentHTML('beforeend',`<p class="hint">${esc(d.hint)}</p>`);
+ if(el.querySelector('#hint'))el.querySelector('#hint').onclick=async()=>{const hb=el.querySelector('#hint');if(hb.dataset.busy)return;hb.dataset.busy='1';let d;try{d=await hint();}finally{delete hb.dataset.busy;}if(!d)return;el.querySelector('#hint-list').insertAdjacentHTML('beforeend',`<p class="hint">${esc(d.hint)}</p>`);
   el.querySelector('#hint').textContent=`Show a hint (${d.shown} of ${d.available} used) ↗`;if(d.shown>=d.available)el.querySelector('#hint').disabled=true;};
  if(el.querySelector('#read-aloud'))el.querySelector('#read-aloud').onclick=()=>{try{speechSynthesis.cancel();speechSynthesis.speak(new SpeechSynthesisUtterance(s.prompt));}catch(e){el.querySelector('#read-aloud').replaceWith(Object.assign(document.createElement('span'),{className:'small',textContent:'Read-aloud is not available here. The question is shown above.'}));}};
 }

@@ -9,7 +9,8 @@
     "screens": "node evidence-screens.mjs",
     "verify": "node verify.mjs",
     "check:recovery": "node ui-recovery-check.mjs",
-    "check:investigation": "node ui-investigation-check.mjs"
+    "check:investigation": "node ui-investigation-check.mjs",
+    "check:adversarial": "node ui-adversarial-check.mjs"
   },
   "devDependencies": {
     "puppeteer-core": "25.14.0"

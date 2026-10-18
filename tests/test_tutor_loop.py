@@ -208,6 +208,12 @@ class Loop(unittest.TestCase):
         self.assertIn('support streak', [q['name'] for q in result['queries']])
         self.assertEqual(result['evidence']['clean_correct_items'], 1)
 
+    def test_reselecting_the_current_goal_keeps_the_open_step(self):
+        _, diag = self.scout()
+        set_goal(self.token, GOAL)  # e.g. pressing "Try the fractions expedition" again mid-task
+        self.assertEqual(self.state()['state'], 'diagnostic')
+        self.assertTrue(self.right(diag['task'])['correct'])  # still answerable: nothing was discarded
+
     def test_changing_goal_closes_the_open_step_without_evidence(self):
         _, diag = self.scout()
         set_goal(self.token, 'mt_a1FdAsRKOF')  # Simple Fraction Sums, also a lesson route

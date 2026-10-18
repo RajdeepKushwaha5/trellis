@@ -39,7 +39,7 @@ record('committed evidence/evaluation.json matches current code', savedStale ? '
   savedStale ? `${savedStale} files changed since it was saved; copy artifacts/evaluation.json to evidence/` : '');
 
 // Browser checks that need no model.
-for (const s of ['ui-check.mjs', 'ui-tutor-check.mjs', 'ui-investigation-check.mjs', 'ui-recovery-check.mjs'])
+for (const s of ['ui-check.mjs', 'ui-tutor-check.mjs', 'ui-investigation-check.mjs', 'ui-recovery-check.mjs', 'ui-adversarial-check.mjs'])
   run('browser: ' + s, process.execPath, [s]);
 
 // Model-driven checks only when the local model is reachable.

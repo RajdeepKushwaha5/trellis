@@ -9,6 +9,9 @@ READY = SUPPORTED | {'reported_ready'}
 
 def set_goal(token, goal):
     g = graph_for(token)
+    current = g.ro_query('MATCH (l:Learner {id:$learner}) RETURN l.goal', {'learner': token}).result_set
+    if current and current[0][0] == goal:
+        return learning_plan(token)
     rows = g.query('MATCH (l:Learner {id:$learner}), (c:Concept {id:$goal}) '
                    'SET l.goal=c.id,l.revision=l.revision+1 RETURN c.id', {'learner':token,'goal':goal}).result_set
     if not rows: raise ValueError('Unknown learning goal')
