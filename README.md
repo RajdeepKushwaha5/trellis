@@ -192,7 +192,7 @@ Parent reports, observed task responses and inferred hypotheses stay distinct. R
 
 ## Run locally
 
-**Requirements:** Python 3.11+, Docker Desktop with Docker Compose, and a browser. Ollama is needed for model-driven agents; explicit policy mode works without it. Node.js is only needed for development checks and the standalone source validator.
+**Requirements:** Python 3.11+, Docker Desktop with Docker Compose, and a browser. Ollama is needed for model-driven agents; the rule-based mode works without it. Node.js is only needed for development checks and the standalone source validator.
 
 From the cloned project directory, in PowerShell:
 
